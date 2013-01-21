@@ -1,0 +1,23 @@
+<html>
+<head>
+<!--
+###
+### This page is used with PageAndJavascriptInteractionTest
+###
+-->
+<script type="text/javascript">
+function f1() {
+var e = document.getElementById("el1");
+e.innerHTML = "<a href='a1.html'>link1</a>";
+}
+function f2() {
+var e = document.getElementById("el2");
+e.innerHTML = "<a href='a2.html'>link2</a>";
+}
+</script>
+</head>
+<body onload="f1();window.setTimeout(f2,2000)">
+<p id="el1">...</p>
+<p id="el2">...</p>
+</body>
+</html>

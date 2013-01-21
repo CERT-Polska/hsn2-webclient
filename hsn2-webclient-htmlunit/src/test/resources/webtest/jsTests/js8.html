@@ -1,0 +1,25 @@
+<html>
+<head>
+<script type="text/javascript">
+calls = 1000;
+function f(par) {
+	
+	if(par>calls)
+		document.write('<a href="http://www.wp.pl/?'+par+'">WP</a>');
+	else {
+		par = par+1;
+		eval('f('+par+')');
+		}
+	}
+</script>
+
+<body>
+<script type="text/javascript">
+f(1);
+</script>
+
+<a href="http://www.onet.pl/?1'+par+'">ONET</a>
+
+</body>
+</html>
+

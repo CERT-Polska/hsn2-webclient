@@ -1,0 +1,16 @@
+<html>
+<head>
+<script language="javascript" type="text/javascript" src="jsTest.js"></script>
+</head>
+<body onload="setTimeout(test02, 5000);">
+	<p>TEST JS</p>
+	<p id="t1">TEST JS 1</p>
+	<p id="t2">TEST JS 2</p>
+	<script language="javascript" type="text/javascript">
+		e = document.getElementById("t1");
+		for (i = 0; i < 3; i++) {
+			e.innerHTML += ":" + i;
+		}
+	</script>
+</body>
+</html>

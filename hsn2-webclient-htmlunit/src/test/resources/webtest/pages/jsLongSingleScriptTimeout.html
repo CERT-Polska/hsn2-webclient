@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>javascript timeout test - one long js script</title>
+</head>
+<body>
+<p id="testElement">...</p>
+<p id="t2">...</p>
+<script type="text/javascript">
+var test = 0;
+var e = document.getElementById("testElement");
+var e2 = document.getElementById("t2");
+for(var i=0;i<2000000;i++){
+	var s = Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(Math.sqrt(i*i+i*i))))))))));
+	e2.innerHTML = i;
+}
+</script>
+</body>
+</html>

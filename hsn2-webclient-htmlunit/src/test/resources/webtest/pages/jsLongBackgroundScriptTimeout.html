@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>javascript timeout test</title>
+</head>
+<body>
+<p id="testElement">...</p>
+<p id="t2">...</p>
+<script type="text/javascript">
+var test = 0;
+var e = document.getElementById("testElement");
+var e2 = document.getElementById("t2");
+test = test + 1;
+e.innerHTML = test;
+window.setTimeout(doItAfterLongTime, 15000);
+function doItAfterLongTime() {
+	test++;
+	e.innerHTML = test;
+}
+</script>
+</body>
+</html>

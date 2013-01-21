@@ -1,0 +1,9 @@
+body {
+	background: #ddd;
+}
+p {
+	font-weight: bold;
+	font-size: 16pt;
+	margin: 1em;
+	background: yellow;
+}

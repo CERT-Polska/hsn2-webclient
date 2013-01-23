@@ -1,0 +1,14 @@
+HSN2 Web Client (hsn2-webclient)
+
+
+The Web Client service provides functionality to visit a requested URL and
+download contents of a page (e.g. HTML, JavaScript, images).
+It emulates behavior of a normal web browser.
+
+
+
+This repository is a part of bigger project: Honeyspider Network 2.0.
+Project bundle is located at: https://github.com/CERT-Polska/hsn2-bundle.
+More information is available on the project's website:
+http://www.honeyspider.net
+

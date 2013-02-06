@@ -19,6 +19,13 @@
 
 package pl.nask.hsn2.service;
 
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonController;
+import org.apache.commons.daemon.DaemonInitException;
+
 import pl.nask.hsn2.CommandLineParams;
 import pl.nask.hsn2.GenericService;
 import pl.nask.hsn2.service.task.TaskContextFactoryImpl;
@@ -27,16 +34,81 @@ import pl.nask.hsn2.service.task.TaskContextFactoryImpl;
 /**
  * Starter for the WebCrawler service.
  */
-public final class WebClientService {
-    private WebClientService() {}
+public final class WebClientService implements Daemon{
 
-    public static void main(String[] args) throws InterruptedException {
-        CommandLineParams cmd = new CommandLineParams();
-        cmd.setDefaultServiceNameAndQueueName("webclient");
-        cmd.parseParams(args);
+    Thread serviceRunner = null;
+    CommandLineParams cmd = null;
+    GenericService service = null;
 
-        GenericService service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName());
-        cmd.applyArguments(service);
-        service.run();
+    public static void main(final String[] args) throws DaemonInitException, Exception {
+    	WebClientService wcs = new WebClientService();
+    	
+    	wcs.init(new DaemonContext() {
+			
+			@Override
+			public DaemonController getController() {
+				return null;
+			}
+			
+			@Override
+			public String[] getArguments() {
+				return args;
+			}
+		});
+    	wcs.start();
+    	wcs.serviceRunner.join();
+    	wcs.stop();
+    	wcs.destroy();
     }
+
+	@Override
+	public void init(DaemonContext context) throws DaemonInitException, Exception { 
+		cmd = new CommandLineParams();
+		cmd.setDefaultServiceNameAndQueueName("webclient");
+		cmd.parseParams(context.getArguments());
+		
+		service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName());
+		cmd.applyArguments(service);
+		serviceRunner = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+						
+						@Override
+						public void uncaughtException(Thread t, Throwable e) {
+							System.exit(128);
+							
+						}
+					});
+					service.run();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+				
+			}
+		},"webclient-service");
+		
+		
+	}
+
+	@Override
+	public void start() throws Exception {
+		serviceRunner.start();
+		
+	}
+
+	@Override
+	public void stop() throws Exception {
+		serviceRunner.interrupt();
+		serviceRunner.join(10000);
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
 }

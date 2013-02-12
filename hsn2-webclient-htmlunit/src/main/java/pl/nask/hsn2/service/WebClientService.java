@@ -67,7 +67,7 @@ public final class WebClientService implements Daemon{
 		cmd.setDefaultServiceNameAndQueueName("webclient");
 		cmd.parseParams(context.getArguments());
 		
-		service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName());
+		service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName(), cmd.getRbtNotifyExchangeName());
 		cmd.applyArguments(service);
 		serviceRunner = new Thread(new Runnable() {
 			

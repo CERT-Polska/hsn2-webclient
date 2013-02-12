@@ -35,7 +35,7 @@ public final class WebClientService {
         cmd.setDefaultServiceNameAndQueueName("webclient");
         cmd.parseParams(args);
 
-        GenericService service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName());
+        GenericService service = new GenericService(new WebClientTaskFactory(),  new TaskContextFactoryImpl(), cmd.getMaxThreads(), cmd.getRbtCommonExchangeName(), cmd.getRbtNotifyExchangeName());
         cmd.applyArguments(service);
         service.run();
     }

@@ -87,6 +87,7 @@ public class HtmlUnitFollower implements UrlFollower {
     		if ( latch.getCount() > 0 ) {
     			requestFailed("Task interrupted because time limit exceeded: "+params.getProcessingTimeout());
     			webClientWorker.stopProcessing();
+    			webClientWorker.closeAllWindows();
     			worker.join();//wait for clean wc exit
     		}
  		

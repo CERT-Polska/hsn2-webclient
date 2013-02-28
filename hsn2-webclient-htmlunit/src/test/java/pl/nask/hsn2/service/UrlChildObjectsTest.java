@@ -81,7 +81,7 @@ public class UrlChildObjectsTest {
 		params = new ServiceParameters();
 		params.setSaveHtml(false);
 		jobContext = new WebClientTaskContext(1, 1, 1, connector);
-		ServiceData serviceData = new ServiceData(1l, absUrl, absUrl, REFERRER, 1l, 5, 1l);
+		ServiceData serviceData = new ServiceData(1l, absUrl, absUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(absUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 	}

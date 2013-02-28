@@ -31,24 +31,23 @@ import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener;
 
 public class JsScriptErrorListener implements JavaScriptErrorListener {
 	private static Logger LOGGER = LoggerFactory.getLogger(JsScriptErrorListener.class);
-	
-	public JsScriptErrorListener(boolean killJsEngineOnError) {
-	}
-	public JsScriptErrorListener() {
-	}
+
 	@Override
 	public void scriptException(HtmlPage htmlPage,
 			ScriptException scriptException) {
 		if (scriptException == null || scriptException.getMessage()==null) {
 			LOGGER.warn("Strange ScriptException caught:{}",htmlPage.getUrl());
-			return ;
+			return;
 		}
 		LOGGER.warn("ScriptException {} ; {}",htmlPage.getUrl(),scriptException.getMessage());	
 		if (scriptException.getMessage().contains("java.lang.RuntimeException") 
 				|| scriptException.getMessage().contains("Too deep recursion while parsing")) {
 
 			LOGGER.warn("Serious problem in JavaScript engine: {}",scriptException.getMessage());
-			LOGGER.debug("Serious problem in JavaScript engine", scriptException.getMessage());
+			LOGGER.debug("Serious problem in JavaScript engine", scriptException);
+		} else {
+			LOGGER.warn("Other problem in JavaScript engine: {}",scriptException.getMessage());
+			LOGGER.debug("Other problem in JavaScript engine", scriptException);
 		}
 	}
 

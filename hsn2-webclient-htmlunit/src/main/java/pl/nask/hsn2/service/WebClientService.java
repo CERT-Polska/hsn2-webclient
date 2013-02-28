@@ -30,12 +30,14 @@ import pl.nask.hsn2.CommandLineParams;
 import pl.nask.hsn2.GenericService;
 import pl.nask.hsn2.service.task.TaskContextFactoryImpl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Starter for the WebCrawler service.
  */
 public final class WebClientService implements Daemon{
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(WebClientService.class);
     Thread serviceRunner = null;
     CommandLineParams cmd = null;
     GenericService service = null;
@@ -78,6 +80,7 @@ public final class WebClientService implements Daemon{
 						
 						@Override
 						public void uncaughtException(Thread t, Throwable e) {
+							LOGGER.error(e.getMessage(),e);
 							System.exit(128);
 							
 						}

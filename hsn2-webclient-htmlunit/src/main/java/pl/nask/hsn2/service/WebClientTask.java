@@ -96,8 +96,7 @@ public class WebClientTask implements Task {
 			jobContext.addAttribute("reason_failed", msg);
 			LOGGER.debug("NPE while processing task", e);
 		} finally {
-			this.follower.closeJsEngine();
-			this.follower = null;
+			follower = null;
 		}
 	}
 

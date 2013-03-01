@@ -203,8 +203,8 @@ public class WebClientWorker implements Runnable {
 			if (i > 0) {
 				LOGGER.warn("There are still {} javascripts runnig in background", i);
 			}
-			stopJavaScripts();
-
+			restartJavaScript();
+			
 			long pageGatheredTime = System.currentTimeMillis();
 
 			if (processedPage.getClientSideRedirectPage() != null) {
@@ -228,9 +228,17 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 	
-	private void stopJavaScripts() {
+	public void stopJavaScripts() {
 		wc.setJavaScriptEnabled(false);
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
+		JsScriptDebugFrame.resetCounter();
+		LOGGER.debug("JavaScript was stopped.");
+	}
+	
+	private void restartJavaScript(){
+		stopJavaScripts();
+		wc.setJavaScriptEnabled(true);
+		LOGGER.debug("JavaScript was restarted.");
 	}
 
 	private void handlePage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException, StorageException {
@@ -877,8 +885,6 @@ public class WebClientWorker implements Runnable {
 				msg = "NullPointerException while processing " + url;
 			}
 			ctx.addAttribute("reason_failed", msg);
-		} finally {
-			workerDispatcher.closeJsEngine();
 		}
 	}
 

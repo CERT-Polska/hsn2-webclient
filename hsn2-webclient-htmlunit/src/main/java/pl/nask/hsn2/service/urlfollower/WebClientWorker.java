@@ -117,7 +117,7 @@ public class WebClientWorker implements Runnable {
 			wc = new WebClient();
 		} else {
 			ProxyParamsWrapper proxyParams = new ProxyParamsWrapper(proxy);
-			if ( proxyParams.isCorrectProxy()) {
+			if ( proxyParams.isProxy()) {
 				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
 				if ( proxyParams.hasUserCredentials()) {
 					DefaultCredentialsProvider dc = (DefaultCredentialsProvider) wc.getCredentialsProvider();

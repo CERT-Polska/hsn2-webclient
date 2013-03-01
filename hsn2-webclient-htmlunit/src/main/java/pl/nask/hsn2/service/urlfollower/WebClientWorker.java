@@ -155,14 +155,13 @@ public class WebClientWorker implements Runnable {
 			LOGGER.debug("IOException for URL '{}' with stacktrace: {}", workerUrl, e);
 			workerDispatcher.requestFailed(e);
 		}  catch (TimeoutException e) {
-			LOGGER.warn("Time limit exceeded for:'{}'", workerUrl);
+			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(),e);
 			workerDispatcher.requestFailed(e);
 		} catch (Exception e) {
 			LOGGER.error("Exception for URL '{}'", workerUrl, e);
 			workerDispatcher.requestFailed(e);
 		} finally {
-			wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
 			closeAllWindows();
 			latch.countDown();
 		}
@@ -171,14 +170,14 @@ public class WebClientWorker implements Runnable {
 	public final void stopProcessing() {
 		interruptProcessing = true;
 		LOGGER.debug("Setting: 'stop processing'");
-		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
+		stopJavaScripts();
 	}
 
 	private void processTheUrl(String url) throws IOException, ParameterException, ResourceException,
 			StorageException, BreakingChainException, ExecutionException, TimeoutException {
 		if ( interruptProcessing) {
 			LOGGER.debug("Time limit exceeded. {} won't be processed",url);
-			throw new TimeoutException("Timeout, stopping processing:"+url); // it's thrown in getInsecurePagesChain() so might be ommited here
+			throw new TimeoutException("Timeout, stopping processing:"+ url); // it's thrown in getInsecurePagesChain() so might be ommited here
 		}
 		LOGGER.debug("Gathering page {}", url);
 		long startTime = System.currentTimeMillis();
@@ -204,8 +203,8 @@ public class WebClientWorker implements Runnable {
 			if (i > 0) {
 				LOGGER.warn("There are still {} javascripts runnig in background", i);
 			}
-			wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
-
+			restartJavaScript();
+			
 			long pageGatheredTime = System.currentTimeMillis();
 
 			if (processedPage.getClientSideRedirectPage() != null) {
@@ -229,6 +228,19 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 	
+	public void stopJavaScripts() {
+		wc.setJavaScriptEnabled(false);
+		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
+		JsScriptDebugFrame.resetCounter();
+		LOGGER.debug("JavaScript was stopped.");
+	}
+	
+	private void restartJavaScript(){
+		stopJavaScripts();
+		wc.setJavaScriptEnabled(true);
+		LOGGER.debug("JavaScript was restarted.");
+	}
+
 	private void handlePage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException, StorageException {
 		if(processedPage.isHtml()){
 			LOGGER.debug("Got HTML page, processing. (url={})", processedPage.getRequestedUrl());
@@ -381,7 +393,7 @@ public class WebClientWorker implements Runnable {
 			Thread.currentThread().interrupt();
 		} catch (TimeoutException e) {
 			if (e.getMessage() == null) {
-				throw new TimeoutException("Timeout when gathering:" + req.getUrl());
+				throw new TimeoutException("Timeout when gathering:"+ req.getUrl());
 			}
 			throw e;
 		} finally {
@@ -777,7 +789,7 @@ public class WebClientWorker implements Runnable {
 			Thread.currentThread().interrupt();
 		} catch (TimeoutException e) { // cause of timeout is empty
 			if ( e.getMessage() == null ) {
-				throw new TimeoutException("Timeout when gathering:"+url);
+				throw new TimeoutException("Timeout when gathering ("+ taskParams.getPageTimeoutMillis() +" ms):"+ url);
 			}
 			throw e;
 		} finally {
@@ -816,7 +828,7 @@ public class WebClientWorker implements Runnable {
 
 	public void closeAllWindows() {
 		try{
-			wc.setJavaScriptEnabled(false);
+			stopJavaScripts();
 			wc.closeAllWindows();
 		}
 		catch(Exception e){
@@ -873,8 +885,6 @@ public class WebClientWorker implements Runnable {
 				msg = "NullPointerException while processing " + url;
 			}
 			ctx.addAttribute("reason_failed", msg);
-		} finally {
-			workerDispatcher.closeJsEngine();
 		}
 	}
 

@@ -95,8 +95,7 @@ public class HtmlUnitFollower implements UrlFollower {
     		LOGGER.error("Task has been interrupted",e);
     	} 
     	finally {
-    		if (webClientWorker.getWc().getJavaScriptEngine().isScriptRunning())
-    			webClientWorker.getWc().getJavaScriptEngine().shutdownJavaScriptExecutor();
+    		webClientWorker.stopJavaScripts();
     		LOGGER.info("Finished processing: {}",urlForProcessing);
     	}
     }
@@ -199,17 +198,6 @@ public class HtmlUnitFollower implements UrlFollower {
             }
         }
     }
-
-	@Override
-	public int closeJsEngine() {
-		int ret = -1;
-		if (this.webClientWorker != null) {
-			ret = this.webClientWorker.getWc().waitForBackgroundJavaScript(1);
-			this.webClientWorker.getWc().getJavaScriptEngine().shutdownJavaScriptExecutor();
-		}
-		JsScriptDebugFrame.resetCounter();
-		return ret;
-	}
 
 	void handleJvmError(String msg) {
 		requestFailed(msg);

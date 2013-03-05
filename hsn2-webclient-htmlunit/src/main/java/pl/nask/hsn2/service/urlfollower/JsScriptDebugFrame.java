@@ -27,20 +27,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import net.sourceforge.htmlunit.corejs.javascript.Context;
 import net.sourceforge.htmlunit.corejs.javascript.Scriptable;
 import net.sourceforge.htmlunit.corejs.javascript.debug.DebugFrame;
-import net.sourceforge.htmlunit.corejs.javascript.debug.DebuggableScript;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JsScriptDebugFrame implements DebugFrame {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JsScriptDebugFrame.class);
-	private final static boolean IS_DEBUG_ENABLED = LOGGER.isDebugEnabled();
+	private static final boolean IS_DEBUG_ENABLED = LOGGER.isDebugEnabled();
 	private static AtomicLong l = new AtomicLong(0);
 	private static List<Throwable> errors = Collections.synchronizedList(new ArrayList<Throwable>());
-
-	public JsScriptDebugFrame(Context cx, DebuggableScript fnOrScript) {
-		// does nothing
-	}
 
 	@Override
 	public void onEnter(Context cx, Scriptable activation, Scriptable thisObj, Object[] args) {
@@ -66,8 +61,9 @@ public class JsScriptDebugFrame implements DebugFrame {
 
 	@Override
 	public void onExit(Context cx, boolean byThrow, Object resultOrException) {
-		if (IS_DEBUG_ENABLED && resultOrException != null)
+		if (IS_DEBUG_ENABLED && resultOrException != null) {
 			LOGGER.debug("FINISHED function:[{}] {}", l.decrementAndGet(), resultOrException.toString());
+		}
 	}
 
 	@Override
@@ -75,7 +71,8 @@ public class JsScriptDebugFrame implements DebugFrame {
 	}
 
 	public static void resetCounter() {
-		if (IS_DEBUG_ENABLED)
+		if (IS_DEBUG_ENABLED) {
 			l.set(0);
+		}
 	}
 }

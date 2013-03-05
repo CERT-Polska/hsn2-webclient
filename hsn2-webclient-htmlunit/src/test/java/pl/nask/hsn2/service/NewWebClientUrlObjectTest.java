@@ -74,4 +74,11 @@ public class NewWebClientUrlObjectTest {
 		Attribute tempAttr = dataObject.findAttribute("parent", AttributeType.OBJECT);
 		Assert.assertNull(tempAttr, "ParentId attribute should be null.");
 	}
+	@Test
+	public void referrerNullTest() throws Exception {
+		newWebClientUrlObject = new NewWebClientUrlObject(URL, ORIGINAL, TYPE, null, JOB_ID);
+		dataObject = newWebClientUrlObject.asDataObject(null);
+		Attribute tempAttr = dataObject.findAttribute("referrer", AttributeType.OBJECT);
+		Assert.assertNull(tempAttr, "Referrer attribute should be null.");
+	}
 }

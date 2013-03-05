@@ -22,6 +22,7 @@ package pl.nask.hsn2.service.urlfollower;
 import java.io.InputStream;
 import java.net.URL;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 
 import com.gargoylesoftware.htmlunit.Page;
@@ -70,13 +71,9 @@ public class ProcessedPage {
 	}
 
 	private void checkServerSideRedirect() {
-        if(responseCode == 300
-                || responseCode == 301
-                || responseCode == 302
-                || responseCode == 303
-                || responseCode == 305
-                || responseCode == 306
-                || responseCode == 307) {
+		if (responseCode >= HttpStatus.SC_MULTIPLE_CHOICES && responseCode <= HttpStatus.SC_TEMPORARY_REDIRECT
+				&& responseCode != HttpStatus.SC_NOT_MODIFIED) {
+			// At this point response code is 300, 301, 302, 303, 305, 306 or 307 (but no 304).
 			serverSideRedirectLocation = page.getWebResponse().getResponseHeaderValue("Location");
 
 			// Server side redirection could be relative, so we have to make sure it is set correctly.

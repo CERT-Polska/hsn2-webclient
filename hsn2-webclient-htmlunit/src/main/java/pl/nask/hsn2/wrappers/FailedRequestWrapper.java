@@ -32,8 +32,9 @@ public class FailedRequestWrapper {
     public FailedRequestWrapper(List<RequestWrapper> requestWrappers, String failureReason) throws RequiredParameterMissingException {
         this.requestWrappers = requestWrappers;
         this.failureReason = failureReason;
-        if (failureReason == null)
-            throw new RequiredParameterMissingException("failureReson");
+        if (failureReason == null) {
+        	throw new RequiredParameterMissingException("failureReson");
+        }
     }
 
     public List<RequestWrapper> getRequestWrappers() {

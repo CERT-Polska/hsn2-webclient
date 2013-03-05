@@ -21,25 +21,24 @@ package pl.nask.hsn2.service.urlfollower;
 
 import java.net.URISyntaxException;
 
-public class FrameLink extends Link {
+public final class FrameLink extends Link {
+	private final WebClientOrigin origin;
 
-    private final WebClientOrigin origin;
+	public static FrameLink getInstance(String baseUrl, String hrefAttrValue, WebClientOrigin originType) throws URISyntaxException {
+		return new FrameLink(baseUrl, hrefAttrValue, originType);
+	}
 
-    public static FrameLink getInstance(String baseUrl, String hrefAttrValue, WebClientOrigin originType) throws URISyntaxException {
-        return new FrameLink(baseUrl, hrefAttrValue, originType);
-    }
+	private FrameLink(String baseUrl, String hrefAttrValue, WebClientOrigin originType) throws URISyntaxException {
+		super(baseUrl, hrefAttrValue);
+		this.origin = originType;
+	}
 
-    private FrameLink(String baseUrl, String hrefAttrValue, WebClientOrigin originType) throws URISyntaxException {
-        super(baseUrl, hrefAttrValue);
-        this.origin = originType;
-    }
+	public String getOriginName() {
+		return origin.getName();
+	}
 
-    public String getOriginName() {
-        return origin.getName();
-    }
-
-    @Override
-    public String toString() {
-        return "OutgoingLink [relativeUrl=" + getAbsoluteUrl() + ", originType" + origin.getName() + "]";
-    }
+	@Override
+	public String toString() {
+		return "OutgoingLink [relativeUrl=" + getAbsoluteUrl() + ", originType" + origin.getName() + "]";
+	}
 }

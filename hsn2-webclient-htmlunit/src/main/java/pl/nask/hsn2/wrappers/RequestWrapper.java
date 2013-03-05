@@ -56,10 +56,12 @@ public class RequestWrapper {
     }
 
 	private void validate() throws RequiredParameterMissingException {
-		if (originalUrl == null)
+		if (originalUrl == null) {
 			throw new RequiredParameterMissingException("request_url_original");
-        if (absoluteUrl == null)
-            throw new RequiredParameterMissingException("request_url_absolute");
+		}
+        if (absoluteUrl == null) {
+        	throw new RequiredParameterMissingException("request_url_absolute");
+        }
 	}
 
 	public String getOriginalUrl() {

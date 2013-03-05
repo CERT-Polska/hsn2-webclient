@@ -13,9 +13,11 @@ public class ProxyParamsWrapper {
 	private static final int SOCKS_PROXY = -1;
 	private int proxyType = 0;
 	private String	hostname;
-	private int	port;
+	private int	port = -1;
 	private String	userCredentials;
 	public ProxyParamsWrapper(String proxyToParse)  {
+		if ( proxyToParse == null || proxyToParse.length() == 0)
+			return;
 		UrlNormalizer un = new UrlNormalizer(proxyToParse);
 		try {
 			un.normalize();
@@ -87,13 +89,19 @@ public class ProxyParamsWrapper {
 		return userCredentials != null  && userCredentials.indexOf(":") != 0;
 	}
 	public String getUserName() {
-		return userCredentials.substring(0,(userCredentials.indexOf(":") < 0) ? userCredentials.length() : userCredentials.indexOf(":") );
+		if ( userCredentials != null)
+			return userCredentials.substring(0,(userCredentials.indexOf(":") < 0) ? userCredentials.length() : userCredentials.indexOf(":") );
+		return null;
 	}
 	public String getUserPswd() {
+		if ( userCredentials == null)
+			return "";
+		
 		int ps = userCredentials.indexOf(":");
 		if (ps > 0  &&  ps < userCredentials.length()-1 )
 			return userCredentials.substring(ps+1);
-		return "";
+		
+		return  "";
 	}
 
 }

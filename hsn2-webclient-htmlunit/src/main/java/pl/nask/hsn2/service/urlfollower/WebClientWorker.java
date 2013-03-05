@@ -121,7 +121,7 @@ public class WebClientWorker implements Runnable {
 				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
 				if ( proxyParams.hasUserCredentials()) {
 					DefaultCredentialsProvider dc = (DefaultCredentialsProvider) wc.getCredentialsProvider();
-					dc.addCredentials(proxyParams.getUserName(), proxyParams.getUserPswd(), proxyParams.getHost(), proxyParams.getPort(), null);//TODO check realm
+					dc.addCredentials(proxyParams.getUserName(), proxyParams.getUserPswd(), proxyParams.getHost(), proxyParams.getPort(), null);
 				}
 			} else {
 				LOGGER.warn("Incorrect proxy params: {}.proxy disabled.",proxy);
@@ -787,7 +787,7 @@ public class WebClientWorker implements Runnable {
 			LOGGER.error(e.getMessage(),e);
 		}
 		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(url));
-		
+				
 		// work-around for bug with deflated content.
 		req.setAdditionalHeader("Accept-Encoding", "");
 		

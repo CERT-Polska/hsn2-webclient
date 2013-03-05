@@ -113,12 +113,16 @@ public class WebClientWorker implements Runnable {
 		String proxy = null;
 		if ( ctx != null && ctx.getCurrentContextServiceData() != null)
 			proxy = ctx.getCurrentContextServiceData().getProxyUri();
+		proxy = "socks://user2:pass2@localhost:1080/";
 		if ( proxy == null || proxy.trim().equalsIgnoreCase("")) {
 			wc = new WebClient();
 		} else {
 			ProxyParamsWrapper proxyParams = new ProxyParamsWrapper(proxy);
 			if ( proxyParams.isProxy()) {
 				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
+				if (proxyParams.isSocksProxy()) {
+					wc.getProxyConfig().setSocksProxy(true);
+				}
 				if ( proxyParams.hasUserCredentials()) {
 					DefaultCredentialsProvider dc = (DefaultCredentialsProvider) wc.getCredentialsProvider();
 					dc.addCredentials(proxyParams.getUserName(), proxyParams.getUserPswd(), proxyParams.getHost(), proxyParams.getPort(), null);

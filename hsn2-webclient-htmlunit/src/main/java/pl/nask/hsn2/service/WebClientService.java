@@ -102,10 +102,11 @@ public final class WebClientService implements Daemon {
 	public void stop() throws InterruptedException {
 		serviceRunner.interrupt();
 		serviceRunner.join(JOIN_WAIT_TIME);
+		LOGGER.info("WebClient stopped");
 	}
 
 	@Override
 	public void destroy() {
-		// Nothing to do.
+		LOGGER.info("WebClient destroyed");
 	}
 }

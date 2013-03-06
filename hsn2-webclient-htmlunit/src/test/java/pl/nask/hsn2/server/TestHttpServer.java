@@ -122,4 +122,16 @@ public class TestHttpServer {
 	public static String getWebserverRoot() {
 		return getWebserverAddress() + "/";
 	}
+
+	public static void startServerWithHandlers(Handler[] handlers) throws Exception {
+		stopServer();
+		updateSocketNumber();
+		if (webserver != null && !webserver.isStopped()) {
+			webserver.stop();
+		}
+		webserver = new Server(webserverPort);
+		webserver.setHandlers(handlers);
+		webserver.start();
+		
+	}
 }

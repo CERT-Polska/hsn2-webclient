@@ -103,7 +103,6 @@ public class WebClientWorker implements Runnable {
 		
 		this.latch = l;
 		this.workerDispatcher = dispatcher;
-//		this.wc= new WebClient();
 		this.scriptInterceptor = new ScriptInterceptor(taskParams);
 		this.taskParams = taskParams;
 		this.ctx = ctx;
@@ -113,7 +112,6 @@ public class WebClientWorker implements Runnable {
 		String proxy = null;
 		if ( ctx != null && ctx.getCurrentContextServiceData() != null)
 			proxy = ctx.getCurrentContextServiceData().getProxyUri();
-		proxy = "socks://user2:pass2@localhost:1080/";
 		if ( proxy == null || proxy.trim().equalsIgnoreCase("")) {
 			wc = new WebClient();
 		} else {

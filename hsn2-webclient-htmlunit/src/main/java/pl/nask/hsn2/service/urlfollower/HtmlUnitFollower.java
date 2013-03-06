@@ -96,6 +96,7 @@ public class HtmlUnitFollower implements UrlFollower {
     	} 
     	finally {
     		webClientWorker.stopJavaScripts();
+    		webClientWorker.closeJsInterceptor();
     		LOGGER.info("Finished processing: {}",urlForProcessing);
     	}
     }

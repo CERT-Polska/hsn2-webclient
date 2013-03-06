@@ -89,11 +89,8 @@ public final class WebClientService implements Daemon{
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
-				
 			}
 		},"webclient-service");
-		
-		
 	}
 
 	@Override
@@ -106,12 +103,11 @@ public final class WebClientService implements Daemon{
 	public void stop() throws Exception {
 		serviceRunner.interrupt();
 		serviceRunner.join(10000);
-		
+		LOGGER.info("WebClient stopped");
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		LOGGER.info("WebClient destroyed");
 	}
 }

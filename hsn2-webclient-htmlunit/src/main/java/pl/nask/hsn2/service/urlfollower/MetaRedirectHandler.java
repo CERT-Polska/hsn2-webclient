@@ -33,6 +33,7 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebWindow;
 
 public class MetaRedirectHandler implements RefreshHandler {
+	private static final int ONE_SECOND_IN_MILISECONDS = 1000;
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetaRedirectHandler.class);
 	private int miliSecTimeout;
 	private int refreshCounter = 0;
@@ -55,10 +56,10 @@ public class MetaRedirectHandler implements RefreshHandler {
 				&& HttpMethod.GET == page.getWebResponse().getWebRequest().getHttpMethod()) {
 			LOGGER.debug("Refresh was interrupted: Redirect to itself.");
 		} else {
-			if (miliSecTimeout / 1000 >= seconds) {
+			if (miliSecTimeout / ONE_SECOND_IN_MILISECONDS >= seconds) {
 				if (seconds > 0) {
 					try {
-						Thread.sleep(seconds * 1000L);
+						Thread.sleep(seconds * ONE_SECOND_IN_MILISECONDS);
 					} catch (final InterruptedException e) {
 						LOGGER.debug("No big deal: Waiting thread was interrupted.", e);
 					}
@@ -67,12 +68,13 @@ public class MetaRedirectHandler implements RefreshHandler {
 				if (window != null) {
 					final WebClient client = window.getWebClient();
 					client.getPage(window, new WebRequest(url));
-					if (!page.getUrl().toExternalForm().equals(url.toExternalForm()))
+					if (!page.getUrl().toExternalForm().equals(url.toExternalForm())) {
 						LOGGER.debug("Client side (meta-refresh) redirect occured. New location : {}", url.toExternalForm());
+					}
 				}
 			} else {
-				LOGGER.debug("Refresh to {} was interrupted: PageTimeout({}) was lower then refresh ({}).", new Object[] { url.toExternalForm(),
-						miliSecTimeout / 1000, seconds });
+				LOGGER.debug("Refresh to {} was interrupted: PageTimeout({}) was lower then refresh ({}).",
+						new Object[] { url.toExternalForm(), miliSecTimeout / ONE_SECOND_IN_MILISECONDS, seconds });
 			}
 		}
 	}

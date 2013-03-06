@@ -36,7 +36,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 
 public class PageLinks {
-	private final static Logger LOG = LoggerFactory.getLogger(PageLinks.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PageLinks.class);
 	
 	public enum LinkType {
 		OBJECT, MULTIMEDIA, IMAGE, OTHER
@@ -57,14 +57,18 @@ public class PageLinks {
 		this.params = taskParams;
 		this.outgoingLinksCounter = newObjectsCounter;
 		
-		if (params.isSaveObjects())
+		if (params.isSaveObjects()) {
 			embeddedResourceGroups.put(LinkType.OBJECT, new HashSet<EmbeddedResource>());
-		if (params.isSaveMultimedia())
+		}
+		if (params.isSaveMultimedia()) {
 			embeddedResourceGroups.put(LinkType.MULTIMEDIA, new HashSet<EmbeddedResource>());
-		if (params.isSaveImages())
+		}
+		if (params.isSaveImages()) {
 			embeddedResourceGroups.put(LinkType.IMAGE, new HashSet<EmbeddedResource>());
-		if (params.isSaveOthers())
+		}
+		if (params.isSaveOthers()) {
 			embeddedResourceGroups.put(LinkType.OTHER, new HashSet<EmbeddedResource>());
+		}
 	}
 
 	/**
@@ -77,8 +81,9 @@ public class PageLinks {
 		ignoreBaseTag();
 		String archive = element.getAttribute("archive");
 		String[] archives = null;
-		if (archive != DomElement.ATTRIBUTE_NOT_DEFINED)
+		if (archive != DomElement.ATTRIBUTE_NOT_DEFINED) {
 			archives = archive.split(" ");
+		}
 		String codebase = element.getAttribute("codebase");
 		if (codebase != DomElement.ATTRIBUTE_NOT_DEFINED && !codebase.endsWith("/")) {
 			codebase += "/";
@@ -138,8 +143,9 @@ public class PageLinks {
 	}
 
 	private void addEmbeddedArchives(LinkType type, Set<EmbeddedResource> set, String newBaseUrl, String[] archives) {
-		if (archives == null)
+		if (archives == null) {
 			return;
+		}
 		try {
 			for (String arch : archives) {
 				EmbeddedResource res = new EmbeddedResource(newBaseUrl, arch, type);

@@ -22,22 +22,23 @@ package pl.nask.hsn2.service.urlfollower;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 public class WorkerThreadExceptionHandler implements UncaughtExceptionHandler {
-	HtmlUnitFollower owner;
+	private HtmlUnitFollower owner;
+
 	public WorkerThreadExceptionHandler(HtmlUnitFollower htmlUnitFollower) {
 		owner = htmlUnitFollower;
 	}
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		if ( e instanceof StackOverflowError ) {
+		if (e instanceof StackOverflowError) {
 			String msg = e.getMessage();
-			if ( msg == null) {
-				msg = "["+t.getName()+"] WebClient parser has crashed: "+ e.getClass();
+			if (msg == null) {
+				msg = "[" + t.getName() + "] WebClient parser has crashed: " + e.getClass();
 			}
 			owner.handleJvmError(msg);
-		}
-		else
+		} else {
 			owner.handleJvmError(e.getMessage());
+		}
 	}
 
 }

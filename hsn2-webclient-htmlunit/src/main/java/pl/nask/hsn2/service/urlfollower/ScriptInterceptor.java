@@ -37,7 +37,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class ScriptInterceptor implements Debugger {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ScriptInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScriptInterceptor.class);
     private final int jsRecursionLimit;
     private final Map<String, Map<String, ScriptElement>> scriptsByOrigin = new ConcurrentHashMap<String, Map<String, ScriptElement>>();
     private int scriptId = 0;
@@ -152,7 +152,7 @@ public class ScriptInterceptor implements Debugger {
 
     @Override
     public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript) {
-        return new JsScriptDebugFrame(cx, fnOrScript);
+        return new JsScriptDebugFrame();
     }
 
     public Map<String, Map<String, ScriptElement>> getSourcesByOrigin() {

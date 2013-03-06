@@ -33,9 +33,9 @@ import org.apache.http.client.utils.URIUtils;
 
 public class Link {
 	private final boolean decodeIIS;
-	private static final  Pattern p;
+	private static final Pattern PATTERN;
 	static {
-		p = Pattern.compile(".*%u[0-9a-fA-F]{4}.*");
+		PATTERN = Pattern.compile(".*%u[0-9a-fA-F]{4}.*");
 	}
 
 	private final URI absoluteUrl;
@@ -44,7 +44,7 @@ public class Link {
 	private final String append;
 
 	// BitSet created for proper URL check
-	public static BitSet PROPER_URL_BITSET = new BitSet();
+	public static final BitSet PROPER_URL_BITSET = new BitSet();
 	static {
 		for (int i = 'a'; i <= 'z'; i++) {
 			PROPER_URL_BITSET.set(i);
@@ -66,11 +66,13 @@ public class Link {
 		PROPER_URL_BITSET.set('?');
 		PROPER_URL_BITSET.set('#');
 	}
+
 	public Link(String baseUrl, String relativeUrl) throws URISyntaxException {
-		this(baseUrl,relativeUrl,false);
+		this(baseUrl, relativeUrl, false);
 	}
-	public Link(String baseUrl, String relativeUrl,boolean enableIISdecode) throws URISyntaxException {
-		decodeIIS = enableIISdecode ;
+
+	public Link(String baseUrl, String relativeUrl, boolean enableIISdecode) throws URISyntaxException {
+		decodeIIS = enableIISdecode;
 		this.baseUrl = baseUrl;
 		URI baseURI = new URI(format(baseUrl));
 		if (!decodeIIS && IISEncDec.isIISencoded(relativeUrl)) {
@@ -78,11 +80,11 @@ public class Link {
 			int i = relativeUrl.indexOf("%u");
 			String rel = format(relativeUrl.substring(0, i));
 			this.append = format(relativeUrl.substring(i));
-			if(rel.length() == 0)
+			if (rel.length() == 0) {
 				rel = "/";
+			}
 			this.absoluteUrl = URIUtils.resolve(baseURI, rel);
 			return;
-			
 		} else if (decodeIIS && IISEncDec.isIISencoded(relativeUrl)) {
 			this.relativeUrl = IISEncDec.convertToUTF8(format(relativeUrl));
 		} else {
@@ -92,106 +94,111 @@ public class Link {
 		try {
 			this.absoluteUrl = URIUtils.resolve(baseURI, format(this.relativeUrl));
 		} catch (IllegalArgumentException e) {
-			throw new URISyntaxException("Cannot convert to absolute URL:"+relativeUrl,e.getCause().getMessage());
+			throw new URISyntaxException("Cannot convert to absolute URL: " + relativeUrl, e.getCause().getMessage());
 		}
 	}
-	
-	
 
-	protected Link(URL baseUrl, String relativeUrl) throws URISyntaxException {	
+	protected Link(URL baseUrl, String relativeUrl) throws URISyntaxException {
 		decodeIIS = false;
-		this.baseUrl = baseUrl.toString();		
-		this.relativeUrl = relativeUrl;				
+		this.baseUrl = baseUrl.toString();
+		this.relativeUrl = relativeUrl;
 		this.absoluteUrl = URIUtils.resolve(baseUrl.toURI(), format(relativeUrl));
 		this.append = "";
 	}
-
 
 	private String format(String url) {
 		return url.trim().replaceAll("[\u00A0\u0020]", "%20");
 	}
 
 	@Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((absoluteUrl == null) ? 0 : absoluteUrl.hashCode());
-        return result;
-    }
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((absoluteUrl == null) ? 0 : absoluteUrl.hashCode());
+		return result;
+	}
 
-    @Override//generated code
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Link other = (Link) obj;
-        if (baseUrl == null) {
-            if (other.baseUrl != null)
-                return false;
-        } else if (!baseUrl.equals(other.baseUrl))
-            return false;
-        if (absoluteUrl == null) {
-            if (other.absoluteUrl != null)
-                return false;
-        } else if (!absoluteUrl.equals(other.absoluteUrl))
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		// generated code
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Link other = (Link) obj;
+		if (baseUrl == null) {
+			if (other.baseUrl != null) {
+				return false;
+			}
+		} else if (!baseUrl.equals(other.baseUrl)) {
+			return false;
+		}
+		if (absoluteUrl == null) {
+			if (other.absoluteUrl != null) {
+				return false;
+			}
+		} else if (!absoluteUrl.equals(other.absoluteUrl)) {
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public String toString() {
-        return "Link [baseUrl=" + baseUrl + ", absoluteUrl=" + absoluteUrl + ", relativeUrl=" + relativeUrl + "]";
-    }
+	@Override
+	public String toString() {
+		return "Link [baseUrl=" + baseUrl + ", absoluteUrl=" + absoluteUrl + ", relativeUrl=" + relativeUrl + "]";
+	}
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
+	public String getBaseUrl() {
+		return baseUrl;
+	}
 
-    public String getAbsoluteUrl() {
-    		return absoluteUrl.toString()+append;
-    }
-    
-    public String getRelativeUrl() {
+	public String getAbsoluteUrl() {
+		return absoluteUrl.toString() + append;
+	}
+
+	public String getRelativeUrl() {
 		return relativeUrl;
 	}
-    
-    
-    public static class IISEncDec {
-    	public static String convertToUTF8(String urlPath) {
-    		if (!isIISencoded(urlPath)) 
-    			return urlPath;
-    		
-    		int i = urlPath.indexOf("%u");
-    		StringBuilder sb = new StringBuilder(urlPath);
-    		if (i >=0) {
-    			ByteBuffer bb = ByteBuffer.allocate(4);
-    			while( (i = sb.indexOf("%u",i)) >=0) {
-    				if( i+6 >= sb.length())
-    					break;
-    				Integer val = Integer.parseInt(sb.substring(i+2, i+6), 16);
-    				bb.putInt(val);
-    				try {
-    					byte b[] = ArrayUtils.subarray(bb.array(),2,4);
-    					String s = URLEncoder.encode(new String(b, "UTF-16"),"UTF-8");
-    					sb.replace(i, i+6, s);
-    					bb.rewind();
-    				} catch (UnsupportedEncodingException e) {
-    					i++;
-    				}
-    			}
-    		}
-    		
-    		return sb.toString();
 
-    	}
-    	public static boolean isIISencoded(String relUrl) {
-    		return p.matcher(relUrl).matches();
-    	}
-    	
+	public static class IISEncDec {
+		private static final int NUMBER_16 = 16;
+		private static final int NUMBER_4 = 4;
+		private static final int NUMBER_6 = 6;
 
-    }
-  
+		public static String convertToUTF8(String urlPath) {
+			if (!isIISencoded(urlPath)) {
+				return urlPath;
+			}
+			int i = urlPath.indexOf("%u");
+			StringBuilder sb = new StringBuilder(urlPath);
+			if (i >= 0) {
+				ByteBuffer bb = ByteBuffer.allocate(NUMBER_4);
+				while ((i = sb.indexOf("%u", i)) >= 0) {
+					if (i + NUMBER_6 >= sb.length()) {
+						break;
+					}
+					Integer val = Integer.parseInt(sb.substring(i + 2, i + NUMBER_6), NUMBER_16);
+					bb.putInt(val);
+					try {
+						byte b[] = ArrayUtils.subarray(bb.array(), 2, NUMBER_4);
+						String s = URLEncoder.encode(new String(b, "UTF-16"), "UTF-8");
+						sb.replace(i, i + NUMBER_6, s);
+						bb.rewind();
+					} catch (UnsupportedEncodingException e) {
+						i++;
+					}
+				}
+			}
+			return sb.toString();
+		}
+
+		public static boolean isIISencoded(String relUrl) {
+			return PATTERN.matcher(relUrl).matches();
+		}
+	}
 }

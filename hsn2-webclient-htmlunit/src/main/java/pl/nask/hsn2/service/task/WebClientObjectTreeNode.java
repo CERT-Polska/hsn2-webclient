@@ -93,12 +93,15 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	}
 
 	public void webContextInit(ServiceParameters taskParams, ServiceData inputData, WebClientWorker webClientWorker) {
-		if (taskParams == null)
+		if (taskParams == null) {
 			throw new NullPointerException("taskParams");
-		if (inputData == null)
+		}
+		if (inputData == null) {
 			throw new NullPointerException("inputData");
-		if (webClientWorker == null)
+		}
+		if (webClientWorker == null) {
 			throw new NullPointerException("webClientWorker");
+		}
 		
 		this.params = taskParams;
 		this.inputData = inputData;
@@ -136,7 +139,9 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	public void flush(ServiceConnector connector, long jobId, List<Long> addedObjects) 
 			throws StorageException, ResourceException, RequiredParameterMissingException {
 		try{
-			if (getParent() == null) { // root node
+			if (getParent() == null) {
+				// root node
+
 				// not everything may be mapped to the proper tree nodes, so the root object has to gather all orphans
 				flushChildren(connector, jobId, addedObjects);			
 				prepareForSave(connector, jobId);
@@ -266,7 +271,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 			List<RequestWrapper> requestList = new ArrayList<RequestWrapper>();
 			RequestWrapper requestWrapper = new RequestWrapper(embeddedResource);
 			requestList.add(requestWrapper);
-			if (embeddedResource.isRequestFailed() || embeddedResource.getResponseCode() != 200) {
+			if (embeddedResource.isRequestFailed() || embeddedResource.getResponseCode() != HttpStatus.SC_OK) {
 				LOGGER.debug("Adding {} to failed list with message {}", embeddedResource, embeddedResource.getFailureMessage());
 				FailedRequestWrapper failedRequestWrapper = new FailedRequestWrapper(requestList, embeddedResource.getFailureMessage());
 				failedRequests.add(failedRequestWrapper);
@@ -275,17 +280,10 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 				InputStream contentStream = embeddedResource.getContentStream();
 				long savedContentId = DataStoreHelper.saveInDataStore(connector, jobId, contentStream);
 				FileWrapper fileWrapper = new FileWrapper(requestList, contentType, savedContentId);
-
-				// if (embeddedResource.getLinkType() == LinkType.OBJECT) {
-				// processPdfSwfFileContent(embeddedResource.getAbsoluteUrl(),
-				// contentType, savedContentId);
-				// }
 				processPdfSwfFileContent(embeddedResource.getAbsoluteUrl(), contentType, savedContentId);
-
 				objectList.add(fileWrapper);
 			}
 		}
-
 		return objectList;
 	}
 
@@ -333,7 +331,6 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	}
 
 	private void processSingleResource(EmbeddedResource resource) {
-		
 		boolean requestFailed = resource.isRequestFailed();
 		if (!requestFailed) {
 
@@ -342,64 +339,68 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 			WebResponse webResponse = null;
 
 			try {
-				Page page = webClientWorker.getInsecurePage(url); 
+				Page page = webClientWorker.getInsecurePage(url);
 				webResponse = page.getWebResponse();
 				int serverRespStatus = webResponse.getStatusCode();
 				int resourceRedirLimit = contextHeight();
-				while((resourceRedirLimit++ < params.getRedirectDepthLimit() ) &&  serverRespStatus >= HttpStatus.SC_MULTIPLE_CHOICES  && serverRespStatus < HttpStatus.SC_BAD_REQUEST) {
+				while ((resourceRedirLimit++ < params.getRedirectDepthLimit()) && serverRespStatus >= HttpStatus.SC_MULTIPLE_CHOICES
+						&& serverRespStatus < HttpStatus.SC_BAD_REQUEST) {
 					String redirect = webResponse.getResponseHeaderValue("Location");
 					String newUrl = UrlUtils.resolveUrl(url, redirect);
-					LOGGER.debug("Resource '{}' redirected to: {}",url,newUrl);
-//					NewWebClientUrlObject no = new NewWebClientUrlObject(newUrl, WebClientOrigin.SERVER_REDIRECT.getName(), WebClientObjectType.URL.getName(),0, url, null, null);
-//					this.addNewObject(no);
+					LOGGER.debug("Resource '{}' redirected to: {}", url, newUrl);
 					page = webClientWorker.getInsecurePage(newUrl);
 					webResponse = page.getWebResponse();
 					serverRespStatus = webResponse.getStatusCode();
 				}
-				// status message can be used as a failure message
+
+				// Status message can be used as a failure message.
 				failureReason = webResponse.getStatusMessage();
 			} catch (ConnectTimeoutException e) {
-				String msg = "Connection timeout for URL: " + url;
-				LOGGER.warn(msg);
-				LOGGER.debug(e.getMessage(),e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogWarn(e, "Connection timeout for URL: " + url);
 				requestFailed = true;
 			} catch (SocketTimeoutException e) {
-				String msg = "Socket timeout for URL: " + url;
-				LOGGER.warn(msg);
-				LOGGER.debug(e.getMessage(),e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogWarn(e, "Socket timeout for URL: " + url);
 				requestFailed = true;
 			} catch (UnknownHostException e) {
-				String msg = "Unknown host for URL: url";
-				LOGGER.warn(msg);
-				LOGGER.debug(e.getMessage(),e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogWarn(e, "Unknown host for URL: url");
 				requestFailed = true;
 			} catch (ClientProtocolException e) {
-				String msg = "Unsupported protocol. Probably not a resource: " + url;
-				LOGGER.error(msg, e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogError(e, "Unsupported protocol. Probably not a resource: " + url);
 				requestFailed = true;
 			} catch (IOException e) {
-				String msg = "IOException for URL: " + url;
-				LOGGER.error(msg, e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogError(e, "IOException for URL: " + url);
 				requestFailed = true;
 			} catch (Exception e) {
-				String msg = "Exception for URL: " + url;
-				LOGGER.error(msg, e);
-				failureReason = getReason(e, msg);
+				// Set proper message and log it.
+				failureReason = getReasonAndLogError(e, "Exception for URL: " + url);
 				requestFailed = true;
 			} finally {
 				webClientWorker.closeAllWindows();
-				LOGGER.debug("Trying to close all windows for url: {}",url);
+				LOGGER.debug("Trying to close all windows for url: {}", url);
 			}
-			if(LOGGER.isDebugEnabled()) {		
-				LOGGER.debug("Updating resource:{},[{},{},{}]",new Object[] {resource.getAbsoluteUrl(),webResponse !=null ?webResponse.getContentType():"no response",failureReason,requestFailed});
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Updating resource:{},[{},{},{}]",
+						new Object[] { resource.getAbsoluteUrl(), webResponse != null ? webResponse.getContentType() : "no response",
+								failureReason, requestFailed });
 			}
 			resource.update(webResponse, failureReason, requestFailed);
 		}
+	}
+
+	private String getReasonAndLogWarn(Exception e, String msg) {
+		LOGGER.warn(msg);
+		LOGGER.debug(e.getMessage(), e);
+		return getReason(e, msg);
+	}
+
+	private String getReasonAndLogError(Exception e, String msg) {
+		LOGGER.error(msg);
+		return getReason(e, msg);
 	}
 
 	private String getReason(Exception e, String alternativeMsg){

@@ -46,7 +46,7 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
  */
 public class HtmlUnitFollower implements UrlFollower {
 	private static AtomicLong procCounter = new AtomicLong();
-    private final static Logger LOGGER = LoggerFactory.getLogger(HtmlUnitFollower.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HtmlUnitFollower.class);
     private final Object lock = new Object();
     private final CountDownLatch latch;
     private WebClientWorker webClientWorker = null;
@@ -72,45 +72,51 @@ public class HtmlUnitFollower implements UrlFollower {
 	}
 
 	@Override
-    public void processUrl() {
-    	webClientWorker.setContextData(webClientWorker, params, urlForProcessing);
-    	LOGGER.debug("Starting processing: {}",urlForProcessing);	
-    	try {
-    		Thread worker = new Thread( webClientWorker,"WebClientWorker-" + procCounter.incrementAndGet());
-    		worker.setUncaughtExceptionHandler(new WorkerThreadExceptionHandler(this));
-    		worker.start();
-    		if ( params.getProcessingTimeout() > 0) {
-    			latch.await(params.getProcessingTimeout(),TimeUnit.MILLISECONDS);
-    		} else {
-    			latch.await();
-    		}
-    		if ( latch.getCount() > 0 ) {
-    			requestFailed("Task interrupted because time limit exceeded: "+params.getProcessingTimeout());
-    			webClientWorker.stopProcessing();
-    			worker.join();//wait for clean wc exit
-    		}
- 		
-    	} catch (InterruptedException e) {
-    		LOGGER.error("Task has been interrupted",e);
-    	} 
-    	finally {
-    		if (webClientWorker.getWc().getJavaScriptEngine().isScriptRunning())
-    			webClientWorker.getWc().getJavaScriptEngine().shutdownJavaScriptExecutor();
-    		LOGGER.info("Finished processing: {}",urlForProcessing);
-    	}
-    }
+
+	public void processUrl() {
+		webClientWorker.setContextData(webClientWorker, params, urlForProcessing);
+		LOGGER.debug("Starting processing: {}", urlForProcessing);
+		try {
+			Thread worker = new Thread(webClientWorker, "WebClientWorker-" + procCounter.incrementAndGet());
+			worker.setUncaughtExceptionHandler(new WorkerThreadExceptionHandler(this));
+			worker.start();
+			
+			boolean latchCounterReachedZero;
+			if (params.getProcessingTimeout() > 0) {
+				latchCounterReachedZero = latch.await(params.getProcessingTimeout(), TimeUnit.MILLISECONDS);
+			} else {
+				latch.await();
+				latchCounterReachedZero = latch.getCount() == 0;
+			}
+			if (!latchCounterReachedZero) {
+				requestFailed("Task interrupted because time limit exceeded: " + params.getProcessingTimeout());
+				webClientWorker.stopProcessing();
+				webClientWorker.closeAllWindows();
+
+				// Wait for clean WC exit.
+				worker.join();
+			}
+		} catch (InterruptedException e) {
+			LOGGER.error("Task has been interrupted", e);
+		} finally {
+			webClientWorker.stopJavaScripts();
+			webClientWorker.closeJsInterceptor();
+			LOGGER.info("Finished processing: {}", urlForProcessing);
+		}
+	}
 	
 	public void requestFailed(Throwable e) {
 		synchronized (lock) {
 			String msg;
-			if (e instanceof ExecutionException) {//get real cause of error
+			if (e instanceof ExecutionException) {
+				//get real cause of error
 				Throwable t = e;
-				while ( t.getCause() != null)
+				while (t.getCause() != null) {
 					t = t.getCause();
+				}
 				msg = t.toString();
 			} else {
 				msg = e.getMessage();
-
 				if (msg == null || msg.isEmpty()) {
 					if (e.getCause() != null){
 						msg = e.getCause().getMessage();
@@ -130,8 +136,9 @@ public class HtmlUnitFollower implements UrlFollower {
 	public void requestFailed(String msg) {
 		synchronized (lock) {
 			LOGGER.debug("Request failed: {}", msg);
-			if (failureMessage.length() > 0)
+			if (failureMessage.length() > 0) {
 				this.failureMessage.append("\n");
+			}
 			this.failureMessage.append(msg);
 			this.failed = true;
 		}
@@ -147,10 +154,12 @@ public class HtmlUnitFollower implements UrlFollower {
     @Override
     public String getFailureMessage() {
     	synchronized (lock) {
-    		if ( failureMessage.length() > 0)
+    		if ( failureMessage.length() > 0) {
     			return failureMessage.toString();
-    		if (!failed)
+    		}
+    		if (!failed) {
     			return null;
+    		}
     		return "Couldn't determine failure reason or internal HtmlUnitFollower error";
     	}
     }
@@ -198,17 +207,6 @@ public class HtmlUnitFollower implements UrlFollower {
             }
         }
     }
-
-	@Override
-	public int closeJsEngine() {
-		int ret = -1;
-		if (this.webClientWorker != null) {
-			ret = this.webClientWorker.getWc().waitForBackgroundJavaScript(1);
-			this.webClientWorker.getWc().getJavaScriptEngine().shutdownJavaScriptExecutor();
-		}
-		JsScriptDebugFrame.resetCounter();
-		return ret;
-	}
 
 	void handleJvmError(String msg) {
 		requestFailed(msg);

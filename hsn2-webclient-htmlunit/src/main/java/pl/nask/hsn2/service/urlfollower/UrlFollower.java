@@ -38,7 +38,5 @@ public interface UrlFollower {
 
 	void setCookies(Set<CookieWrapper> cookies);
 
-	int closeJsEngine();
-
 	String getWarning();
 }

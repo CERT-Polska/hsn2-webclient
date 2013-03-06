@@ -45,8 +45,9 @@ public class FileWrapper {
     }
 
     private void validate() throws RequiredParameterMissingException {
-    	if (contentType == null)
-            throw new RequiredParameterMissingException("type parameter is required");
+    	if (contentType == null) {
+    		throw new RequiredParameterMissingException("type parameter is required");
+    	}
 	}
 
 	public List<RequestWrapper> getRequestWrappers() {

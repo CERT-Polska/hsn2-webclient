@@ -30,46 +30,38 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener;
 
 public class JsScriptErrorListener implements JavaScriptErrorListener {
-	private static Logger LOGGER = LoggerFactory.getLogger(JsScriptErrorListener.class);
-	
-	public JsScriptErrorListener(boolean killJsEngineOnError) {
-	}
-	public JsScriptErrorListener() {
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(JsScriptErrorListener.class);
+
 	@Override
-	public void scriptException(HtmlPage htmlPage,
-			ScriptException scriptException) {
-		if (scriptException == null || scriptException.getMessage()==null) {
-			LOGGER.warn("Strange ScriptException caught:{}",htmlPage.getUrl());
-			return ;
+	public void scriptException(HtmlPage htmlPage, ScriptException scriptException) {
+		if (scriptException == null || scriptException.getMessage() == null) {
+			LOGGER.warn("Strange ScriptException caught:{}", htmlPage.getUrl());
+			return;
 		}
-		LOGGER.warn("ScriptException {} ; {}",htmlPage.getUrl(),scriptException.getMessage());	
-		if (scriptException.getMessage().contains("java.lang.RuntimeException") 
+		LOGGER.warn("ScriptException {} ; {}", htmlPage.getUrl(), scriptException.getMessage());
+		if (scriptException.getMessage().contains("java.lang.RuntimeException")
 				|| scriptException.getMessage().contains("Too deep recursion while parsing")) {
-
-			LOGGER.warn("Serious problem in JavaScript engine: {}",scriptException.getMessage());
-			LOGGER.debug("Serious problem in JavaScript engine", scriptException.getMessage());
+			LOGGER.warn("Serious problem in JavaScript engine: {}", scriptException.getMessage());
+			LOGGER.debug("Serious problem in JavaScript engine", scriptException);
+		} else {
+			LOGGER.warn("Other problem in JavaScript engine: {}", scriptException.getMessage());
+			LOGGER.debug("Other problem in JavaScript engine", scriptException);
 		}
 	}
 
 	@Override
-	public void timeoutError(HtmlPage htmlPage, long allowedTime,
-			long executionTime) {
-		LOGGER.debug(String.format("JS script timeout (timeout set: {}, execution time: {}).", allowedTime, executionTime));
+	public void timeoutError(HtmlPage htmlPage, long allowedTime, long executionTime) {
+		LOGGER.debug("JS script timeout (timeout set: {}, execution time: {}).", allowedTime, executionTime);
 	}
 
 	@Override
-	public void malformedScriptURL(HtmlPage htmlPage, String url,
-			MalformedURLException malformedURLException) {
-		LOGGER.debug(String.format("Malformed URL:{}.", url));
-
+	public void malformedScriptURL(HtmlPage htmlPage, String url, MalformedURLException malformedURLException) {
+		LOGGER.debug("Malformed URL:{}.", url);
 	}
 
 	@Override
-	public void loadScriptError(HtmlPage htmlPage, URL scriptUrl,
-			Exception exception) {
-		LOGGER.warn("Error loading script '{}' because: {}",scriptUrl,exception.getMessage());
+	public void loadScriptError(HtmlPage htmlPage, URL scriptUrl, Exception exception) {
+		LOGGER.warn("Error loading script '{}' because: {}", scriptUrl, exception.getMessage());
 		LOGGER.debug("Error loading script (stacktrace):", exception);
 	}
-
 }

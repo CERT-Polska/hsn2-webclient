@@ -23,7 +23,8 @@ package pl.nask.hsn2.service;
 import pl.nask.hsn2.wrappers.ObjectDataWrapper;
 
 public class ServiceData {
-    private Long inputUrlId;
+    private static final int LAST_SLASH_BOUNDARY = 8;
+	private Long inputUrlId;
     private String inputUrlNormalized;
     private String inputUrlOriginal;
     private String inputReferrer;
@@ -31,15 +32,16 @@ public class ServiceData {
     private Integer depth;
     private Long topAncestorId;
     private String urlForProcessing;
+    private String proxy;
 
-    public ServiceData(String originalUrl, String normalizedUrl) {
-    	// fot tests only
+    ServiceData(String originalUrl, String normalizedUrl) {
+    	// constructor for tests only
     	setInputUrlOriginal(originalUrl);
         inputUrlNormalized = normalizedUrl;
     }
 
 	public ServiceData(Long inputUrlId, String inputUrlNormalized, String inputUrlOriginal, String inputReferrer,
-			Long inputReferrerCookieId, Integer depth, Long topAncestorId) {
+			Long inputReferrerCookieId, Integer depth, Long topAncestorId,String proxyUri) {
 		this.inputUrlId = inputUrlId;
 		this.inputUrlNormalized = inputUrlNormalized;
 		setInputUrlOriginal(inputUrlOriginal);
@@ -47,6 +49,7 @@ public class ServiceData {
 		this.inputReferrerCookieId = inputReferrerCookieId;
 		this.depth = depth;
 		this.topAncestorId = topAncestorId;
+		this.proxy = proxyUri;
 	}
 
     public ServiceData(ObjectDataWrapper objectData) {
@@ -57,6 +60,7 @@ public class ServiceData {
         this.inputUrlId = objectData.getId();
         this.depth = objectData.getInt("depth");
         this.topAncestorId = objectData.getObjectId("top_ancestor");
+        this.proxy = objectData.getString("proxy");
     }
 
     public String getInputReferrer() {
@@ -90,9 +94,12 @@ public class ServiceData {
     public String getUrlForProcessing() {
     	return urlForProcessing;
     }
+    public String getProxyUri() {
+    	return proxy;
+    }
 
 	public ServiceData getServiceDataCopyForNewSubcontext(String newUrlOriginal, String newReferrer, Long newReferrerCookieId) {
-		return new ServiceData(inputUrlId, inputUrlNormalized, newUrlOriginal, newReferrer, newReferrerCookieId, depth, topAncestorId);
+		return new ServiceData(inputUrlId, inputUrlNormalized, newUrlOriginal, newReferrer, newReferrerCookieId, depth, topAncestorId, proxy);
 	}
 
 	private void setInputUrlOriginal(String s) {
@@ -119,16 +126,15 @@ public class ServiceData {
 	 * @return True if URL is only host name and is not ending with slash.
 	 */
 	private boolean isContainingHostnameOnly(String url) {
+		boolean result = false;
 		if (url.startsWith("http://") || url.startsWith("https://")) {
 			int lastSlashIndex = url.lastIndexOf('/');
-			if (lastSlashIndex < 8 && url.charAt(url.length() - 1) != '/') {
+			char lastCharacter = url.charAt(url.length() - 1);
+			if (lastSlashIndex < LAST_SLASH_BOUNDARY && lastCharacter != '/') {
 				return true;
-			} else {
-				return false;
 			}
-		} else {
-			return false;
 		}
+		return result;
 	}
 
 	@Override

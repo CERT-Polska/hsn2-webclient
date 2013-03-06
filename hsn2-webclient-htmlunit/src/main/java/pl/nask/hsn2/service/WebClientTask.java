@@ -69,13 +69,10 @@ public class WebClientTask implements Task {
 			jobContext.addReference("http_request", referenceId);
 		} catch (RequiredParameterMissingException e) {
 			LOGGER.warn("Couldn't create HTTP request wrapper, parameter missing.", e);
-			e.printStackTrace();
 		} catch (StorageException e) {
 			LOGGER.warn("Couldn't write HTTP request object to Data Store.", e);
-			e.printStackTrace();
 		} catch (ParameterException e) {
 			LOGGER.warn("Invalid parameter while writting HTTP request object to Data Store.", e);
-			e.printStackTrace();
 		}
     }
     
@@ -91,13 +88,13 @@ public class WebClientTask implements Task {
 			jobContext.addWarning("Serious problem with JVM - cannot recover task");
 		} catch (NullPointerException e) {
 			String msg = e.getMessage();
-			if (msg == null)
+			if (msg == null) {
 				msg = "NullPointerException while processing " + inputData.getUrlForProcessing();
+			}
 			jobContext.addAttribute("reason_failed", msg);
 			LOGGER.debug("NPE while processing task", e);
 		} finally {
-			this.follower.closeJsEngine();
-			this.follower = null;
+			follower = null;
 		}
 	}
 

@@ -984,7 +984,7 @@ public class WebClientWorker implements Runnable {
 
 	public void closeJsInterceptor() {
 		LOGGER.debug("Closing javascript debugger/interceptor");
-		this.scriptInterceptor.disableProcessing();
+		scriptInterceptor.disableProcessing();
 	}
 
 	public WebClient getWc() {

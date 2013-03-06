@@ -72,6 +72,7 @@ public class HtmlUnitFollower implements UrlFollower {
 	}
 
 	@Override
+
 	public void processUrl() {
 		webClientWorker.setContextData(webClientWorker, params, urlForProcessing);
 		LOGGER.debug("Starting processing: {}", urlForProcessing);
@@ -99,6 +100,7 @@ public class HtmlUnitFollower implements UrlFollower {
 			LOGGER.error("Task has been interrupted", e);
 		} finally {
 			webClientWorker.stopJavaScripts();
+			webClientWorker.closeJsInterceptor();
 			LOGGER.info("Finished processing: {}", urlForProcessing);
 		}
 	}

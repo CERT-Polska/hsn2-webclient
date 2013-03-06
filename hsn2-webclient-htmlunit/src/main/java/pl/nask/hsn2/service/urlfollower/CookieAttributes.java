@@ -20,16 +20,14 @@
 package pl.nask.hsn2.service.urlfollower;
 
 public enum CookieAttributes {
+	DOMAIN("domain"), PATH("path"), IS_SECURE("isSecure");
+	private String name;
 
-    DOMAIN("domain"), PATH("path"), IS_SECURE("isSecure");
+	CookieAttributes(String name) {
+		this.name = name;
+	}
 
-    String name;
-
-    CookieAttributes(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 }

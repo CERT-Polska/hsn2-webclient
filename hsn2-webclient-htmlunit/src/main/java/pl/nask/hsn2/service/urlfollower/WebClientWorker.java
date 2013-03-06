@@ -37,11 +37,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
@@ -52,6 +52,7 @@ import pl.nask.hsn2.ParameterException;
 import pl.nask.hsn2.RequiredParameterMissingException;
 import pl.nask.hsn2.ResourceException;
 import pl.nask.hsn2.StorageException;
+import pl.nask.hsn2.bus.api.TimeoutException;
 import pl.nask.hsn2.service.ServiceData;
 import pl.nask.hsn2.service.ServiceParameters;
 import pl.nask.hsn2.service.task.NewWebClientUrlObject;
@@ -77,6 +78,8 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.UrlUtils;
 
 public class WebClientWorker implements Runnable {
+	private static final int ONE_SECOND_IN_MILISECONDS = 1000;
+	private static final String HTML_STRING = "html";
 	private static final Logger LOGGER = LoggerFactory.getLogger(WebClientWorker.class);
 	private static final String URL_ORIGINAL_STRING = "url_original";
 	private static final String HREF_STRING = "href";
@@ -94,13 +97,15 @@ public class WebClientWorker implements Runnable {
 //	private ProxyParamsWrapper	proxyParams = null;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
-		if (taskParams == null) 
+		if (taskParams == null) {
 			throw new IllegalArgumentException("ServiceParameters cannot be null");
-		if (l == null) 
+		}
+		if (l == null) {
 			throw new IllegalArgumentException("CountDownLatch cannot be null");
-		if (dispatcher == null)
+		}
+		if (dispatcher == null) {
 			throw new IllegalArgumentException("HtmlUnitFollower cannot be null");
-		
+		}
 		this.latch = l;
 		this.workerDispatcher = dispatcher;
 		this.scriptInterceptor = new ScriptInterceptor(taskParams);
@@ -143,14 +148,16 @@ public class WebClientWorker implements Runnable {
 		wc.setTimeout(taskParams.getPageTimeoutMillis());
 		wc.setJavaScriptTimeout(taskParams.getSingleJsTimeoutMillis());
 		wc.setThrowExceptionOnFailingStatusCode(false);
-		wc.setThrowExceptionOnScriptError(false); // disable script errors
+
+		// disable script errors
+		wc.setThrowExceptionOnScriptError(false);
+
 		wc.getJavaScriptEngine().getContextFactory().setDebugger(scriptInterceptor);
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , proxy:[{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxy});
-
 	}
 
 	@Override
@@ -202,7 +209,9 @@ public class WebClientWorker implements Runnable {
 			StorageException, BreakingChainException, ExecutionException, TimeoutException {
 		if ( interruptProcessing) {
 			LOGGER.debug("Time limit exceeded. {} won't be processed",url);
-			throw new TimeoutException("Timeout, stopping processing:"+ url); // it's thrown in getInsecurePagesChain() so might be ommited here
+
+			// it's thrown in getInsecurePagesChain() so might be omitted here
+			throw new TimeoutException("Timeout, stopping processing:"+ url);
 		}
 		LOGGER.debug("Gathering page {}", url);
 		long startTime = System.currentTimeMillis();
@@ -221,8 +230,8 @@ public class WebClientWorker implements Runnable {
 		LOGGER.debug("Processing of {} took {} ms. ", url, (pageProcessedTime - startTime));
 	}
 
-	private void processPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException,
-			ResourceException, StorageException {
+	private void processPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
+			ParameterException, ResourceException, StorageException {
 		try {			
 			int i = wc.waitForBackgroundJavaScript(taskParams.getBackgroundJsTimeoutMillis());
 			if (i > 0) {
@@ -266,26 +275,24 @@ public class WebClientWorker implements Runnable {
 		LOGGER.debug("JavaScript was restarted.");
 	}
 
-	private void handlePage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException, StorageException {
-		if(processedPage.isHtml()){
+	private void handlePage(ProcessedPage processedPage) throws IOException, ParameterException, ResourceException, StorageException {
+		if (processedPage.isHtml()) {
 			LOGGER.debug("Got HTML page, processing. (url={})", processedPage.getRequestedUrl());
-			handleHtmlPage((HtmlPage)processedPage.getPage());
-		}
-		else if (processedPage.getPage() instanceof TextPage) {
+			handleHtmlPage((HtmlPage) processedPage.getPage());
+		} else if (processedPage.getPage() instanceof TextPage) {
 			handleTextPage();
 		} else {
-			//LOGGER.warn("Unsupported page type: {}", new Object[] {processedPage.getPage().getWebResponse().getContentType(), processedPage.getPage().getWebResponse().getWebRequest().getUrl().toExternalForm()});
-			LOGGER.warn("Unsupported page type ({}) wile parsing URL ({})", new Object[] {processedPage.getPage().getWebResponse().getContentType(), processedPage.getPage().getWebResponse().getWebRequest().getUrl().toExternalForm()});
+			LOGGER.warn("Unsupported page type ({}) wile parsing URL ({})", new Object[] {
+					processedPage.getPage().getWebResponse().getContentType(),
+					processedPage.getPage().getWebResponse().getWebRequest().getUrl().toExternalForm() });
 		}
 	}
 
-	private void processFramesSubPage(ProcessedPage subPage, String subPageUrl, WebClientOrigin origin) throws FailingHttpStatusCodeException,
-			MalformedURLException, IOException, ParameterException, ResourceException, StorageException {
-
+	private void processFramesSubPage(ProcessedPage subPage, String subPageUrl, WebClientOrigin origin) throws IOException,
+			ParameterException, ResourceException, StorageException {
 		boolean openSubContextFailed = false;
 		try {
 			String oldBaseUrl = getPageLinksForCurrentContext().getBaseUrl();
-
 			String newSubPageUrl = null;
 
 			if (subPage == null) {
@@ -328,8 +335,8 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void processClientRedirectSubPage(ProcessedPage subPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
-			ParameterException, ResourceException, StorageException {
+	private void processClientRedirectSubPage(ProcessedPage subPage) throws IOException, ParameterException, ResourceException,
+			StorageException {
 		boolean openSubContextFailed = false;
 		try {
 			prepareSubPage(subPage.getActualUrl().toExternalForm(), WebClientOrigin.CLIENT_REDIRECT);
@@ -342,14 +349,15 @@ public class WebClientWorker implements Runnable {
 			LOGGER.debug("Protocol not supported (not HTTP/HTTPS) for iframe:" + e.getMessage());
 			ctx.addAttribute(URL_ORIGINAL_STRING, e.getMessage());
 		} finally {
-			if (!openSubContextFailed)
+			if (!openSubContextFailed) {
 				ctx.closeSubContext();
+			}
 		}
 
 	}
 
-	private void processServerRedirectSubPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
-			ParameterException, ResourceException, StorageException, BreakingChainException {
+	private void processServerRedirectSubPage(ProcessedPage processedPage) throws IOException, ParameterException, ResourceException,
+			StorageException, BreakingChainException {
 		boolean openSubContextFailed = false;
 		try {
 			prepareSubPage(processedPage.getServerSideRedirectLocation(), WebClientOrigin.SERVER_REDIRECT);
@@ -369,12 +377,14 @@ public class WebClientWorker implements Runnable {
 			LOGGER.debug("Time limit exceeded: {}",processedPage.getActualUrl());
 			openSubContextFailed = true;		
 		} finally {
-			if (!openSubContextFailed)
+			if (!openSubContextFailed) {
 				ctx.closeSubContext();
+			}
 		}
 	}
 
-	private ProcessedPage getInsecurePagesChain(String url) throws FailingHttpStatusCodeException, MalformedURLException, IOException, BreakingChainException, ExecutionException, TimeoutException{
+	private ProcessedPage getInsecurePagesChain(String url) throws IOException, BreakingChainException, ExecutionException,
+			TimeoutException {
 		Page resultingPage = null;
 		resultingPage = getInsecurePage(url);
 		
@@ -384,21 +394,10 @@ public class WebClientWorker implements Runnable {
 		}
 		return chain;
 	}
-	
-	private ProcessedPage getInsecurePagesChain(final ProcessedPage processedPage)
- throws FailingHttpStatusCodeException, IOException, BreakingChainException,
-			ExecutionException, TimeoutException {
-		if (interruptProcessing) {
-			throw new TimeoutException("Overall time limit exceeded url:" + processedPage.getOriginalUrl());
-		}
-		try {
-			wc.setUseInsecureSSL(true);
-		} catch (GeneralSecurityException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(processedPage.getServerSideRedirectLocation()));
-		req.setAdditionalHeader("Accept-Encoding", "");
 
+	private ProcessedPage getInsecurePagesChain(final ProcessedPage processedPage) throws IOException, BreakingChainException,
+			ExecutionException, TimeoutException {
+		final WebRequest req = insecurePagesChaingInitialization(processedPage);
 		ExecutorService ex = Executors.newSingleThreadExecutor();
 		Future<Page> f = ex.submit(new Callable<Page>() {
 			@Override
@@ -416,17 +415,17 @@ public class WebClientWorker implements Runnable {
 		} catch (InterruptedException e) {
 			LOGGER.warn("Gathering {} interrupted", req.getUrl());
 			Thread.currentThread().interrupt();
-		} catch (TimeoutException e) {
-			if (e.getMessage() == null) {
-				throw new TimeoutException("Timeout when gathering:"+ req.getUrl());
-			}
-			throw e;
+		} catch (java.util.concurrent.TimeoutException e) {
+			throw new TimeoutException("Timeout when gathering:" + req.getUrl(), e);
 		} finally {
 			if (f != null) {
 				f.cancel(true);
 			}
 		}
+		return insecurePagesChainPostprocessing(processedPage, p);
+	}
 
+	private ProcessedPage insecurePagesChainPostprocessing(final ProcessedPage processedPage, Page p) throws BreakingChainException {
 		ProcessedPage chain = null;
 		if (processedPage.isFromFrame()) {
 			chain = previousFramePageMap.get(p);
@@ -434,10 +433,24 @@ public class WebClientWorker implements Runnable {
 			chain = previousTopPageMap.get(p);
 		}
 		if (chain == null) {
-			throw new BreakingChainException("Page: " + p + " dosn't have chain!\nTopMapKey: " + previousTopPageMap.keySet() + "\nFrameMapKey:"
-					+ previousFramePageMap.keySet());
+			throw new BreakingChainException("Page: " + p + " dosn't have chain!\nTopMapKey: " + previousTopPageMap.keySet()
+					+ "\nFrameMapKey:" + previousFramePageMap.keySet());
 		}
 		return chain;
+	}
+
+	private WebRequest insecurePagesChaingInitialization(final ProcessedPage processedPage) throws TimeoutException, MalformedURLException {
+		if (interruptProcessing) {
+			throw new TimeoutException("Overall time limit exceeded url:" + processedPage.getOriginalUrl());
+		}
+		try {
+			wc.setUseInsecureSSL(true);
+		} catch (GeneralSecurityException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(processedPage.getServerSideRedirectLocation()));
+		req.setAdditionalHeader("Accept-Encoding", "");
+		return req;
 	}
 
 	private void prepareSubPage(String subPageUrl, WebClientOrigin origin) throws ContextSizeLimitExceeded, URIException {
@@ -452,123 +465,128 @@ public class WebClientWorker implements Runnable {
 		validateSupportedProtocols(subPageUrl);
 	}
 
-	private void handleHtmlPage(HtmlPage page) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException, StorageException {
+	private void handleHtmlPage(HtmlPage page) throws IOException, ParameterException, ResourceException, StorageException {
 		inspectHtmlPage(page);
 	}
 
 	private void handleTextPage() {
-		ctx.addAttribute("html", false);
+		ctx.addAttribute(HTML_STRING, false);
 	}
 
-	private void inspectHtmlPage(HtmlPage htmlPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException, StorageException{
+	private void inspectHtmlPage(HtmlPage htmlPage) throws IOException, ParameterException, ResourceException, StorageException {
 		getPageLinksForCurrentContext().setBaseUrl(htmlPage.getUrl().toExternalForm());
 		for (HtmlElement element : htmlPage.getHtmlElementDescendants()) {
 			inspect(element);
 		}
 	}
 
-	private void inspect(HtmlElement element) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException, ResourceException,
-			StorageException {
-		String tagName = element.getTagName();
+	private void inspect(HtmlElement element) throws IOException, ParameterException, ResourceException, StorageException {
+		String tagName = element.getTagName().toLowerCase();
 		if (interruptProcessing) {
 			LOGGER.debug("Element [{}] won't be processed (timeout)", tagName);
-			return;
-		}
-		if ("head".equalsIgnoreCase(tagName)) {
+		} else if ("head".equals(tagName)) {
+			// Process HEAD tag.
 			getPageLinksForCurrentContext().setHeadElement(element);
-			return;
-		}
-		if ("base".equalsIgnoreCase(tagName) && !getPageLinksForCurrentContext().getIsBaseTagIgnored()) {
-			if (getPageLinksForCurrentContext().isOutsideOfHeadElement(element)) {
-				// BASE element should be inside HEAD, but it isn't
-				getPageLinksForCurrentContext().ignoreBaseTag();
-				return;
-			}
-			String base = element.getAttribute(HREF_STRING);
-			if (properUrl(base)) {
-				if (!base.endsWith("/")) {
-					base += "/";
-				}
-				getPageLinksForCurrentContext().setBaseUrl(base);
-			}
-		} else if ("applet".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addObject(element, "code");
-			//getPageLinksForCurrentContext().addObject(element, "classid");
+		} else if ("base".equals(tagName) && !getPageLinksForCurrentContext().getIsBaseTagIgnored()) {
+			// Process BASE tag.
+			processBaseTag(element);
+		} else if ("applet".equals(tagName)) {
+			// Process APPLET tag.
 			processEmbeddedObjectFile(element, "code");
 			processEmbeddedObjectFile(element, "classid");
-		} else if ("audio".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addMultimedia(element, SRC_STRING);
+		} else if ("audio".equals(tagName)) {
+			// Process AUDIO tag.
 			processEmbeddedMultimediaFile(element, SRC_STRING);
-		} else if ("body".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addImage(element, "background");
+		} else if ("body".equals(tagName)) {
+			// Process BODY tag.
 			processEmbeddedImageFile(element, "background");
-		} else if ("command".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addImage(element, "icon");
+		} else if ("command".equals(tagName)) {
+			// Process COMMAND tag.
 			processEmbeddedImageFile(element, "icon");
-		} else if ("embed".equalsIgnoreCase(tagName)) {
-			// getPageLinksForCurrentContext().addObject(element, SRC_STRING);
+		} else if ("embed".equals(tagName)) {
+			// Process EMBED tag.
 			processEmbeddedObjectFile(element, SRC_STRING);
-		} else if ("html".equalsIgnoreCase(tagName)) {
-			// BASE and CODEBASE tags can't influence HTML MANIFEST
-			//getPageLinksForCurrentContext().addOther(element, "manifest");
+		} else if (HTML_STRING.equals(tagName)) {
+			// Process HTML tag. BASE and CODEBASE tags can't influence HTML MANIFEST.
 			processEmbeddedOtherFile(element, "manifest");
-		} else if ("img".equalsIgnoreCase(tagName)) {
-			// getPageLinksForCurrentContext().addImage(element, SRC_STRING);
+		} else if ("img".equals(tagName)) {
+			// Process IMG tag.
 			processEmbeddedImageFile(element, SRC_STRING);
-			// longdesc is treated as link, not as embedded file
 			getPageLinksForCurrentContext().addLongdesc(element, "longdesc");
-		} else if ("input".equalsIgnoreCase(tagName)) {
+		} else if ("input".equals(tagName)) {
+			// Process INPUT tag.
 			if ("image".equalsIgnoreCase(element.getAttribute("type"))) {
-				//getPageLinksForCurrentContext().addImage(element, SRC_STRING);
 				processEmbeddedImageFile(element, SRC_STRING);
 			}
-		} else if ("link".equalsIgnoreCase(tagName)) {
-			String rel = element.getAttribute("rel");
-			if ("stylesheet".equalsIgnoreCase(rel)) {
-				//getPageLinksForCurrentContext().addOther(element, HREF_STRING);
-				processEmbeddedOtherFile(element, HREF_STRING);
-			} else if ("icon".equalsIgnoreCase(rel) || "shortcut icon".equalsIgnoreCase(rel)) {
-				//getPageLinksForCurrentContext().addImage(element, HREF_STRING);
-				processEmbeddedImageFile(element, HREF_STRING);
-			}
-		} else if ("object".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addObject(element, "data");
-			processEmbeddedObjectFile(element, "data");
-			String classIdAttribute = element.getAttribute("classid").toLowerCase();
-			boolean classidIsUrl = classIdAttribute.startsWith("http:") || classIdAttribute.startsWith("https:");
-			if (classidIsUrl) {
-				//getPageLinksForCurrentContext().addObject(element, "classid");
-				processEmbeddedObjectFile(element, "classid");
-			}
-		} else if ("video".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addImage(element, "poster");
-			//getPageLinksForCurrentContext().addMultimedia(element, SRC_STRING);
+		} else if ("link".equals(tagName)) {
+			// Process LINK tag.
+			processLinkTag(element);
+		} else if ("object".equals(tagName)) {
+			// Process OBJECT tag.
+			processObjectTag(element);
+		} else if ("video".equals(tagName)) {
+			// Process VIDEO tag.
 			processEmbeddedImageFile(element, "poster");
 			processEmbeddedMultimediaFile(element, SRC_STRING);
-		} else if ("script".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addOther(element, SRC_STRING);
+		} else if ("script".equals(tagName)) {
+			// Process SCRIPT tag.
 			processEmbeddedOtherFile(element, SRC_STRING);
-		} else if ("source".equalsIgnoreCase(tagName)) {
-			//getPageLinksForCurrentContext().addMultimedia(element, SRC_STRING);
+		} else if ("source".equals(tagName)) {
+			// Process SOURCE tag.
 			processEmbeddedMultimediaFile(element, SRC_STRING);
-		} else if ("a".equalsIgnoreCase(tagName)) {
-			// this is not embedded file but ongoing link
+		} else if ("a".equals(tagName)) {
+			// Process A tag. (This is not embedded file but ongoing link.)
 			getPageLinksForCurrentContext().addAnchor(element, HREF_STRING);
-		} else if ("area".equalsIgnoreCase(tagName)) {
-			// this is not embedded file but ongoing link
+		} else if ("area".equals(tagName)) {
+			// Process AREA tag. (This is not embedded file but ongoing link.)
 			getPageLinksForCurrentContext().addAnchor(element, HREF_STRING);
-		} else if ("frame".equalsIgnoreCase(tagName)) {
+		} else if ("frame".equals(tagName)) {
+			// Process FRAME tag.
 			getPageLinksForCurrentContext().ignoreBaseTag();
 			processFramesSubPage(previousFramePageMap.get(((HtmlFrame) element).getEnclosedPage()), element.getAttribute(SRC_STRING), WebClientOrigin.FRAME);
-		} else if ("iframe".equalsIgnoreCase(tagName)) {
+		} else if ("iframe".equals(tagName)) {
+			// Process IFRAME tag.
 			getPageLinksForCurrentContext().ignoreBaseTag();
 			processFramesSubPage(previousFramePageMap.get(((HtmlInlineFrame) element).getEnclosedPage()), element.getAttribute(SRC_STRING),
 					WebClientOrigin.IFRAME);
 		}
 	}
 
-	private void processEmbeddedObjectFile(HtmlElement element, String attributeName) throws FailingHttpStatusCodeException, MalformedURLException,
-			IOException, ParameterException, ResourceException, StorageException {
+	private void processObjectTag(HtmlElement element) throws IOException, ParameterException, ResourceException, StorageException {
+		processEmbeddedObjectFile(element, "data");
+		String classIdAttribute = element.getAttribute("classid").toLowerCase();
+		boolean classidIsUrl = classIdAttribute.startsWith("http:") || classIdAttribute.startsWith("https:");
+		if (classidIsUrl) {
+			processEmbeddedObjectFile(element, "classid");
+		}
+	}
+
+	private void processLinkTag(HtmlElement element) throws IOException, ParameterException, ResourceException, StorageException {
+		String rel = element.getAttribute("rel");
+		if ("stylesheet".equalsIgnoreCase(rel)) {
+			processEmbeddedOtherFile(element, HREF_STRING);
+		} else if ("icon".equalsIgnoreCase(rel) || "shortcut icon".equalsIgnoreCase(rel)) {
+			processEmbeddedImageFile(element, HREF_STRING);
+		}
+	}
+
+	private void processBaseTag(HtmlElement element) {
+		if (getPageLinksForCurrentContext().isOutsideOfHeadElement(element)) {
+			// BASE element should be inside HEAD, but it isn't.
+			getPageLinksForCurrentContext().ignoreBaseTag();
+			return;
+		}
+		String base = element.getAttribute(HREF_STRING);
+		if (properUrl(base)) {
+			if (!base.endsWith("/")) {
+				base += "/";
+			}
+			getPageLinksForCurrentContext().setBaseUrl(base);
+		}
+	}
+
+	private void processEmbeddedObjectFile(HtmlElement element, String attributeName) throws IOException, ParameterException,
+			ResourceException, StorageException {
 		// Ignore future BASE tags.
 		getPageLinksForCurrentContext().ignoreBaseTag();
 
@@ -612,8 +630,8 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void processEmbeddedMultimediaFile(HtmlElement element, String attributeName) throws FailingHttpStatusCodeException, MalformedURLException,
-			IOException, ParameterException, ResourceException, StorageException {
+	private void processEmbeddedMultimediaFile(HtmlElement element, String attributeName) throws IOException, ParameterException,
+			ResourceException, StorageException {
 		// Ignore future BASE tags.
 		getPageLinksForCurrentContext().ignoreBaseTag();
 
@@ -626,8 +644,8 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void processEmbeddedImageFile(HtmlElement element, String attributeName) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
-			ParameterException, ResourceException, StorageException {
+	private void processEmbeddedImageFile(HtmlElement element, String attributeName) throws IOException, ParameterException,
+			ResourceException, StorageException {
 		// Ignore future BASE tags.
 		getPageLinksForCurrentContext().ignoreBaseTag();
 
@@ -640,10 +658,10 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void processEmbeddedOtherFile(HtmlElement element, String attributeName) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
-			ParameterException, ResourceException, StorageException {
+	private void processEmbeddedOtherFile(HtmlElement element, String attributeName) throws IOException, ParameterException,
+			ResourceException, StorageException {
 		// Ignore future BASE tags, for all tags but HTML.
-		if (!element.getTagName().equalsIgnoreCase("html")) {
+		if (!element.getTagName().equalsIgnoreCase(HTML_STRING)) {
 			// Basically, this is happening only when tag is HTML and attribute
 			// is MANIFEST.
 			getPageLinksForCurrentContext().ignoreBaseTag();
@@ -658,8 +676,7 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void processEmbeddedFile(String urlOfFileToSave) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ParameterException,
-			ResourceException, StorageException {
+	private void processEmbeddedFile(String urlOfFileToSave) throws IOException, ParameterException, ResourceException, StorageException {
 		boolean isSubContextOpened = true;
 		try {
 			wc.setJavaScriptEnabled(false);
@@ -731,13 +748,10 @@ public class WebClientWorker implements Runnable {
 			ctx.addReference("http_request", referenceId);
 		} catch (RequiredParameterMissingException e) {
 			LOGGER.warn("Couldn't create HTTP request wrapper, parameter missing.", e);
-			e.printStackTrace();
 		} catch (StorageException e) {
 			LOGGER.warn("Couldn't write HTTP request object to Data Store.", e);
-			e.printStackTrace();
 		} catch (ParameterException e) {
 			LOGGER.warn("Invalid parameter while writting HTTP request object to Data Store.", e);
-			e.printStackTrace();
 		}
 	}
 
@@ -761,86 +775,91 @@ public class WebClientWorker implements Runnable {
 		return ctx.getCookiesReferenceId();
 	}
 
+	/**
+	 * Check if provided URL is valid.
+	 * 
+	 * @param url URL to check.
+	 * @return True if URL is valid, false otherwise.
+	 */
 	private boolean properUrl(String url) {
 		try {
 			String encoded = URIUtil.encode(url, Link.PROPER_URL_BITSET); 			
 			new URL(encoded);
 			return true;
-		} catch (URIException e) {
-			// cannot encode
-			return false;
-		} catch (MalformedURLException e) {
-			// not an url
-			return false;
 		} catch (Exception e) {
-			// some other error
 			return false;
 		}
 	}
 
-	//FIXME:zmienic na getInsecurePagesChain i zwracac ProcessedPage
-	public Page getInsecurePage(String url) throws FailingHttpStatusCodeException, MalformedURLException, IOException, ExecutionException, TimeoutException {
-		if ( interruptProcessing) {
-			throw new TimeoutException("Overall time limit exceeded url:" +url);
-		}
-		try {
-			wc.setUseInsecureSSL(true);
-		} catch (GeneralSecurityException e) {
-			LOGGER.error(e.getMessage(),e);
-		}
-		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(url));
-				
-		// work-around for bug with deflated content.
-		req.setAdditionalHeader("Accept-Encoding", "");
-		
-		long sTime = System.currentTimeMillis();
+	// FIXME:zmienic na getInsecurePagesChain i zwracac ProcessedPage
+	public Page getInsecurePage(String url) throws IOException, ExecutionException, TimeoutException {
+		final WebRequest req = insecurePageInitialization(url);
+		long processingTime = System.currentTimeMillis();
 		ExecutorService ex = Executors.newSingleThreadExecutor();
 		Future<Page> f = ex.submit(new Callable<Page>() {
-
 			@Override
 			public Page call() throws IOException {
 				return wc.getPage(req);
 			}
 		});
-		Page p = null;		
+		Page page = null;
 		try {
-			if ( !interruptProcessing && taskParams.getPageTimeoutMillis() <= 0) {
-				p = f.get();
-			} else if ( !interruptProcessing){
-				p = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
+			if (!interruptProcessing && taskParams.getPageTimeoutMillis() <= 0) {
+				page = f.get();
+			} else if (!interruptProcessing) {
+				page = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
 			}
 		} catch (InterruptedException e) {
-			LOGGER.warn("Gathering {} interrupted",url);
+			LOGGER.warn("Gathering {} interrupted", url);
 			Thread.currentThread().interrupt();
-		} catch (TimeoutException e) { // cause of timeout is empty
-			if ( e.getMessage() == null ) {
-				throw new TimeoutException("Timeout when gathering ("+ taskParams.getPageTimeoutMillis() +" ms):"+ url);
-			}
-			throw e;
+		} catch (java.util.concurrent.TimeoutException e) {
+			throw new TimeoutException("Timeout when gathering (" + taskParams.getPageTimeoutMillis() + " ms):" + url, e);
 		} finally {
-			if ( f != null) {
+			if (f != null) {
 				f.cancel(true);
 			}
 		}
-		sTime = System.currentTimeMillis() - sTime;
-		if ( interruptProcessing || Thread.currentThread().isInterrupted()) {
-			if ( wc.getWebConnection() instanceof HttpWebConnection) {
-				((HttpWebConnection)wc.getWebConnection()).shutdown();
+		processingTime = System.currentTimeMillis() - processingTime;
+		insecurePagePostprocessing(url, processingTime, page);
+		return page;
+	}
+
+	private WebRequest insecurePageInitialization(String url) throws TimeoutException, MalformedURLException {
+		if (interruptProcessing) {
+			throw new TimeoutException("Overall time limit exceeded url:" + url);
+		}
+		try {
+			wc.setUseInsecureSSL(true);
+		} catch (GeneralSecurityException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(url));
+
+		// work-around for bug with deflated content.
+		req.setAdditionalHeader("Accept-Encoding", "");
+		return req;
+	}
+
+	private void insecurePagePostprocessing(String url, long sTime, Page p) throws TimeoutException, IOException {
+		if (interruptProcessing || Thread.currentThread().isInterrupted()) {
+			if (wc.getWebConnection() instanceof HttpWebConnection) {
+				((HttpWebConnection) wc.getWebConnection()).shutdown();
 			}
 			throw new TimeoutException("Overall processing time limit exceeded");
 		}
-		
-		if ( p == null) {
-			LOGGER.warn("Retrieving [{}] failed, spent: {}.{} sec.",new Object[] {url,sTime/1000l,sTime%1000});
-			throw new IOException("Couldn't retrieve page "+url);
+
+		if (p == null) {
+			LOGGER.warn("Retrieving [{}] failed, spent: {}.{} sec.", new Object[] { url, sTime / ONE_SECOND_IN_MILISECONDS,
+					sTime % ONE_SECOND_IN_MILISECONDS });
+			throw new IOException("Couldn't retrieve page " + url);
 		}
-		
-		LOGGER.debug("Retrieved [{}] in: {}.{} sec.[interruptProcessing={}]",new Object[] {url,sTime/1000l,sTime%1000,interruptProcessing});
-		return p;
+
+		LOGGER.debug("Retrieved [{}] in: {}.{} sec.[interruptProcessing={}]", new Object[] { url, sTime / ONE_SECOND_IN_MILISECONDS,
+				sTime % ONE_SECOND_IN_MILISECONDS, interruptProcessing });
 	}
 
 	void addCookie(Cookie cookie) {
-		wc.getCookieManager().addCookie(cookie);	
+		wc.getCookieManager().addCookie(cookie);
 	}
 
 	Set<Cookie> getCookies() {
@@ -852,21 +871,21 @@ public class WebClientWorker implements Runnable {
 	}
 
 	public void closeAllWindows() {
-		try{
+		try {
 			stopJavaScripts();
 			wc.closeAllWindows();
+		} catch (Exception e) {
+			LOGGER.warn(e.getMessage(), e);
 		}
-		catch(Exception e){
-			LOGGER.warn(e.getMessage(),e);
-		}		
 	}
 
-	public void setContextData(WebClientWorker webClientWorker, ServiceParameters params, String urlForProcessing) {    	
-    	ctx.setServiceParams(params);
-    	ctx.setWebClientWorker(webClientWorker);
+	public void setContextData(WebClientWorker webClientWorker, ServiceParameters params, String urlForProcessing) {
+		ctx.setServiceParams(params);
+		ctx.setWebClientWorker(webClientWorker);
 	}
 
-	private void addRequiredAttributesToCurrentContext(ProcessedPage processedPage) throws ParameterException, ResourceException, StorageException {
+	private void addRequiredAttributesToCurrentContext(ProcessedPage processedPage) throws ParameterException, ResourceException,
+			StorageException {
 		try {
 			RequestWrapper requestWrapper = composeRequest(processedPage);
 			long referenceId = ctx.saveInDataStore(requestWrapper);
@@ -878,27 +897,9 @@ public class WebClientWorker implements Runnable {
 			boolean isSuccessfull = processedPage != null && processedPage.isComplete();
 			ctx.addAttribute("active", isSuccessfull);
 			if (isSuccessfull) {
-				ctx.addAttribute("http_code", processedPage.getResponseCode());
-				ctx.addAttribute("html", processedPage.isHtml());
-				if (processedPage.isHtml()) {
-					if (taskParams.isSaveHtml()) {
-						InputStream content = null;
-						content = processedPage.getContentAsStream();
-						referenceId = ctx.saveInDataStore(content);
-						ctx.addReference("html_source", referenceId);
-					}
-					handleCookies();
-				} else {
-					// It's not HTML so download as single file if possible.
-					downloadAndStoreSingleFile(processedPage);
-					handleCookies();
-				}
-			} else {				
-				ctx.addAttribute("reason_failed", "Unable to access page content");
-				if (workerDispatcher.getWarning() != null) {
-					ctx.addWarning(workerDispatcher.getWarning());
-					LOGGER.warn("Adding warning to Task : {}", workerDispatcher.getWarning());
-				}
+				addAttrsForSuccessfulProcessing(processedPage);
+			} else {
+				addAttrsForFailedProcessing();
 			}
 		} catch (StackOverflowError e) {
 			ctx.addWarning("Serious problem with JVM - cannot recover task");
@@ -910,6 +911,33 @@ public class WebClientWorker implements Runnable {
 				msg = "NullPointerException while processing " + url;
 			}
 			ctx.addAttribute("reason_failed", msg);
+		}
+	}
+
+	private void addAttrsForFailedProcessing() {
+		ctx.addAttribute("reason_failed", "Unable to access page content");
+		if (workerDispatcher.getWarning() != null) {
+			ctx.addWarning(workerDispatcher.getWarning());
+			LOGGER.warn("Adding warning to Task : {}", workerDispatcher.getWarning());
+		}
+	}
+
+	private void addAttrsForSuccessfulProcessing(ProcessedPage processedPage) throws StorageException, ResourceException,
+			ParameterException {
+		ctx.addAttribute("http_code", processedPage.getResponseCode());
+		ctx.addAttribute(HTML_STRING, processedPage.isHtml());
+		if (processedPage.isHtml()) {
+			if (taskParams.isSaveHtml()) {
+				InputStream content = null;
+				content = processedPage.getContentAsStream();
+				long referenceId = ctx.saveInDataStore(content);
+				ctx.addReference("html_source", referenceId);
+			}
+			handleCookies();
+		} else {
+			// It's not HTML so download as single file if possible.
+			downloadAndStoreSingleFile(processedPage);
+			handleCookies();
 		}
 	}
 
@@ -926,7 +954,6 @@ public class WebClientWorker implements Runnable {
 
 	private void handleCookies() throws StorageException {
 		if (taskParams.isSaveCookies() && workerDispatcher.getCookies().size() != 0) {
-			//long referenceId = ctx.saveCookiesInDataStore(getComposedCookies());
 			ctx.saveCookiesInDataStore(getComposedCookies());
 			ctx.addReference("cookie_list", ctx.getCookiesReferenceId());
 		}
@@ -956,12 +983,11 @@ public class WebClientWorker implements Runnable {
 
 		// Process PDF, SWF or other file.
 		WebClientObjectType objectType = WebClientObjectType.forMimeType(contentType);
-		if (objectType.isElliglibeForExtract(taskParams) && processedPage.getResponseCode() == 200) {
+		if (objectType.isElliglibeForExtract(taskParams) && processedPage.getResponseCode() == HttpStatus.SC_OK) {
 			try {
 				NewWebClientUrlObject newWebClientUrlObject = new NewWebClientUrlObject(
 						urlForProcessing,
 						null,
-						//WebClientOrigin.DIRECT.getName(),
 						objectType.getName(),
 						contentType,
 						taskParams.isAddReferrer() ? ctx.getCurrentContextServiceData().getInputReferrer() : null,
@@ -980,7 +1006,7 @@ public class WebClientWorker implements Runnable {
 
 	public void closeJsInterceptor() {
 		LOGGER.debug("Closing javascript debugger/interceptor");
-		this.scriptInterceptor.disableProcessing();
+		scriptInterceptor.disableProcessing();
 	}
 
 	public WebClient getWc() {

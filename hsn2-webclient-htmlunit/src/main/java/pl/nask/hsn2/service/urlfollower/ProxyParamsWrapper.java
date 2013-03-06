@@ -8,7 +8,6 @@ import pl.nask.hsn2.normalizers.UrlNormalizer;
 
 
 public class ProxyParamsWrapper {
-//	private static Logger LOG = LoggerFactory.getLogger(ProxyParamsWrapper.class);
 	private static final int HTTP_PROXY = 1;
 	private static final int SOCKS_PROXY = -1;
 	private int proxyType = 0;
@@ -27,7 +26,6 @@ public class ProxyParamsWrapper {
 				processSocks(un);
 			}
 		} catch (URIException | URLMalformedInputException | URLHostParseException | URLParseException e) {
-//			LOG.warn("Cannot parse proxy: {}.parameter will be ignored.",proxyToParse);
 			proxyType = 0;
 		}
 	}

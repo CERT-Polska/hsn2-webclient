@@ -23,7 +23,8 @@ package pl.nask.hsn2.service;
 import pl.nask.hsn2.wrappers.ObjectDataWrapper;
 
 public class ServiceData {
-    private Long inputUrlId;
+    private static final int LAST_SLASH_BOUNDARY = 8;
+	private Long inputUrlId;
     private String inputUrlNormalized;
     private String inputUrlOriginal;
     private String inputReferrer;
@@ -125,16 +126,15 @@ public class ServiceData {
 	 * @return True if URL is only host name and is not ending with slash.
 	 */
 	private boolean isContainingHostnameOnly(String url) {
+		boolean result = false;
 		if (url.startsWith("http://") || url.startsWith("https://")) {
 			int lastSlashIndex = url.lastIndexOf('/');
-			if (lastSlashIndex < 8 && url.charAt(url.length() - 1) != '/') {
+			char lastCharacter = url.charAt(url.length() - 1);
+			if (lastSlashIndex < LAST_SLASH_BOUNDARY && lastCharacter != '/') {
 				return true;
-			} else {
-				return false;
 			}
-		} else {
-			return false;
 		}
+		return result;
 	}
 
 	@Override

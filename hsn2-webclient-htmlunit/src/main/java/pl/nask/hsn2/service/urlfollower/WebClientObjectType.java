@@ -22,8 +22,6 @@ package pl.nask.hsn2.service.urlfollower;
 import pl.nask.hsn2.service.ServiceParameters;
 
 public enum WebClientObjectType {
-	// SWF("swf", "application/x-shockwave-flash"),
-	// PDF("pdf", "application/pdf"),
 	URL("url", null) {
 		@Override
 		public boolean isElliglibeForExtract(ServiceParameters params) {
@@ -33,7 +31,6 @@ public enum WebClientObjectType {
 	FILE("file", null) {
 		@Override
 		public boolean isElliglibeForExtract(ServiceParameters params) {
-			//return params.isSaveObjects();
 			return true;
 		}
 	};

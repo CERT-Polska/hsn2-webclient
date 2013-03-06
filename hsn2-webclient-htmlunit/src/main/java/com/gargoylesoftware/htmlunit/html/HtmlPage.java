@@ -1074,7 +1074,7 @@ public class HtmlPage extends SgmlPage {
         				redirectCache.put(redirDestination,0);
         			}
         		} catch (MalformedURLException e) {
-        			throw new IOException("Unable to download JavaScript from '" + url + "' (status " + statusCode + ").");
+        			throw new IOException("Unable to download JavaScript from '" + url + "' (status " + statusCode + ").", e);
         		}
         		return loadJavaScriptFromUrl(newUrl, charset);
         	}
@@ -1526,12 +1526,12 @@ public class HtmlPage extends SgmlPage {
         }
 
         final HtmlElement elementToGiveFocus;
-        final HtmlElement elementWithFocus = getFocusedElement();
-        if (elementWithFocus == null) {
+        final HtmlElement elementWithFocusLocal = getFocusedElement();
+        if (elementWithFocusLocal == null) {
             elementToGiveFocus = elements.get(0);
         }
         else {
-            final int index = elements.indexOf(elementWithFocus);
+            final int index = elements.indexOf(elementWithFocusLocal);
             if (index == -1) {
                 // The element with focus isn't on this page
                 elementToGiveFocus = elements.get(0);
@@ -1564,12 +1564,12 @@ public class HtmlPage extends SgmlPage {
         }
 
         final HtmlElement elementToGiveFocus;
-        final HtmlElement elementWithFocus = getFocusedElement();
-        if (elementWithFocus == null) {
+        final HtmlElement elementWithFocusLocal = getFocusedElement();
+        if (elementWithFocusLocal == null) {
             elementToGiveFocus = elements.get(elements.size() - 1);
         }
         else {
-            final int index = elements.indexOf(elementWithFocus);
+            final int index = elements.indexOf(elementWithFocusLocal);
             if (index == -1) {
                 // The element with focus isn't on this page
                 elementToGiveFocus = elements.get(elements.size() - 1);

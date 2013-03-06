@@ -42,7 +42,7 @@ import pl.nask.hsn2.wrappers.FileWrapper;
 import pl.nask.hsn2.wrappers.JSContextWrapper;
 import pl.nask.hsn2.wrappers.RequestWrapper;
 
-public abstract class WebClientDataStoreHelper {
+public final class WebClientDataStoreHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(WebClientDataStoreHelper.class);
 	
 	private WebClientDataStoreHelper() {
@@ -160,13 +160,16 @@ public abstract class WebClientDataStoreHelper {
         Resources.Request.Builder rBuilder = Resources.Request.newBuilder()
                 .setRequestUrlOriginal(wrapper.getOriginalUrl())
                 .setRequestUrlAbsolute(wrapper.getAbsoluteUrl());
-                
-        if (wrapper.getRequestHeader() != null)
+
+        if (wrapper.getRequestHeader() != null) {
         	rBuilder.setRequestHeader(wrapper.getRequestHeader());
-        if (wrapper.getResponseCode() != null)
-            rBuilder.setResponseCode(wrapper.getResponseCode());
-        if (wrapper.getResponseHeader() != null)
-            rBuilder.setResponseHeader(wrapper.getResponseHeader());
+        }
+        if (wrapper.getResponseCode() != null) {
+        	rBuilder.setResponseCode(wrapper.getResponseCode());
+        }
+        if (wrapper.getResponseHeader() != null) {
+        	rBuilder.setResponseHeader(wrapper.getResponseHeader());
+        }
         return rBuilder.build();
     }
 

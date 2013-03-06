@@ -23,13 +23,13 @@ import java.net.URISyntaxException;
 
 public class OutgoingLink extends Link {
 
-    private WebClientOrigin origin;
+	private WebClientOrigin origin;
 
 	public OutgoingLink(String baseUrl, String absoluteUrl, WebClientOrigin origin) throws URISyntaxException {
-    	super(baseUrl, absoluteUrl);
-    	this.origin = origin;
-    }
-	
+		super(baseUrl, absoluteUrl);
+		this.origin = origin;
+	}
+
 	public WebClientOrigin getOrigin() {
 		return origin;
 	}

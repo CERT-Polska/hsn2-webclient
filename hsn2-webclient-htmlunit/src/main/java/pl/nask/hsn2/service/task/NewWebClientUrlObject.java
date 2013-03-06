@@ -56,7 +56,7 @@ public class NewWebClientUrlObject extends NewUrlObject {
 		ObjectDataBuilder objectBuilder = new ObjectDataBuilder();
 		objectBuilder.addStringAttribute("type", getType());
 		objectBuilder.addStringAttribute("url_original", getOriginalUrl());
-		objectBuilder.addTimeAttribute("creation_time", System.currentTimeMillis());;
+		objectBuilder.addTimeAttribute("creation_time", System.currentTimeMillis());
 		if (getOrigin() != null) {
 			objectBuilder.addStringAttribute("origin", getOrigin());
 		}

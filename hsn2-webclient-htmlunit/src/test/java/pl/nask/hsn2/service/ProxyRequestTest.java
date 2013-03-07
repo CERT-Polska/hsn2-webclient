@@ -30,7 +30,7 @@ import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;
 
 public class ProxyRequestTest {
 	private static final String	REQ_PAGE = "http://google.pl/nonexistent.swf";
-	private static String PROXY_URI = "http://user1:pass1@127.0.0.1:8123";
+	private static String PROXY_URI = null;
 	private static String lastProxyAuth = null;
 	private WebClientTaskContext	jobContext;
 	
@@ -59,6 +59,7 @@ public class ProxyRequestTest {
 	@BeforeClass
 	void setServer() throws Exception {
 		TestHttpServer.startServerWithHandlers(new Handler[]{new ReqHandler()});
+		PROXY_URI = "http://user:pass@localhost:"+TestHttpServer.getWebserverPort();
 		
 	}
 	@AfterClass

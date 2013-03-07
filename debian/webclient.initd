@@ -19,9 +19,9 @@ PIDFILE="/var/run/hsn2-$HSN2_COMPONENT.pid"
 
 HSN2_COMPONENT_PARAMS="--connector 127.0.0.1 \
 --dataStore http://localhost:8080 \
---maxThreads 5"
+--maxThreads 30"
 
-HSN2_JVM_PARAMS="-Xmx1500m -Xms1500m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1101"
+HSN2_JVM_PARAMS="-Xmx1700m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1101"
 
 #HSN2_JVM_PARAMS="-Xmx80m -Xms80m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1101"
 #HSN2_JVM_PARAMS="$HSN2_JVM_PARAMS -Xloggc:${HSN2_COMPONENT_HOME}/${HSN2_COMPONENT}.GC.log"

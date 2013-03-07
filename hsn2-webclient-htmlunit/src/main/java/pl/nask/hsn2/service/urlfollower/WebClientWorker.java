@@ -115,12 +115,13 @@ public class WebClientWorker implements Runnable {
 
 	private void initializeWebClient() {
 		String proxy = null;
+		ProxyParamsWrapper proxyParams = null;
 		if ( ctx != null && ctx.getCurrentContextServiceData() != null)
 			proxy = ctx.getCurrentContextServiceData().getProxyUri();
 		if ( proxy == null || proxy.trim().equalsIgnoreCase("")) {
 			wc = new WebClient();
 		} else {
-			ProxyParamsWrapper proxyParams = new ProxyParamsWrapper(proxy);
+			proxyParams = new ProxyParamsWrapper(proxy);
 			if ( proxyParams.isProxy()) {
 				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
 				if (proxyParams.isSocksProxy()) {
@@ -157,7 +158,7 @@ public class WebClientWorker implements Runnable {
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , proxy:[{}] ",
-				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxy});
+				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
 	}
 
 	@Override

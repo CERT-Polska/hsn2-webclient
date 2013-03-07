@@ -101,5 +101,24 @@ public class ProxyParamsWrapper {
 		
 		return  "";
 	}
+	@Override
+	public String toString() {
+		if (!isProxy()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		if ( isHttpProxy()) {
+			sb.append("http://");
+		}
+		else {
+			sb.append("socks://");
+		}
+		if(hasUserCredentials()) {
+			sb.append("xxxxxx@");
+		}
+		sb.append(hostname);
+		sb.append(":").append(port);	
+		return sb.toString();
+	}
 
 }

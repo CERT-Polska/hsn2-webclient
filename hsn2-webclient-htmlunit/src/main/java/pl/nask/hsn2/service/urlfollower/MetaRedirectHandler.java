@@ -34,6 +34,7 @@ import com.gargoylesoftware.htmlunit.WebWindow;
 
 public class MetaRedirectHandler implements RefreshHandler {
 	private static final int ONE_SECOND_IN_MILISECONDS = 1000;
+	private static final long ONE_SECOND_IN_MILISECONDS_LONG = 1000L;
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetaRedirectHandler.class);
 	private int miliSecTimeout;
 	private int refreshCounter = 0;
@@ -59,7 +60,7 @@ public class MetaRedirectHandler implements RefreshHandler {
 			if (miliSecTimeout / ONE_SECOND_IN_MILISECONDS >= seconds) {
 				if (seconds > 0) {
 					try {
-						Thread.sleep(seconds * ONE_SECOND_IN_MILISECONDS);
+						Thread.sleep(seconds * ONE_SECOND_IN_MILISECONDS_LONG);
 					} catch (final InterruptedException e) {
 						LOGGER.debug("No big deal: Waiting thread was interrupted.", e);
 					}

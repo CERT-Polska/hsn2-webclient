@@ -106,31 +106,29 @@ public class HtmlUnitFollower implements UrlFollower {
 	}
 	
 	public void requestFailed(Throwable e) {
-		synchronized (lock) {
-			String msg;
-			if (e instanceof ExecutionException) {
-				//get real cause of error
-				Throwable t = e;
-				while (t.getCause() != null) {
-					t = t.getCause();
-				}
-				msg = t.toString();
-			} else {
-				msg = e.getMessage();
-				if (msg == null || msg.isEmpty()) {
-					if (e.getCause() != null){
-						msg = e.getCause().getMessage();
-						if (msg == null || msg.isEmpty()) {
-							msg = "Unknown error";
-						}
-					}
-					else {
+		String msg;
+		if (e instanceof ExecutionException) {
+			//get real cause of error
+			Throwable t = e;
+			while (t.getCause() != null) {
+				t = t.getCause();
+			}
+			msg = t.toString();
+		} else {
+			msg = e.getMessage();
+			if (msg == null || msg.isEmpty()) {
+				if (e.getCause() != null){
+					msg = e.getCause().getMessage();
+					if (msg == null || msg.isEmpty()) {
 						msg = "Unknown error";
 					}
 				}
+				else {
+					msg = "Unknown error";
+				}
 			}
-			requestFailed(msg);
 		}
+		requestFailed(msg);
 	}
 
 	public void requestFailed(String msg) {

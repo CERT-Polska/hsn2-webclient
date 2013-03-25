@@ -385,10 +385,13 @@ public class WebClientWorker implements Runnable {
 		});
 		Page p = null;
 		try {
-			if (!interruptProcessing && taskParams.getPageTimeoutMillis() <= 0) {
-				p = f.get();
-			} else if (!interruptProcessing) {
-				p = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
+			if (!interruptProcessing){
+				if (taskParams.getPageTimeoutMillis() <= 0) {
+					p = f.get();
+				}
+				else {
+					p = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
+				}
 			}
 		} catch (InterruptedException e) {
 			LOGGER.warn("Gathering {} interrupted", req.getUrl());
@@ -399,10 +402,21 @@ public class WebClientWorker implements Runnable {
 			if (f != null) {
 				f.cancel(true);
 			}
+			closeExecutorWithJSDisabled(ex);
 		}
 		return insecurePagesChainPostprocessing(processedPage, p);
 	}
 
+	private void closeExecutorWithJSDisabled(ExecutorService ex){
+		wc.setJavaScriptEnabled(false);
+		try {
+			ex.awaitTermination(500, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			//ignore
+		}
+		wc.setJavaScriptEnabled(true);
+	}
+	
 	private ProcessedPage insecurePagesChainPostprocessing(final ProcessedPage processedPage, Page p) throws BreakingChainException {
 		ProcessedPage chain = null;
 		if (processedPage.isFromFrame()) {
@@ -782,10 +796,13 @@ public class WebClientWorker implements Runnable {
 		});
 		Page page = null;
 		try {
-			if (!interruptProcessing && taskParams.getPageTimeoutMillis() <= 0) {
-				page = f.get();
-			} else if (!interruptProcessing) {
-				page = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
+			if (!interruptProcessing){
+				if (taskParams.getPageTimeoutMillis() <= 0) {
+					page = f.get();
+				}
+				else {
+					page = f.get(taskParams.getPageTimeoutMillis(), TimeUnit.MILLISECONDS);
+				}
 			}
 		} catch (InterruptedException e) {
 			LOGGER.warn("Gathering {} interrupted", url);
@@ -796,6 +813,7 @@ public class WebClientWorker implements Runnable {
 			if (f != null) {
 				f.cancel(true);
 			}
+			closeExecutorWithJSDisabled(ex);
 		}
 		processingTime = System.currentTimeMillis() - processingTime;
 		insecurePagePostprocessing(url, processingTime, page);

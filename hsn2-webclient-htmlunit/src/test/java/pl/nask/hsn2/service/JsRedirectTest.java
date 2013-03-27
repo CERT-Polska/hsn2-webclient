@@ -120,7 +120,7 @@ public class JsRedirectTest {
 		
 		jobContext = new WebClientTaskContext(1, 1, 1, connector);
 		params = new ServiceParameters();
-		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, null, 5, null);
+		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, null, 5, null, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 	}

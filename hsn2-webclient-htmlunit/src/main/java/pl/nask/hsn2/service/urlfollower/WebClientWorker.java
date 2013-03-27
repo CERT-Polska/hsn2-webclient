@@ -61,6 +61,8 @@ import pl.nask.hsn2.service.urlfollower.ScriptInterceptor.ScriptElement;
 import pl.nask.hsn2.wrappers.CookieWrapper;
 import pl.nask.hsn2.wrappers.RequestWrapper;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.HttpWebConnection;
 import com.gargoylesoftware.htmlunit.Page;
@@ -92,6 +94,7 @@ public class WebClientWorker implements Runnable {
 	private Map<Page,ProcessedPage> previousFramePageMap = new HashMap<Page, ProcessedPage>();
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
+//	private ProxyParamsWrapper	proxyParams = null;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -105,13 +108,35 @@ public class WebClientWorker implements Runnable {
 		}
 		this.latch = l;
 		this.workerDispatcher = dispatcher;
-		this.wc= new WebClient();
 		this.scriptInterceptor = new ScriptInterceptor(taskParams);
 		this.taskParams = taskParams;
 		this.ctx = ctx;
 	}
 
 	private void initializeWebClient() {
+		String proxy = null;
+		ProxyParamsWrapper proxyParams = null;
+		if ( ctx != null && ctx.getCurrentContextServiceData() != null)
+			proxy = ctx.getCurrentContextServiceData().getProxyUri();
+		if ( proxy == null || proxy.trim().equalsIgnoreCase("")) {
+			wc = new WebClient();
+		} else {
+			proxyParams = new ProxyParamsWrapper(proxy);
+			if ( proxyParams.isProxy()) {
+				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
+				if (proxyParams.isSocksProxy()) {
+					wc.getProxyConfig().setSocksProxy(true);
+				}
+				if ( proxyParams.hasUserCredentials()) {
+					DefaultCredentialsProvider dc = (DefaultCredentialsProvider) wc.getCredentialsProvider();
+					dc.addCredentials(proxyParams.getUserName(), proxyParams.getUserPswd(), proxyParams.getHost(), proxyParams.getPort(), null);
+				}
+			} else {
+				LOGGER.warn("Incorrect proxy params: {}.proxy disabled.",proxy);
+				wc = new WebClient();
+			}
+		}
+
 		// http errors and script errors are not considered an error here
 		wc.setRedirectEnabled(false);
 
@@ -131,11 +156,9 @@ public class WebClientWorker implements Runnable {
 		wc.getJavaScriptEngine().getContextFactory().setDebugger(scriptInterceptor);
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
-		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));
-		LOGGER.info(
-				"Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] ",
-				new Object[] { wc.isJavaScriptEnabled(), wc.isActiveXNative(), taskParams.getProcessingTimeout(),
-						taskParams.getPageTimeoutMillis() });
+		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
+		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , proxy:[{}] ",
+				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
 	}
 
 	@Override

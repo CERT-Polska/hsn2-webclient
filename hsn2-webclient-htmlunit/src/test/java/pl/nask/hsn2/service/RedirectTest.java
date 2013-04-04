@@ -127,7 +127,7 @@ public class RedirectTest {
 	@Test
 	public void testIframeFromJSRedirect() throws Exception {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameFromJSRedirect.html");
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -143,7 +143,7 @@ public class RedirectTest {
 	@Test
 	public void testIframeRedirect() throws Exception {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameRedirect.html");
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -158,7 +158,7 @@ public class RedirectTest {
 	@Test
 	public void testServerRedirectToIframe() throws Exception {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("movedContext/frameRedirect.html");
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -173,7 +173,7 @@ public class RedirectTest {
 	@Test
 	public void testIframeServerRedirect() throws Exception {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameWithServerRedirect.html");
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -190,7 +190,7 @@ public class RedirectTest {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameRedirect.html");
 		String jsOnloadFullName = "onload event for HtmlBody[<body onload=\"alert('test');\">] in " + testPageAbsoluteUrl;
 		
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -223,7 +223,7 @@ public class RedirectTest {
 		
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameRedirect.html");
 		
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -288,7 +288,7 @@ public class RedirectTest {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("frameRedirect.html");
 		params.setRedirectDepthLimit(0);
 		
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -318,7 +318,7 @@ public class RedirectTest {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("movedContext/frameRedirect.html");
 		params.setRedirectDepthLimit(1);
 		
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();
@@ -336,7 +336,7 @@ public class RedirectTest {
 	@Test
 	public void testAttributeInRedirect() throws Exception {
 		String testPageAbsoluteUrl = TestHttpServer.absoluteUrl("movedContext/frameRedirect.html");
-		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 		webClientTask.process();

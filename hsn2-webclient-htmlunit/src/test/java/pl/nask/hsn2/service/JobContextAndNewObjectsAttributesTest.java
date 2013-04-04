@@ -125,8 +125,7 @@ public class JobContextAndNewObjectsAttributesTest {
 		params.setProcessExternalLinks(0);
 		params.setPageTimeoutMillis(999999);
 		params.setSaveImages(true);
-		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, MockTestsHelper.REFERRER, inputReferrerCookieId, depth,
-				topAncestorId);
+		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, MockTestsHelper.REFERRER, inputReferrerCookieId, depth, topAncestorId,null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 	}

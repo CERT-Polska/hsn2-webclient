@@ -90,7 +90,7 @@ public class EmbededResourcesTest {
 		params.setSaveCookies(false);
 		params.setRedirectDepthLimit(10);
 		params.setRedirectTotalLimit(50);
-		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l);
+		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 

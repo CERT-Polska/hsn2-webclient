@@ -33,16 +33,18 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.util.UrlUtils;
 
 public class DeflateHandlingTest {
-	
 	/**
-	 * this is a test case for a bug reported with issue#8269 - 
-	 * Seems like HtmlUnit has problems with deflated content.
+	 * This is a test case for a bug reported with issue#8269 - Seems like HtmlUnit has problems with deflated content.
 	 * (This tests only the behaviour of HtmlUnit, not the service)
-	 * @throws IOException 
-	 * @throws MalformedURLException 
-	 * @throws FailingHttpStatusCodeException 
+	 * 
+	 * Test has been disabled, but has not been removed in case anyone would like to see if future versions of HtmlUnit
+	 * solved the issue.
+	 * 
+	 * @throws IOException
+	 * @throws MalformedURLException
+	 * @throws FailingHttpStatusCodeException
 	 */
-	@Test(expectedExceptions=ScriptException.class, expectedExceptionsMessageRegExp="ReferenceError: \"localStorage\" is not defined.*")
+	@Test(enabled = false, expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = "ReferenceError: \"localStorage\" is not defined.*")
 	public void testTvn24() throws FailingHttpStatusCodeException, MalformedURLException, IOException {		
 		WebClient wc = prepareWc();
 		WebRequest wr = new WebRequest(UrlUtils.toUrlUnsafe("http://www.tvn24.pl"));
@@ -54,8 +56,7 @@ public class DeflateHandlingTest {
 		// javascript processing exception will be thrown here. If something changes, than the error with 'localStorage' was solved in the HtmlUnit 
 		wc.getPage(wr);
 	}
-	
-	
+
 	/**
 	 * The same test as testTvn24 - this time with the content which causes the error
 	 * @throws FailingHttpStatusCodeException

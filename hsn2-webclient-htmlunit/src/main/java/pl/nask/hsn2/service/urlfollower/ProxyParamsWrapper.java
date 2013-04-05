@@ -10,56 +10,64 @@ import pl.nask.hsn2.normalizers.UrlNormalizer;
 public class ProxyParamsWrapper {
 	private static final int HTTP_PROXY = 1;
 	private static final int SOCKS_PROXY = -1;
-	private int proxyType = 0;
+	private static final int INCORRECT_PROXY = 0;
+	private int proxyType = INCORRECT_PROXY;
 	private String	hostname;
 	private int	port = -1;
 	private String	userCredentials;
 	public ProxyParamsWrapper(String proxyToParse)  {
-		if ( proxyToParse == null || proxyToParse.length() == 0)
+		if ( proxyToParse == null || proxyToParse.length() == 0) {
 			return;
+		}
 		UrlNormalizer un = new UrlNormalizer(proxyToParse);
 		try {
 			un.normalize();
-			if ( un.isURL()) {
-				processHttp(un);
-			} else {
-				processSocks(un);
-			}
 		} catch (URIException | URLMalformedInputException | URLHostParseException | URLParseException e) {
-			proxyType = 0;
+			proxyType = INCORRECT_PROXY;
+			return ;
 		}
+		if ( un.isURL()) {
+			processHttp(un);
+		} else {
+			processSocks(un);
+		}
+
 	}
 	private void processSocks(UrlNormalizer un) {
-		if ( !un.isNormalized() && !"socks".equalsIgnoreCase(un.getProtocol()) )
+		if ( !un.isNormalized() && !"socks".equalsIgnoreCase(un.getProtocol()) ) {
 				return;
+		}
 		String socks ="http"+ un.getNormalized().substring("socks".length());
 		UrlNormalizer tmpNorm = new UrlNormalizer(socks);
 		try {
 			tmpNorm.normalize();
-			if ( tmpNorm.getPort() < 1)
+			if ( tmpNorm.getPort() < 1) {
 				return;	
-			port = tmpNorm.getPort();
-			hostname = tmpNorm.getHost();
-			if(tmpNorm.getUserInfo().length() > 0)
-				userCredentials = tmpNorm.getUserInfo();
+			}
+			extractRequiredFields(tmpNorm);
 			proxyType = SOCKS_PROXY ;
 		} catch (URIException | URLMalformedInputException | URLHostParseException | URLParseException e) {
-			proxyType = 0;
+			proxyType = INCORRECT_PROXY;
 		}
-		
-		
 	}
-	private void processHttp(UrlNormalizer un) {
-		this.hostname = un.getHost();
-		this.port = un.getPort();
-		if ( port < 1) {
-			setUpDefaultPorts(un.getProtocol());
+	
+	private void processHttp(UrlNormalizer normalized) {
+		extractRequiredFields(normalized);
+		if ( this.port < 1) {
+			setUpDefaultPorts(normalized.getProtocol());
 		}
-		if ( un.getUserInfo().length() > 0)
-			userCredentials = un.getUserInfo();
 		proxyType = HTTP_PROXY;
 		
 	}
+	
+	private void extractRequiredFields(UrlNormalizer tmpNorm) {
+		this.port = tmpNorm.getPort();
+		this.hostname = tmpNorm.getHost();
+		if(!tmpNorm.getUserInfo().isEmpty()) {
+			this.userCredentials = tmpNorm.getUserInfo();
+		}
+	}
+	
 	private void setUpDefaultPorts(String protocol) {
 		if ( "https".equalsIgnoreCase(protocol)) {
 			this.port = 443;
@@ -71,24 +79,32 @@ public class ProxyParamsWrapper {
 	public String getHost() {
 		return hostname;
 	}
+	
 	public int getPort() {
 		return port;
 	}
+	
 	public boolean isProxy() {
-		return proxyType != 0;
+		return proxyType != INCORRECT_PROXY;
 	}
+	
 	public boolean isHttpProxy() {
 		return HTTP_PROXY == proxyType;
 	}
+	
 	public boolean isSocksProxy() {
 		return SOCKS_PROXY == proxyType;
 	}
+	
 	public boolean hasUserCredentials() {
 		return userCredentials != null  && userCredentials.indexOf(":") != 0;
 	}
+	
 	public String getUserName() {
-		if ( userCredentials != null)
-			return userCredentials.substring(0,(userCredentials.indexOf(":") < 0) ? userCredentials.length() : userCredentials.indexOf(":") );
+		if ( userCredentials != null) {
+			int userNameTerm = (userCredentials.indexOf(":") < 0) ? userCredentials.length() : userCredentials.indexOf(":");
+			return userCredentials.substring(0, userNameTerm);
+		}
 		return null;
 	}
 	public String getUserPswd() {
@@ -99,7 +115,7 @@ public class ProxyParamsWrapper {
 		if (ps > 0  &&  ps < userCredentials.length()-1 )
 			return userCredentials.substring(ps+1);
 		
-		return  "";
+		return  "";//it might look inconsistent with getUserName(), but better supplying empty password if called.
 	}
 	@Override
 	public String toString() {

@@ -94,7 +94,6 @@ public class WebClientWorker implements Runnable {
 	private Map<Page,ProcessedPage> previousFramePageMap = new HashMap<Page, ProcessedPage>();
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
-//	private ProxyParamsWrapper	proxyParams = null;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -116,9 +115,10 @@ public class WebClientWorker implements Runnable {
 	private void initializeWebClient() {
 		String proxy = null;
 		ProxyParamsWrapper proxyParams = null;
-		if ( ctx != null && ctx.getCurrentContextServiceData() != null)
+		if ( ctx != null && ctx.getCurrentContextServiceData() != null) {
 			proxy = ctx.getCurrentContextServiceData().getProxyUri();
-		if ( proxy == null || proxy.trim().equalsIgnoreCase("")) {
+		}
+		if ( proxy == null || proxy.trim().isEmpty()) {
 			wc = new WebClient();
 		} else {
 			proxyParams = new ProxyParamsWrapper(proxy);
@@ -157,7 +157,7 @@ public class WebClientWorker implements Runnable {
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
-		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , proxy:[{}] ",
+		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
 	}
 

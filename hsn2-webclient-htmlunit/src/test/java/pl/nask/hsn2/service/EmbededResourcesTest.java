@@ -54,7 +54,8 @@ import pl.nask.hsn2.wrappers.CookieWrapper;
 import com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine;
 
 public class EmbededResourcesTest {
-	public static final String REFERRER = "http://referrer/referrer.html";
+	private static final String FILE_FLAG = ";file";
+	private static final String URL_EMBEDDED_FLAGS = ";url;embedded";
 	private static final Set<CookieWrapper> COOKIE_WRAPPERS = new HashSet<CookieWrapper>();
 
 	@Mocked
@@ -90,7 +91,7 @@ public class EmbededResourcesTest {
 		params.setSaveCookies(false);
 		params.setRedirectDepthLimit(10);
 		params.setRedirectTotalLimit(50);
-		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
+		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, MockTestsHelper.REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
 
@@ -179,10 +180,10 @@ public class EmbededResourcesTest {
 		// Note: 12 objects created, but only 8 different links
 		// (4 links are the same as others).
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
 		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-01.txt;url;embedded"));
 		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-01.txt;file"));
 		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-02.txt;url;embedded"));
@@ -205,10 +206,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
 	}
 
 	@Test
@@ -225,8 +226,8 @@ public class EmbededResourcesTest {
 
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 2);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
 	}
 
 	@Test
@@ -244,10 +245,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
 	}
 
 	@Test
@@ -265,10 +266,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
 	}
 
 	@Test
@@ -286,10 +287,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
 	}
 
 	@Test
@@ -336,10 +337,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -357,8 +358,8 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -376,8 +377,8 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -395,16 +396,17 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 10);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401-blue.gif;url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401-blue.gif;file"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401-blue.png;url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401-blue.png;file"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401.gif;url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401.gif;file"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401.png;url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://validator.w3.org/images/valid_icons/valid-html401.png;file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		String filesRootDir = "http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/";
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-01.txt" + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-01.txt" + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-02.txt" + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-02.txt" + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-03.txt" + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-03.txt" + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-04.txt" + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(filesRootDir + "obj-file-04.txt" + FILE_FLAG));
 	}
 
 	@Test
@@ -423,10 +425,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -444,8 +446,8 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/jsSource.js") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/jsSource.js") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/jsSource.js") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/jsSource.js") + FILE_FLAG));
 	}
 
 	@Test
@@ -463,10 +465,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -514,10 +516,10 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
 	}
 
 	@Test
@@ -535,7 +537,7 @@ public class EmbededResourcesTest {
 		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";url;embedded"));
-		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + ";file"));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
 	}
 }

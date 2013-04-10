@@ -12,7 +12,7 @@
     <files>
     	<file>
     		<destName>hsn2-webclient.jar</destName>
-    		<source>${project.basedir}/../hsn2-webclient-htmlunit/target/hsn2-webclient-htmlunit-${version}.jar</source>
+    		<source>${project.basedir}/target/hsn2-webclient-${version}.jar</source>
     		<fileMode>0644</fileMode>
     	</file>
     </files>

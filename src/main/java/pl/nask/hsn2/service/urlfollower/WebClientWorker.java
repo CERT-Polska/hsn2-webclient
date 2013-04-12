@@ -308,11 +308,12 @@ public class WebClientWorker implements Runnable {
 						newSubPageUrl = frameUrlFromSource.getAbsoluteUrl();
 					} catch (URISyntaxException e) {
 						// This is unlikely to happen.
-						LOGGER.debug("Can't create Link for subpage: {}", e.getMessage());
-						LOGGER.debug("", e);
+						LOGGER.debug("Can't create Link for subpage: "+ e.getMessage(), e);
+						ctx.addWarning("Can't create Link for frame!");
 						newSubPageUrl = "about:blank";
 					}
 				} else {
+					ctx.addWarning("Src for frame is empty.");
 					newSubPageUrl = "about:blank";
 				}
 				prepareSubPage(newSubPageUrl, origin);
@@ -913,6 +914,7 @@ public class WebClientWorker implements Runnable {
 			if (referrer != null) {
 				ctx.addAttribute("referrer", referrer);
 			}
+			
 			boolean isSuccessfull = processedPage != null && processedPage.isComplete();
 			ctx.addAttribute("active", isSuccessfull);
 			if (isSuccessfull) {
@@ -934,7 +936,7 @@ public class WebClientWorker implements Runnable {
 	}
 
 	private void addAttrsForFailedProcessing() {
-		ctx.addAttribute("reason_failed", "Unable to access page content");
+		ctx.addAttribute("reason_failed", "Unable to access page content. Response or page are unavailable");
 		if (workerDispatcher.getWarning() != null) {
 			ctx.addWarning(workerDispatcher.getWarning());
 			LOGGER.warn("Adding warning to Task : {}", workerDispatcher.getWarning());

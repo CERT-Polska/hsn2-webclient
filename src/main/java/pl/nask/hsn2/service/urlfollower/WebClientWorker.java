@@ -159,7 +159,6 @@ public class WebClientWorker implements Runnable {
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
-		LOGGER.info("\n\n############################\nbrowser ver = {}\n\n", wc.getBrowserVersion().getNickname());
 	}
 
 	/**

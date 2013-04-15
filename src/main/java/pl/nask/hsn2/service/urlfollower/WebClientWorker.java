@@ -120,11 +120,11 @@ public class WebClientWorker implements Runnable {
 			proxy = ctx.getCurrentContextServiceData().getProxyUri();
 		}
 		if ( proxy == null || proxy.trim().isEmpty()) {
-			wc = new WebClient();
+			wc = new WebClient(getBrowserVersion());
 		} else {
 			proxyParams = new ProxyParamsWrapper(proxy);
 			if ( proxyParams.isProxy()) {
-				wc = new WebClient(BrowserVersion.getDefault(),proxyParams.getHost(),proxyParams.getPort());
+				wc = new WebClient(getBrowserVersion(), proxyParams.getHost(), proxyParams.getPort());
 				if (proxyParams.isSocksProxy()) {
 					wc.getProxyConfig().setSocksProxy(true);
 				}
@@ -160,6 +160,44 @@ public class WebClientWorker implements Runnable {
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
+	}
+
+	/**
+	 * Returns browser version according to browser profile set in service parameters.<br>
+	 * <br>
+	 * Below you can find list of currently supported browsers.
+	 * <ul>
+	 * <li>Internet Explorer 6</li>
+	 * <li>Internet Explorer 7</li>
+	 * <li>Internet Explorer 8</li>
+	 * <li>Firefox 3</li>
+	 * <li>Firefox 3.6 - default, if browser name in parameter does not match any of listed names</li>
+	 * <li>Firefox 10</li>
+	 * <li>Chrome 16</li>
+	 * </ul>
+	 * 
+	 * @return Browser version.
+	 */
+	@SuppressWarnings("deprecation")
+	private BrowserVersion getBrowserVersion() {
+		String profileName = taskParams.getProfile();
+		switch (profileName) {
+		case "Internet Explorer 6":
+			return BrowserVersion.INTERNET_EXPLORER_6;
+		case "Internet Explorer 7":
+			return BrowserVersion.INTERNET_EXPLORER_7;
+		case "Internet Explorer 8":
+			return BrowserVersion.INTERNET_EXPLORER_8;
+		case "Firefox 3":
+			return BrowserVersion.FIREFOX_3;
+		case "Firefox 10":
+			return BrowserVersion.FIREFOX_10;
+		case "Chrome 16":
+			return BrowserVersion.CHROME_16;
+		default:
+			LOGGER.warn("Browser profile '{}' not supported. Using default Firefox 3.6 instead.", profileName);
+			return BrowserVersion.FIREFOX_3_6;
+		}
 	}
 
 	@Override

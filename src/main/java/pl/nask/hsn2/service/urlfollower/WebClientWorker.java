@@ -94,6 +94,7 @@ public class WebClientWorker implements Runnable {
 	private Map<Page,ProcessedPage> previousFramePageMap = new HashMap<Page, ProcessedPage>();
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
+	private String reasonFailed;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -254,7 +255,9 @@ public class WebClientWorker implements Runnable {
 			long pageProcessedTime = System.currentTimeMillis();
 			LOGGER.debug("Inspecting of {} took {} ms. ", processedPage.getRequestedUrl(), (pageProcessedTime - pageGatheredTime));
 		} catch (BreakingChainException e) {
-			LOGGER.error("Error when processing " + processedPage.getActualUrl() + "(requested: " + processedPage.getRequestedUrl() + "). Some data may be lost!",e);
+			String msg = "Error when processing " + processedPage.getActualUrl() + "(requested: " + processedPage.getRequestedUrl() + "). Some data may be lost!";
+			LOGGER.error(msg, e);
+			reasonFailed = msg;
 		} finally {
 			if(processedPage != null) {
 				addRequiredAttributesToCurrentContext(processedPage);
@@ -309,11 +312,11 @@ public class WebClientWorker implements Runnable {
 					} catch (URISyntaxException e) {
 						// This is unlikely to happen.
 						LOGGER.debug("Can't create Link for subpage: "+ e.getMessage(), e);
-						ctx.addWarning("Can't create Link for frame!");
+						reasonFailed = "Can't create Link for frame!";
 						newSubPageUrl = "about:blank";
 					}
 				} else {
-					ctx.addWarning("Src for frame is empty.");
+					reasonFailed = "Src for frame is empty.";
 					newSubPageUrl = "about:blank";
 				}
 				prepareSubPage(newSubPageUrl, origin);
@@ -936,7 +939,13 @@ public class WebClientWorker implements Runnable {
 	}
 
 	private void addAttrsForFailedProcessing() {
-		ctx.addAttribute("reason_failed", "Unable to access page content. Response or page are unavailable");
+		if (reasonFailed != null) {
+			ctx.addAttribute("reason_failed",reasonFailed);
+		}
+		else {
+			ctx.addAttribute("reason_failed", "Unable to access page content. Response or page are unavailable.");
+		}
+			
 		if (workerDispatcher.getWarning() != null) {
 			ctx.addWarning(workerDispatcher.getWarning());
 			LOGGER.warn("Adding warning to Task : {}", workerDispatcher.getWarning());

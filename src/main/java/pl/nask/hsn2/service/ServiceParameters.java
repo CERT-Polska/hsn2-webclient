@@ -23,7 +23,6 @@ import pl.nask.hsn2.ParameterException;
 import pl.nask.hsn2.wrappers.ParametersWrapper;
 
 public class ServiceParameters {
-
 	// Default values
 	public static final int BACKGROUND_JS_TIMEOUT = 10000; 	private int backgroundJsTimeoutMillis;
 	public static final int PAGE_TIMEOUT = 30000; 			private int pageTimeoutMillis;
@@ -46,6 +45,7 @@ public class ServiceParameters {
 	public static final int LINK_CLICK_POLICY = 1;		private int processExternalLinks;
 	public static final int JS_RECURSION_LIMIT = 80;	private int jsRecursionLimit;
 	public static final boolean JS_ENABLE = true;		private boolean jsEnable;
+	public static final String PROFILE = "Firefox 3.6";		private String profile;
 
 	/**
 	 * default constructor means, that only default parameters should be used
@@ -77,6 +77,7 @@ public class ServiceParameters {
 		processingTimeout = params.getInt("processing_timeout", PROCESSING_TIMEOUT);
 		jsRecursionLimit = params.getInt("js_recursion_limit", JS_RECURSION_LIMIT);
 		saveJsContext = params.getBoolean("save_js_context", SAVE_JS_CONTEXT);
+		profile = params.get("profile", PROFILE);
 	}
 
 	public int getProcessExternalLinks() {
@@ -237,5 +238,13 @@ public class ServiceParameters {
 
 	public void setJsEnable(boolean jsEnable) {
 		this.jsEnable = jsEnable;
+	}
+
+	public String getProfile() {
+		return profile;
+	}
+
+	public void setProfile(String profile) {
+		this.profile = profile;
 	}
 }

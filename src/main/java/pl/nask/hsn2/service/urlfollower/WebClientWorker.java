@@ -255,9 +255,8 @@ public class WebClientWorker implements Runnable {
 			long pageProcessedTime = System.currentTimeMillis();
 			LOGGER.debug("Inspecting of {} took {} ms. ", processedPage.getRequestedUrl(), (pageProcessedTime - pageGatheredTime));
 		} catch (BreakingChainException e) {
-			String msg = "Error when processing " + processedPage.getActualUrl() + "(requested: " + processedPage.getRequestedUrl() + "). Some data may be lost!";
-			LOGGER.error(msg, e);
-			reasonFailed = msg;
+			reasonFailed = "Error when processing " + processedPage.getActualUrl() + "(requested: " + processedPage.getRequestedUrl() + "). Some data may be lost!";
+			LOGGER.error(reasonFailed, e);
 		} finally {
 			if(processedPage != null) {
 				addRequiredAttributesToCurrentContext(processedPage);

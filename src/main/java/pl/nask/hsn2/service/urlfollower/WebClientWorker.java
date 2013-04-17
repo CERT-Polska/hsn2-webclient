@@ -190,6 +190,8 @@ public class WebClientWorker implements Runnable {
 			return BrowserVersion.INTERNET_EXPLORER_8;
 		case "Firefox 3":
 			return BrowserVersion.FIREFOX_3;
+		case "Firefox 3.6":
+			return BrowserVersion.FIREFOX_3_6;
 		case "Firefox 10":
 			return BrowserVersion.FIREFOX_10;
 		case "Chrome 16":

@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -95,6 +96,7 @@ public class WebClientWorker implements Runnable {
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
 	private String reasonFailed;
+	private Set<CookieWrapper> cookieWrappers;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -157,9 +159,29 @@ public class WebClientWorker implements Runnable {
 		wc.getJavaScriptEngine().getContextFactory().setDebugger(scriptInterceptor);
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
-		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
+		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));
+		
+		initializeCookies();
+		
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
+	}
+
+	private void initializeCookies() {
+		if (cookieWrappers != null) {
+			for (CookieWrapper cookieWrapper : cookieWrappers) {
+				Map<String, String> attributes = cookieWrapper.getAttributes();
+				Cookie cookie = new Cookie(
+						attributes.get(CookieAttributes.DOMAIN.getName()),
+						cookieWrapper.getName(),
+						cookieWrapper.getValue(),
+						attributes.get(CookieAttributes.PATH.getName()),
+						null,
+						Boolean.valueOf(attributes.get(CookieAttributes.IS_SECURE.getName()))
+				);
+				wc.getCookieManager().addCookie(cookie);
+			}
+		}
 	}
 
 	/**
@@ -920,12 +942,16 @@ public class WebClientWorker implements Runnable {
 				sTime % ONE_SECOND_IN_MILISECONDS, interruptProcessing });
 	}
 
-	void addCookie(Cookie cookie) {
-		wc.getCookieManager().addCookie(cookie);
-	}
-
-	Set<Cookie> getCookies() {
-		return wc.getCookieManager().getCookies();
+	public Set<CookieWrapper> getCookies() {
+        Set<CookieWrapper> cookieWrappers = new HashSet<CookieWrapper>();
+        for (Cookie cookie : wc.getCookieManager().getCookies()) {
+            Map<String, String> attributes = new HashMap<String, String>();
+            attributes.put(CookieAttributes.DOMAIN.getName(), cookie.getDomain());
+            attributes.put(CookieAttributes.PATH.getName(), cookie.getPath());
+            attributes.put(CookieAttributes.IS_SECURE.getName(), String.valueOf(cookie.isSecure()));
+            cookieWrappers.add(new CookieWrapper(cookie.getName(), cookie.getValue(), attributes));
+        }
+        return cookieWrappers;
 	}
 
 	ScriptInterceptor getInterceptor() {
@@ -1080,5 +1106,9 @@ public class WebClientWorker implements Runnable {
 
 	public WebClient getWc() {
 		return wc;
+	}
+
+	public void setCookiesForInitialization(Set<CookieWrapper> cookies) {
+		cookieWrappers = cookies;
 	}
 }

@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -169,16 +170,16 @@ public class WebClientWorker implements Runnable {
 	private void initializeCookies() {
 		if (cookieWrappers != null) {
 			for (CookieWrapper cookieWrapper : cookieWrappers) {
-				wc.getCookieManager().addCookie(
-						new Cookie(
-								cookieWrapper.getAttributes().get(CookieAttributes.DOMAIN.getName()),
-								cookieWrapper.getName(),
-								cookieWrapper.getValue(),
-								cookieWrapper.getAttributes().get(CookieAttributes.PATH.getName()),
-								null,
-								Boolean.valueOf(cookieWrapper.getAttributes().get(CookieAttributes.IS_SECURE.getName()))
-						)
+				Map<String, String> attributes = cookieWrapper.getAttributes();
+				Cookie cookie = new Cookie(
+						attributes.get(CookieAttributes.DOMAIN.getName()),
+						cookieWrapper.getName(),
+						cookieWrapper.getValue(),
+						attributes.get(CookieAttributes.PATH.getName()),
+						null,
+						Boolean.valueOf(attributes.get(CookieAttributes.IS_SECURE.getName()))
 				);
+				wc.getCookieManager().addCookie(cookie);
 			}
 		}
 	}
@@ -941,8 +942,16 @@ public class WebClientWorker implements Runnable {
 				sTime % ONE_SECOND_IN_MILISECONDS, interruptProcessing });
 	}
 
-	Set<Cookie> getCookies() {
-		return wc.getCookieManager().getCookies();
+	public Set<CookieWrapper> getCookies() {
+        Set<CookieWrapper> cookieWrappers = new HashSet<CookieWrapper>();
+        for (Cookie cookie : wc.getCookieManager().getCookies()) {
+            Map<String, String> attributes = new HashMap<String, String>();
+            attributes.put(CookieAttributes.DOMAIN.getName(), cookie.getDomain());
+            attributes.put(CookieAttributes.PATH.getName(), cookie.getPath());
+            attributes.put(CookieAttributes.IS_SECURE.getName(), String.valueOf(cookie.isSecure()));
+            cookieWrappers.add(new CookieWrapper(cookie.getName(), cookie.getValue(), attributes));
+        }
+        return cookieWrappers;
 	}
 
 	ScriptInterceptor getInterceptor() {

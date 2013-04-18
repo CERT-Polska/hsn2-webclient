@@ -19,9 +19,6 @@
 
 package pl.nask.hsn2.service.urlfollower;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -34,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import pl.nask.hsn2.service.ServiceParameters;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.wrappers.CookieWrapper;
-
-import com.gargoylesoftware.htmlunit.util.Cookie;
 
 /**
  * Hits the URL and fetches it's content. Provides basic info about content's mime-type, outgoing links (if it's a html
@@ -174,15 +169,7 @@ public class HtmlUnitFollower implements UrlFollower {
 
     @Override
     public Set<CookieWrapper> getCookies() {
-        Set<CookieWrapper> cookieWrappers = new HashSet<CookieWrapper>();
-        for (Cookie cookie : webClientWorker.getCookies()) {
-            Map<String, String> attributes = new HashMap<String, String>();
-            attributes.put(CookieAttributes.DOMAIN.getName(), cookie.getDomain());
-            attributes.put(CookieAttributes.PATH.getName(), cookie.getPath());
-            attributes.put(CookieAttributes.IS_SECURE.getName(), String.valueOf(cookie.isSecure()));
-            cookieWrappers.add(new CookieWrapper(cookie.getName(), cookie.getValue(), attributes));
-        }
-        return cookieWrappers;
+        return webClientWorker.getCookies();
     }
 
     @Override

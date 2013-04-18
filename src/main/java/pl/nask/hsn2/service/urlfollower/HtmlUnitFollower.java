@@ -38,11 +38,8 @@ import pl.nask.hsn2.wrappers.CookieWrapper;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 
 /**
- * <p/>
- * Hits the URL and fetches it's content. Provides basic info about content's mime-type, outgoing links (if it's a html document) and so on.
- * <p/>
- * (Based on pl.nask.hsn.gatherer.Follower by Jaroslaw Jantura)
- *
+ * Hits the URL and fetches it's content. Provides basic info about content's mime-type, outgoing links (if it's a html
+ * document) and so on.
  */
 public class HtmlUnitFollower implements UrlFollower {
 	private static AtomicLong procCounter = new AtomicLong();
@@ -72,7 +69,6 @@ public class HtmlUnitFollower implements UrlFollower {
 	}
 
 	@Override
-
 	public void processUrl() {
 		webClientWorker.setContextData(webClientWorker, params, urlForProcessing);
 		LOGGER.debug("Starting processing: {}", urlForProcessing);
@@ -191,19 +187,7 @@ public class HtmlUnitFollower implements UrlFollower {
 
     @Override
     public void setCookies(Set<CookieWrapper> cookies) {
-        if (cookies != null) {
-            for (CookieWrapper cookieWrapper : cookies) {
-                webClientWorker.addCookie(
-                        new Cookie(
-                                cookieWrapper.getAttributes().get(CookieAttributes.DOMAIN.getName()),
-                                cookieWrapper.getName(),
-                                cookieWrapper.getValue(),
-                                cookieWrapper.getAttributes().get(CookieAttributes.PATH.getName()),
-                                null,
-                                Boolean.valueOf(cookieWrapper.getAttributes().get(CookieAttributes.IS_SECURE.getName()))
-                        ));
-            }
-        }
+    	webClientWorker.setCookiesForInitialization(cookies);
     }
 
 	void handleJvmError(String msg) {

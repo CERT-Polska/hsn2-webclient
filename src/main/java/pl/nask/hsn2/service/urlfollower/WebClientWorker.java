@@ -95,6 +95,7 @@ public class WebClientWorker implements Runnable {
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
 	private String reasonFailed;
+	private Set<CookieWrapper> cookieWrappers;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -157,9 +158,29 @@ public class WebClientWorker implements Runnable {
 		wc.getJavaScriptEngine().getContextFactory().setDebugger(scriptInterceptor);
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
-		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));	
+		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));
+		
+		initializeCookies();
+		
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
 				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
+	}
+
+	private void initializeCookies() {
+		if (cookieWrappers != null) {
+			for (CookieWrapper cookieWrapper : cookieWrappers) {
+				wc.getCookieManager().addCookie(
+						new Cookie(
+								cookieWrapper.getAttributes().get(CookieAttributes.DOMAIN.getName()),
+								cookieWrapper.getName(),
+								cookieWrapper.getValue(),
+								cookieWrapper.getAttributes().get(CookieAttributes.PATH.getName()),
+								null,
+								Boolean.valueOf(cookieWrapper.getAttributes().get(CookieAttributes.IS_SECURE.getName()))
+						)
+				);
+			}
+		}
 	}
 
 	/**
@@ -920,10 +941,6 @@ public class WebClientWorker implements Runnable {
 				sTime % ONE_SECOND_IN_MILISECONDS, interruptProcessing });
 	}
 
-	void addCookie(Cookie cookie) {
-		wc.getCookieManager().addCookie(cookie);
-	}
-
 	Set<Cookie> getCookies() {
 		return wc.getCookieManager().getCookies();
 	}
@@ -1080,5 +1097,9 @@ public class WebClientWorker implements Runnable {
 
 	public WebClient getWc() {
 		return wc;
+	}
+
+	public void setCookiesForInitialization(Set<CookieWrapper> cookies) {
+		cookieWrappers = cookies;
 	}
 }

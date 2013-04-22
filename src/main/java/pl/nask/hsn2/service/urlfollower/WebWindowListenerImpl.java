@@ -25,13 +25,14 @@ public class WebWindowListenerImpl implements WebWindowListener {
 
 	@Override
 	public void webWindowOpened(WebWindowEvent event) {
-		// nothing to do
+		LOGGER.debug("WebWindow opened:{}->{}",event.getOldPage().getUrl(),event.getNewPage().getUrl());
 	}
 
 	@Override
 	public void webWindowContentChanged(WebWindowEvent event) {
 		Page oldPage = event.getOldPage();
 		Page newPage = event.getNewPage();
+		LOGGER.debug("WebWindow opened:{}->{}",oldPage,newPage.getUrl());
 		if (oldPage == null || !newPage.getUrl().toExternalForm().equals(oldPage.getUrl().toExternalForm())) {
 			checkWhenAddressIsTheSame(event, oldPage, newPage);
 		} else {
@@ -41,7 +42,7 @@ public class WebWindowListenerImpl implements WebWindowListener {
 
 	private void checkWhenAddressIsDifferent(final Page oldPage, final Page newPage) {
 		ProcessedPage unchanged = previousTopPageMap.remove(oldPage);
-
+		
 		if (unchanged != null) {
 			for (Entry<Page, ProcessedPage> entry : previousTopPageMap.entrySet()) {
 				ProcessedPage actualPage = entry.getValue();

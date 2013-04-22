@@ -199,6 +199,8 @@ public class NonHttpProtocolTest {
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;frame"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;iframe"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://www-groups.dcs.st-and.ac.uk/history/BiogIndex.html;url;frame"));
 	}
 
 	@Test(enabled = false)

@@ -146,7 +146,7 @@ public class ProcessedPage {
 		if (response != null) {
 			try {
 				IOUtils.closeQuietly(response.getContentAsStream());
-				webWindow = null;
+//				webWindow = null;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

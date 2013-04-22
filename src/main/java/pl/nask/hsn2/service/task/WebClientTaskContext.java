@@ -26,6 +26,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.nask.hsn2.ContextSizeLimitExceeded;
 import pl.nask.hsn2.NewUrlObject;
 import pl.nask.hsn2.ParameterException;
 import pl.nask.hsn2.ServiceConnector;
@@ -124,5 +125,10 @@ public class WebClientTaskContext extends TaskContext {
 
 	public Map<String, Map<String, ScriptElement>> getLaunchedScriptsByOrigin(){
 		return webClientWorker.getLaunchedScripts();
+	}
+	@Override
+	public void openSubContext() throws ContextSizeLimitExceeded {
+		LOG.debug("Opening SubContext:{}",super.getCurrentContext().getParent());
+		super.openSubContext();
 	}
 }

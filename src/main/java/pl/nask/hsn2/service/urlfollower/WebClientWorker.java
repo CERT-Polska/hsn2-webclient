@@ -26,7 +26,6 @@ import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -128,7 +127,7 @@ public class WebClientWorker implements Runnable {
 			if ( proxyParams.isProxy()) {
 				wc = new WebClient(getBrowserVersion(), proxyParams.getHost(), proxyParams.getPort());
 				if (proxyParams.isSocksProxy()) {
-					wc.getProxyConfig().setSocksProxy(true);
+					wc.getOptions().getProxyConfig().setSocksProxy(true);
 				}
 				if ( proxyParams.hasUserCredentials()) {
 					DefaultCredentialsProvider dc = (DefaultCredentialsProvider) wc.getCredentialsProvider();
@@ -136,25 +135,25 @@ public class WebClientWorker implements Runnable {
 				}
 			} else {
 				LOGGER.warn("Incorrect proxy params: {}.proxy disabled.",proxy);
-				wc = new WebClient();
+				wc = new WebClient(getBrowserVersion());
 			}
 		}
 
 		// http errors and script errors are not considered an error here
-		wc.setRedirectEnabled(false);
+		wc.getOptions().setRedirectEnabled(false);
 
 		// don't process activeX!
-		wc.setActiveXNative(false);
+		wc.getOptions().setActiveXNative(false);
 
-		wc.setJavaScriptEnabled(taskParams.getJsEnable());
+		wc.getOptions().setJavaScriptEnabled(taskParams.getJsEnable());
 
-		wc.setHomePage("http://unknown.unknown/");
-		wc.setTimeout(taskParams.getPageTimeoutMillis());
+		wc.getOptions().setHomePage("http://unknown.unknown/");
+		wc.getOptions().setTimeout(taskParams.getPageTimeoutMillis());
 		wc.setJavaScriptTimeout(taskParams.getSingleJsTimeoutMillis());
-		wc.setThrowExceptionOnFailingStatusCode(false);
+		wc.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
 		// disable script errors
-		wc.setThrowExceptionOnScriptError(false);
+		wc.getOptions().setThrowExceptionOnScriptError(false);
 
 		wc.getJavaScriptEngine().getContextFactory().setDebugger(scriptInterceptor);
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
@@ -164,7 +163,7 @@ public class WebClientWorker implements Runnable {
 		initializeCookies();
 		
 		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
-				new Object[] {wc.isJavaScriptEnabled(),wc.isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
+				new Object[] {wc.getOptions().isJavaScriptEnabled(),wc.getOptions().isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
 	}
 
 	private void initializeCookies() {
@@ -329,7 +328,7 @@ public class WebClientWorker implements Runnable {
 	}
 	
 	public void stopJavaScripts() {
-		wc.setJavaScriptEnabled(false);
+		wc.getOptions().setJavaScriptEnabled(false);
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
 		JsScriptDebugFrame.resetCounter();
 		LOGGER.debug("JavaScript was stopped.");
@@ -337,7 +336,7 @@ public class WebClientWorker implements Runnable {
 	
 	private void restartJavaScript(){
 		stopJavaScripts();
-		wc.setJavaScriptEnabled(true);
+		wc.getOptions().setJavaScriptEnabled(true);
 		LOGGER.debug("JavaScript was restarted.");
 	}
 
@@ -497,13 +496,13 @@ public class WebClientWorker implements Runnable {
 	}
 
 	private void closeExecutorWithJSDisabled(ExecutorService ex){
-		wc.setJavaScriptEnabled(false);
+		wc.getOptions().setJavaScriptEnabled(false);
 		try {
 			ex.awaitTermination(500, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			//ignore
 		}
-		wc.setJavaScriptEnabled(true);
+		wc.getOptions().setJavaScriptEnabled(true);
 	}
 	
 	private ProcessedPage insecurePagesChainPostprocessing(final ProcessedPage processedPage, Page p) throws BreakingChainException {
@@ -524,11 +523,9 @@ public class WebClientWorker implements Runnable {
 		if (interruptProcessing) {
 			throw new TimeoutException("Overall time limit exceeded url:" + processedPage.getOriginalUrl());
 		}
-		try {
-			wc.setUseInsecureSSL(true);
-		} catch (GeneralSecurityException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+
+		wc.getOptions().setUseInsecureSSL(true);
+
 		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(processedPage.getServerSideRedirectLocation()));
 		req.setAdditionalHeader("Accept-Encoding", "");
 		return req;
@@ -760,7 +757,7 @@ public class WebClientWorker implements Runnable {
 	private void processEmbeddedFile(String urlOfFileToSave) throws IOException, ParameterException, ResourceException, StorageException {
 		boolean isSubContextOpened = true;
 		try {
-			wc.setJavaScriptEnabled(false);
+			wc.getOptions().setJavaScriptEnabled(false);
 			prepareSubPage(urlOfFileToSave, WebClientOrigin.EMBEDDED);
 			
 			// Checks for illegal characters in URI.
@@ -796,7 +793,7 @@ public class WebClientWorker implements Runnable {
 			if (isSubContextOpened) {
 				ctx.closeSubContext();
 			}
-			wc.setJavaScriptEnabled(true);
+			wc.getOptions().setJavaScriptEnabled(true);
 		}
 	}
 
@@ -913,11 +910,9 @@ public class WebClientWorker implements Runnable {
 		if (interruptProcessing) {
 			throw new TimeoutException("Overall time limit exceeded url:" + url);
 		}
-		try {
-			wc.setUseInsecureSSL(true);
-		} catch (GeneralSecurityException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+
+		wc.getOptions().setUseInsecureSSL(true);
+
 		final WebRequest req = new WebRequest(UrlUtils.toUrlUnsafe(url));
 
 		// work-around for bug with deflated content.

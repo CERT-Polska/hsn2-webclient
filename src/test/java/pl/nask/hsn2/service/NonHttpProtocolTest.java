@@ -194,7 +194,7 @@ public class NonHttpProtocolTest {
 		jobContext.flush();
 		Assert.assertTrue(follower.isSuccessfull());
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertEquals(newObjectsInOSCounter, 2);
+		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;frame"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
 	}

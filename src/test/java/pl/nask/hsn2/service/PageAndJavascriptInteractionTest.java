@@ -50,6 +50,7 @@ import pl.nask.hsn2.utils.WebClientDataStoreHelper;
 import pl.nask.hsn2.wrappers.CookieWrapper;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
@@ -159,7 +160,7 @@ public class PageAndJavascriptInteractionTest {
 		HtmlPage p = wc.getPage(TestHttpServer.absoluteUrl("pageAndJavascriptInteraction.html"));
 		wc.waitForBackgroundJavaScript(500);
 		// No JS shutting down here.
-		HtmlElement element = p.getElementById("el2");
+		DomElement element = p.getElementById("el2");
 		String eTextBefore = element.getTextContent();
 		Thread.sleep(2500);
 		String eTextAfter = element.getTextContent();
@@ -186,7 +187,7 @@ public class PageAndJavascriptInteractionTest {
 		// JS engine shut down initializing.
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
 
-		HtmlElement element = page.getElementById("el2");
+		DomElement element = page.getElementById("el2");
 		String eTextBefore = element.getTextContent();
 		Thread.sleep(2500);
 		String eTextAfter = element.getTextContent();

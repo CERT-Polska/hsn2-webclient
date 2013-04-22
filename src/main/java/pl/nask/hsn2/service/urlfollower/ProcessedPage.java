@@ -19,6 +19,7 @@
 
 package pl.nask.hsn2.service.urlfollower;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -27,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.FrameWindow;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.UrlUtils;
@@ -44,6 +46,8 @@ public class ProcessedPage {
 	private URL actualUrl;
 	private String originalUrl;
 	private boolean fromFrame;
+	private WebWindow	webWindow;
+	private String	_toString  = null;
 
 	public ProcessedPage(Page page) {
 		this(page, "");
@@ -66,6 +70,7 @@ public class ProcessedPage {
 			requestedUrl = response.getWebRequest().getUrl();
 			actualUrl = page.getUrl();
 			fromFrame = page.getEnclosingWindow() instanceof FrameWindow;
+			webWindow = page.getEnclosingWindow() ;
 		}
 		this.originalUrl = originalUrl;
 	}
@@ -93,7 +98,11 @@ public class ProcessedPage {
 		if (response == null) {
 			return null;
 		} else {
-			return response.getContentAsStream();
+			try {
+				return response.getContentAsStream();
+			} catch (IOException e) {
+				return null;
+			}
 		}
 	}
 
@@ -135,7 +144,13 @@ public class ProcessedPage {
 
 	public void cleanPage() {
 		if (response != null) {
-			IOUtils.closeQuietly(response.getContentAsStream());
+			try {
+				IOUtils.closeQuietly(response.getContentAsStream());
+				webWindow = null;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			response = null;
 		}
 	}
@@ -180,5 +195,17 @@ public class ProcessedPage {
 	
 	public boolean isComplete() {
 		return page != null && response != null;
+	}
+	@Override
+	public String toString() {
+		if ( _toString == null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(responseCode).append(".");
+			sb.append("(type=").append(webWindow.getClass().getSimpleName()).append(")").append(".");
+			sb.append(originalUrl).append("->");
+			sb.append(actualUrl).append(".");
+			_toString = sb.toString();
+		}
+		return _toString ;
 	}
 }

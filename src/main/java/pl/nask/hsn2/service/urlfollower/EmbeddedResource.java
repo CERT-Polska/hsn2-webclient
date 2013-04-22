@@ -19,6 +19,7 @@
 
 package pl.nask.hsn2.service.urlfollower;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -64,7 +65,12 @@ public class EmbeddedResource extends Link {
     public void update(WebResponse webResponse, String failureMessage, boolean requestFailed) {
     	if ( webResponse !=null) {
     		this.contentType = webResponse.getContentType();
-    		this.stream = webResponse.getContentAsStream();
+    		try {
+				this.stream = webResponse.getContentAsStream();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     		this.responseCode = webResponse.getStatusCode();
     		this.requestHeader = webResponse.getWebRequest().getAdditionalHeaders().toString();
     		this.responseHeader = webResponse.getResponseHeaders().toString();

@@ -155,7 +155,9 @@ public class NonHttpProtocolTest {
 		params.setProcessExternalLinks(0);
 		params.setSaveHtml(false);
 		params.setSaveCookies(false);
-		params.setPageTimeoutMillis(999999);
+		int longTimeout = 99999999;
+		params.setPageTimeoutMillis(longTimeout);
+		params.setProcessingTimeout(longTimeout);
 		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, inputReferrerCookieId, depth, topAncestorId, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);

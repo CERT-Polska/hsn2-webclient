@@ -620,10 +620,12 @@ public class WebClientWorker implements Runnable {
 			getPageLinksForCurrentContext().addAnchor(element, HREF_STRING);
 		} else if ("frame".equals(tagName)) {
 			// Process FRAME tag.
+			LOGGER.debug("frame:{}",element.asXml());
 			getPageLinksForCurrentContext().ignoreBaseTag();
 			processFramesSubPage(previousFramePageMap.get(((HtmlFrame) element).getEnclosedPage()), element.getAttribute(SRC_STRING), WebClientOrigin.FRAME);
 		} else if ("iframe".equals(tagName)) {
 			// Process IFRAME tag.
+			LOGGER.debug("iframe:{}",element.asXml());
 			getPageLinksForCurrentContext().ignoreBaseTag();
 			processFramesSubPage(previousFramePageMap.get(((HtmlInlineFrame) element).getEnclosedPage()), element.getAttribute(SRC_STRING),
 					WebClientOrigin.IFRAME);

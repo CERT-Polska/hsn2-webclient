@@ -417,6 +417,22 @@ public class FollowerWithCargoTomcatTest {
 		}
 		Assert.assertEquals(counter, 2, "There should be two about:blank frames saved.");
 	}
+	@Test
+	public void iframesWithoutSrcTest() throws Exception {
+		defineTestsExpectations();
+		initJobContextAndParams(TestHttpServer.absoluteUrl("iframesWithoutSrc.html"));
+		webClientTask.process();
+		jobContext.flush();
+
+		// Asserts.
+		int counter = 0;
+		for (String s : savedObjects) {
+			if (s.equals("url_original=about:blank")) {
+				counter++;
+			}
+		}
+		Assert.assertEquals(counter, 2, "There should be two about:blank frames saved.");
+	}
 
 	@Test
 	public void htmlUnitFollowerGetOrigUrlTest() throws Exception {

@@ -203,21 +203,38 @@ public class WebClientWorker implements Runnable {
 	private BrowserVersion getBrowserVersion() {
 		String profileName = taskParams.getProfile();
 		switch (profileName) {
+		
 		case "Internet Explorer 6":
+			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.INTERNET_EXPLORER_6;
 		case "Internet Explorer 7":
+			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.INTERNET_EXPLORER_7;
 		case "Internet Explorer 8":
 			return BrowserVersion.INTERNET_EXPLORER_8;
-		case "Firefox 3":
-//			return BrowserVersion.FIREFOX_3;
-			//fall through 
+		case "Internet Explorer":
+			//fall through
+		case "Internet Explorer 9":
+			return BrowserVersion.INTERNET_EXPLORER_9;
+		
 		case "Firefox 3.6":
+			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.FIREFOX_3_6;
 		case "Firefox 10":
+			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.FIREFOX_10;
+		case "Firefox":
+			//fall through
+		case "Firefox 17":
+			return BrowserVersion.FIREFOX_17;
+		
+		
 		case "Chrome 16":
+			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.CHROME_16;
+		case "Chrome":
+			return BrowserVersion.CHROME;
+		
 		default:
 			LOGGER.warn("Browser profile '{}' not supported. Using default Firefox 3.6 instead.", profileName);
 			return BrowserVersion.FIREFOX_3_6;

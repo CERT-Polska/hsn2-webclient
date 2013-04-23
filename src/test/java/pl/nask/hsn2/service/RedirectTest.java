@@ -57,6 +57,7 @@ public class RedirectTest {
 	private static final int MORE_THEN_ONE_JS_SAVED = 3;
 	private static final String REFERRER = "http://referrer";
 	private static final Set<CookieWrapper> COOKIE_WRAPPERS = new HashSet<CookieWrapper>();
+	private static final String	SERVER_RESOURCE_DIR	= "frames";
 	
 	@Mocked
 	ServiceConnector connector;
@@ -69,7 +70,7 @@ public class RedirectTest {
 
 	@BeforeClass
 	public void startServer() throws Exception {
-		TestHttpServer.startServer("frames");
+		TestHttpServer.startServer(SERVER_RESOURCE_DIR);
 	}
 
 	@AfterClass

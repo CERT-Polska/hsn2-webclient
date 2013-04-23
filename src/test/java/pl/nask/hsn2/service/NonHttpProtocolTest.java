@@ -38,6 +38,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+
 import pl.nask.hsn2.ResourceException;
 import pl.nask.hsn2.ServiceConnector;
 import pl.nask.hsn2.StorageException;
@@ -143,6 +145,10 @@ public class NonHttpProtocolTest {
 	}
 
 	private void initJobContextAndParams(String testPageAbsoluteUrl) throws Exception {
+		initJobContextAndParams(testPageAbsoluteUrl, "Default");
+	}
+	
+	private void initJobContextAndParams(String testPageAbsoluteUrl,String browserProfile) throws Exception {
 		long jobId = 1L;
 		int reqId = 2;
 		long objectDataId = 3L;
@@ -155,9 +161,10 @@ public class NonHttpProtocolTest {
 		params.setProcessExternalLinks(0);
 		params.setSaveHtml(false);
 		params.setSaveCookies(false);
-		int longTimeout = 99999999;
+		final int longTimeout = 99999999;
 		params.setPageTimeoutMillis(longTimeout);
 		params.setProcessingTimeout(longTimeout);
+		params.setProfile(browserProfile);
 		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, inputReferrerCookieId, depth, topAncestorId, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
@@ -191,18 +198,36 @@ public class NonHttpProtocolTest {
 	@Test
 	public void nonHttpFrames() throws Exception {
 		connectorExpectations();
-		initJobContextAndParams(TestHttpServer.absoluteUrl("nonHttpFrames.html"));
+		initJobContextAndParams(TestHttpServer.absoluteUrl("nonHttpFrames.html"),"Firefox 17");
 		webClientTask.process();
 		jobContext.flush();
 		Assert.assertTrue(follower.isSuccessfull());
 		Assert.assertNotNull(newObjectStoreObjects);
 		Assert.assertEquals(newObjectsInOSCounter, 4);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;frame"));
-		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;iframe"));
+		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;frame"));
+		
 		Assert.assertTrue(newObjectStoreObjects.contains("http://www-groups.dcs.st-and.ac.uk/history/BiogIndex.html;url;frame"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;frame"));
+		
 	}
 
+	@Test
+	public void nonHttpIFrames() throws Exception {
+		connectorExpectations();
+		initJobContextAndParams(TestHttpServer.absoluteUrl("nonHttp_i_Frames.html"));
+		webClientTask.process();
+		jobContext.flush();
+		Assert.assertTrue(follower.isSuccessfull());
+		Assert.assertNotNull(newObjectStoreObjects);
+		Assert.assertEquals(newObjectsInOSCounter, 4);
+		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;iframe"));
+		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
+		
+		Assert.assertTrue(newObjectStoreObjects.contains("http://www-groups.dcs.st-and.ac.uk/history/BiogIndex.html;url;iframe"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;iframe"));
+		
+	}
 	@Test(enabled = false)
 	public void nonHttpRedirects1() throws Exception {
 		connectorExpectations();

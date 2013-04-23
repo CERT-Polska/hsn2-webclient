@@ -59,7 +59,9 @@ public final class WebClientService implements Daemon {
 			}
 		});
 		wcs.start();
-		wcs.serviceRunner.join();
+		while (!wcs.serviceRunner.isInterrupted()) {
+			Thread.sleep(1000l);
+		}
 		wcs.stop();
 		wcs.destroy();
 	}
@@ -91,22 +93,24 @@ public final class WebClientService implements Daemon {
 				}
 			}
 		}, "webclient-service");
+		LOGGER.info("WebClient service initialized");
 	}
 
 	@Override
 	public void start() {
 		serviceRunner.start();
+		LOGGER.info("Service started");
 	}
 
 	@Override
 	public void stop() throws InterruptedException {
 		serviceRunner.interrupt();
 		serviceRunner.join(JOIN_WAIT_TIME);
-		LOGGER.info("WebClient stopped");
+		LOGGER.info("WebClient stopped.");
 	}
 
 	@Override
 	public void destroy() {
-		LOGGER.info("WebClient destroyed");
+		LOGGER.info("WebClient destroyed.");
 	}
 }

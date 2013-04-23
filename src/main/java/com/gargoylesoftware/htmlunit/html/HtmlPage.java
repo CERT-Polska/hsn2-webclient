@@ -44,9 +44,9 @@ import net.sourceforge.htmlunit.corejs.javascript.Script;
 import net.sourceforge.htmlunit.corejs.javascript.Scriptable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -89,6 +89,7 @@ import com.gargoylesoftware.htmlunit.javascript.host.Node;
 import com.gargoylesoftware.htmlunit.javascript.host.Window;
 import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLDocument;
 import com.gargoylesoftware.htmlunit.protocol.javascript.JavaScriptURLConnection;
+import com.gargoylesoftware.htmlunit.util.UrlUtils;
 
 /**
  * A representation of an HTML page returned from a server.
@@ -134,7 +135,11 @@ import com.gargoylesoftware.htmlunit.protocol.javascript.JavaScriptURLConnection
 
 public class HtmlPage extends SgmlPage {
 
-    private static final Log LOG = LogFactory.getLog(HtmlPage.class);
+	private static final long	serialVersionUID	= -1352807490946032693L;
+
+	//    private static final Log LOG = LogFactory.getLog(HtmlPage.class);
+	private static final Logger LOG = LoggerFactory.getLogger("HtmlPage_Custom");
+	private Map<String,Integer> jsRedirectCache = new HashMap<String,Integer>();
 
     private HtmlUnitDOMBuilder builder_;
     private String originalCharset_;
@@ -1117,6 +1122,7 @@ public class HtmlPage extends SgmlPage {
             return (Script) cachedScript;
         }
 
+        LOG.info("Loading JS from url:{}",url);
         final WebResponse response = client.loadWebResponse(request);
         client.printContentIfNecessary(response);
         client.throwFailingHttpStatusCodeExceptionIfNecessary(response);
@@ -1125,7 +1131,31 @@ public class HtmlPage extends SgmlPage {
         final boolean successful = (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES);
         final boolean noContent = (statusCode == HttpStatus.SC_NO_CONTENT);
         if (!successful || noContent) {
-            throw new IOException("Unable to download JavaScript from '" + url + "' (status " + statusCode + ").");
+        	final int jsRedirectLimit = 5;
+        	if(statusCode >= HttpStatus.SC_MULTIPLE_CHOICES && statusCode < HttpStatus.SC_BAD_REQUEST){
+        		String redirectLocation = response.getResponseHeaderValue("Location");
+        		URL newUrl = null;
+        		try{
+        			newUrl = UrlUtils.toUrlUnsafe(UrlUtils.resolveUrl(url, redirectLocation));
+        			String redirDestination = newUrl.toExternalForm();
+        			if ( jsRedirectCache.containsKey(redirDestination) ) {
+        				int count = jsRedirectCache.get(redirDestination);
+        				if ( ++count < jsRedirectLimit) {
+        					jsRedirectCache.put(redirDestination,count);
+        				} else {
+        					throw new IOException("Infinite redirect loop, unable to download JS from '"+redirDestination +"' (status "+statusCode+").");
+        				}
+        			} else {
+        				jsRedirectCache.put(redirDestination,0);
+        			}
+        		} catch (MalformedURLException e) {
+        			throw new IOException("Unable to download JavaScript from '" + url + "' (status " + statusCode + ").", e);
+        		}
+        		return loadJavaScriptFromUrl(newUrl, charset);
+        	}
+        	else{
+        		throw new IOException("Unable to download JavaScript from '" + url + "' (status " + statusCode + ").");
+        	}
         }
 
         //http://www.ietf.org/rfc/rfc4329.txt

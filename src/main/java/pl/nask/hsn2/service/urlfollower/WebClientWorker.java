@@ -94,7 +94,6 @@ public class WebClientWorker implements Runnable {
 	private Map<Page,ProcessedPage> previousFramePageMap = new HashMap<Page, ProcessedPage>();
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
-	private String reasonFailed;
 	private Set<CookieWrapper> cookieWrappers;
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
@@ -313,6 +312,7 @@ public class WebClientWorker implements Runnable {
 
 	private void processPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
 			ParameterException, ResourceException, StorageException {
+		String reasonFailed = "";
 		try {			
 			int i = wc.waitForBackgroundJavaScript(taskParams.getBackgroundJsTimeoutMillis());
 			if (i > 0) {
@@ -338,7 +338,7 @@ public class WebClientWorker implements Runnable {
 			LOGGER.error(reasonFailed, e);
 		} finally {
 			if(processedPage != null) {
-				addRequiredAttributesToCurrentContext(processedPage);
+				addRequiredAttributesToCurrentContext(processedPage, reasonFailed);
 				processedPage.cleanPage();
 			}
 		}
@@ -380,6 +380,7 @@ public class WebClientWorker implements Runnable {
 			if (subPage == null) {
 				// HtmlUnit shows about:blank frame page when it can't
 				// follow it (i.e. when it is ftp:// or another protocol).
+				String reasonFailed = "";
 				if (!subPageUrl.isEmpty()) {
 					// Frame has not been followed, so we have to use url from
 					// source, not from page.
@@ -387,18 +388,19 @@ public class WebClientWorker implements Runnable {
 					try {
 						Link frameUrlFromSource = new Link(oldBaseUrl, subPageUrl);
 						newSubPageUrl = frameUrlFromSource.getAbsoluteUrl();
+						reasonFailed = "Unable to follow url from " + origin.getName();
 					} catch (URISyntaxException e) {
 						// This is unlikely to happen.
 						LOGGER.debug("Can't create Link for subpage: "+ e.getMessage(), e);
-						reasonFailed = "Can't create Link for frame!";
+						reasonFailed = "Can't create Link for " + origin.getName();
 						newSubPageUrl = "about:blank";
 					}
 				} else {
-					reasonFailed = "Src for frame is empty.";
+					reasonFailed = "Src for " + origin.getName() + " is empty.";
 					newSubPageUrl = "about:blank";
 				}
 				prepareSubPage(newSubPageUrl, origin);
-				addRequiredAttributesToCurrentContext(null);
+				addRequiredAttributesToCurrentContext(reasonFailed);
 			} else {
 				newSubPageUrl = subPage.getActualUrl().toExternalForm();
 				prepareSubPage(newSubPageUrl, origin);
@@ -986,8 +988,13 @@ public class WebClientWorker implements Runnable {
 		ctx.setServiceParams(params);
 		ctx.setWebClientWorker(webClientWorker);
 	}
-
-	private void addRequiredAttributesToCurrentContext(ProcessedPage processedPage) throws ParameterException, ResourceException,
+	
+	private void addRequiredAttributesToCurrentContext(String reasonFailed) throws ParameterException, ResourceException,
+	StorageException {
+		addRequiredAttributesToCurrentContext(null, reasonFailed);
+	}
+	
+	private void addRequiredAttributesToCurrentContext(ProcessedPage processedPage, String reasonFailed) throws ParameterException, ResourceException,
 			StorageException {
 		try {
 			RequestWrapper requestWrapper = composeRequest(processedPage);
@@ -1003,7 +1010,7 @@ public class WebClientWorker implements Runnable {
 			if (isSuccessfull) {
 				addAttrsForSuccessfulProcessing(processedPage);
 			} else {
-				addAttrsForFailedProcessing();
+				addAttrsForFailedProcessing(reasonFailed);
 			}
 		} catch (StackOverflowError e) {
 			ctx.addWarning("Serious problem with JVM - cannot recover task");
@@ -1018,8 +1025,8 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	private void addAttrsForFailedProcessing() {
-		if (reasonFailed != null) {
+	private void addAttrsForFailedProcessing(String reasonFailed) {
+		if (reasonFailed != null && !reasonFailed.isEmpty()) {
 			ctx.addAttribute("reason_failed",reasonFailed);
 		}
 		else {

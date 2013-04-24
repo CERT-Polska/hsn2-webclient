@@ -58,6 +58,11 @@ import pl.nask.hsn2.utils.MockTestsHelper;
 import pl.nask.hsn2.utils.WebClientDataStoreHelper;
 
 public class NonHttpProtocolTest {
+	
+	private static final String	SERVER_SOURCE_DIR	= "nonHttpProtocol";
+	
+	
+	
 	public static final String REFERRER = "http://referrer/referrer.html";
 	@Mocked
 	ServiceConnector connector;
@@ -79,7 +84,7 @@ public class NonHttpProtocolTest {
 
 	@BeforeClass
 	public void startServer() throws Exception {
-		TestHttpServer.startServer("nonHttpProtocol");
+		TestHttpServer.startServer(SERVER_SOURCE_DIR);
 	}
 
 	@AfterClass
@@ -161,9 +166,9 @@ public class NonHttpProtocolTest {
 		params.setProcessExternalLinks(0);
 		params.setSaveHtml(false);
 		params.setSaveCookies(false);
-		final int longTimeout = 99999999;
-		params.setPageTimeoutMillis(longTimeout);
-		params.setProcessingTimeout(longTimeout);
+//		final int longTimeout = 99999999;
+//		params.setPageTimeoutMillis(longTimeout);
+//		params.setProcessingTimeout(longTimeout);
 		params.setProfile(browserProfile);
 		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, inputReferrerCookieId, depth, topAncestorId, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
@@ -203,15 +208,13 @@ public class NonHttpProtocolTest {
 		jobContext.flush();
 		Assert.assertTrue(follower.isSuccessfull());
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertEquals(newObjectsInOSCounter, 4);
+		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;frame"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;frame"));
 		
-		Assert.assertTrue(newObjectStoreObjects.contains("http://www-groups.dcs.st-and.ac.uk/history/BiogIndex.html;url;frame"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;frame"));
-		
 	}
 
+	
 	@Test
 	public void nonHttpIFrames() throws Exception {
 		connectorExpectations();
@@ -220,12 +223,10 @@ public class NonHttpProtocolTest {
 		jobContext.flush();
 		Assert.assertTrue(follower.isSuccessfull());
 		Assert.assertNotNull(newObjectStoreObjects);
-		Assert.assertEquals(newObjectsInOSCounter, 4);
+		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;iframe"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
 		
-		Assert.assertTrue(newObjectStoreObjects.contains("http://www-groups.dcs.st-and.ac.uk/history/BiogIndex.html;url;iframe"));
-		Assert.assertTrue(newObjectStoreObjects.contains("http://cdimage.ubuntu.com/;url;iframe"));
 		
 	}
 	@Test(enabled = false)

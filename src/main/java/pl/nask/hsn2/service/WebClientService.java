@@ -99,7 +99,11 @@ public final class WebClientService implements Daemon {
 	@Override
 	public void start() {
 		serviceRunner.start();
-		LOGGER.info("Service started");
+		if (!service.waitForStartUp()) {
+			LOGGER.warn("Cannot start service.");
+		} else {
+			LOGGER.info("Service started");
+		}
 	}
 
 	@Override

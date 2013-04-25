@@ -30,9 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import pl.nask.hsn2.ServiceConnector;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse.ResponseType;
-import pl.nask.hsn2.protobuff.Object.Reference;
+import pl.nask.hsn2.connector.REST.DataResponse;
 import pl.nask.hsn2.server.TestHttpServer;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;
@@ -68,8 +66,7 @@ public class WebClientTimeoutsTest {
 			{
 				byte[] anyData = null;
 				serviceConnector.sendDataStoreData(anyLong, anyData);
-				long key = 1;
-				result = DataResponse.newBuilder().setType(ResponseType.OK).setRef(Reference.newBuilder().setKey(key)).build();
+				result = new DataResponse(1L);
 			}
 		};
 

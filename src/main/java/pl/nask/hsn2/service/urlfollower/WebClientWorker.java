@@ -158,11 +158,17 @@ public class WebClientWorker implements Runnable {
 		wc.setRefreshHandler(new MetaRedirectHandler(taskParams.getPageTimeoutMillis(), taskParams.getRedirectDepthLimit()));
 		wc.setJavaScriptErrorListener(new JsScriptErrorListener());
 		wc.addWebWindowListener(new WebWindowListenerImpl(previousTopPageMap, previousFramePageMap));
-		
+
 		initializeCookies();
-		
-		LOGGER.info("Initialized WebClientWorker with options: [JsEnabled={}], [ActiveXNative={}], [processing_timeout={}], [page_timeout={}] , [proxy:{}] ",
-				new Object[] {wc.getOptions().isJavaScriptEnabled(),wc.getOptions().isActiveXNative(),taskParams.getProcessingTimeout(),taskParams.getPageTimeoutMillis(),proxyParams});
+
+		LOGGER.info("Initialized WebClientWorker with options: [{}, JsEnabled={}, ActiveXNative={},processing_timeout={},page_timeout={},proxy:{}] ",
+				new Object[] {
+				taskParams.getProfile(),
+				wc.getOptions().isJavaScriptEnabled(),
+				wc.getOptions().isActiveXNative(),
+				taskParams.getProcessingTimeout(),
+				taskParams.getPageTimeoutMillis(),
+				proxyParams,});
 	}
 
 	private void initializeCookies() {

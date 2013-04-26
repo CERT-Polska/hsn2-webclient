@@ -243,7 +243,7 @@ public class JSwwwSitesTest {
 		
     }
     
-    @Test(enabled=true, timeOut=JS_TIMEOUT + 1000)
+    @Test(enabled=true, timeOut=JS_TIMEOUT + 100000)
     public void jsIdsTest() throws StorageException, ParameterException, ResourceException {
     	Logger log = LoggerFactory.getLogger("jsIdsTest");
     	log.debug("start");
@@ -284,6 +284,8 @@ public class JSwwwSitesTest {
     	params.setSaveOthers(true);
     	params.setSaveJsContext(true);
     	params.setSingleJsTimeoutMillis(JS_TIMEOUT);
+    	params.setPageTimeoutMillis(99999999);
+    	params.setProcessingTimeout(999999999);
     	
     	wcTaskContext = new WebClientTaskContext(0, 0, 0, null);
     	new NonStrictExpectations() {

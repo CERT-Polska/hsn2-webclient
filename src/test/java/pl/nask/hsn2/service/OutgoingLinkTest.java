@@ -38,9 +38,7 @@ import pl.nask.hsn2.ResourceException;
 import pl.nask.hsn2.ServiceConnector;
 import pl.nask.hsn2.StorageException;
 import pl.nask.hsn2.bus.operations.ObjectResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse.ResponseType;
-import pl.nask.hsn2.protobuff.Object.Reference;
+import pl.nask.hsn2.connector.REST.DataResponse;
 import pl.nask.hsn2.server.TestHttpServer;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;
@@ -72,7 +70,7 @@ public class OutgoingLinkTest {
     	follower = new HtmlUnitFollower(TestHttpServer.getWebserverRoot(), jobContext, params);
     	webClientTask = new WebClientTask(jobContext, params, new ServiceData("",""), follower);
     }
-    
+
     @Test
 	public void testProcessExternalLinks() throws Exception{
     	params.setProcessExternalLinks(0);
@@ -103,43 +101,30 @@ public class OutgoingLinkTest {
     }
 
     private void linkOFFExpectations() throws StorageException, ParameterException, ResourceException, IOException {
-    	DataResponse.Builder responseBuilder = DataResponse.newBuilder();
-		responseBuilder.setType(ResponseType.OK);
-		responseBuilder.setRef(Reference.newBuilder()
-						.setKey(1L)
-						.setStore(1)    						
-						);
-		final DataResponse response = responseBuilder.build();
-		
+		final DataResponse dataResponse = new DataResponse(1L);
 		final ObjectResponse saveObjectsResponse = new ObjectResponse(pl.nask.hsn2.bus.operations.ObjectResponse.ResponseType.SUCCESS_PUT);
 		saveObjectsResponse.setObjects(Collections.singleton(1L));
-    	new NonStrictExpectations() {    		    		
-	        {	      
-	        	connector.sendDataStoreData(anyLong, withInstanceOf(byte[].class));result=response;
-	        	connector.sendDataStoreData(anyLong, withInstanceOf(InputStream.class));result=response;
+    	new NonStrictExpectations() {
+	        {
+	        	connector.sendDataStoreData(anyLong, withInstanceOf(byte[].class));result=dataResponse;
+	        	connector.sendDataStoreData(anyLong, withInstanceOf(InputStream.class));result=dataResponse;
 	        	connector.saveObjects(anyLong, null);times=0;
 	        }
 		};
 	}
 
     private void linkONExpectations() throws StorageException, ParameterException, ResourceException, IOException {
-    	DataResponse.Builder responseBuilder = DataResponse.newBuilder();
-		responseBuilder.setType(ResponseType.OK);
-		responseBuilder.setRef(Reference.newBuilder()
-						.setKey(1L)
-						.setStore(1)    						
-						);
-		final DataResponse response = responseBuilder.build();
-		
+		final DataResponse dataResponse = new DataResponse(1L);
 		final ObjectResponse saveObjectsResponse = new ObjectResponse(pl.nask.hsn2.bus.operations.ObjectResponse.ResponseType.SUCCESS_PUT);
 		saveObjectsResponse.setObjects(Collections.singleton(1L));
-    	new NonStrictExpectations() {    		    		
-	        {	      
-	        	connector.sendDataStoreData(anyLong, withInstanceOf(byte[].class));result=response;
-	        	connector.sendDataStoreData(anyLong, withInstanceOf(InputStream.class));result=response;
+    	new NonStrictExpectations() {
+	        {
+	        	connector.sendDataStoreData(anyLong, withInstanceOf(byte[].class));result=dataResponse;
+	        	connector.sendDataStoreData(anyLong, withInstanceOf(InputStream.class));result=dataResponse;
 	        	connector.saveObjects(anyLong, null);times=1;result=saveObjectsResponse;
 	        	forEachInvocation = new Object() {
-	        		public void verify(long jobId, List<?> list) {
+	        		@SuppressWarnings("unused")
+					public void verify(long jobId, List<?> list) {
 	        			Assert.assertEquals(list.size(), 10, "number of saved objects");
 	        		}
 	        	};

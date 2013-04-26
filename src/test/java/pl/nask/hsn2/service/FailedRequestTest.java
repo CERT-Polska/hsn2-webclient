@@ -41,9 +41,7 @@ import pl.nask.hsn2.RequiredParameterMissingException;
 import pl.nask.hsn2.ServiceConnector;
 import pl.nask.hsn2.bus.operations.ObjectData;
 import pl.nask.hsn2.bus.operations.ObjectResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse.ResponseType;
-import pl.nask.hsn2.protobuff.Object.Reference;
+import pl.nask.hsn2.connector.REST.DataResponse;
 import pl.nask.hsn2.server.TestHttpServer;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;
@@ -78,10 +76,7 @@ public class FailedRequestTest {
 
 	@SuppressWarnings("unused")
 	private void defineTestsExpectations() throws Exception {
-		DataResponse.Builder responseBuilder = DataResponse.newBuilder();
-		responseBuilder.setType(ResponseType.OK);
-		responseBuilder.setRef(Reference.newBuilder().setKey(1L).setStore(1));
-		final DataResponse dataResponse = responseBuilder.build();
+		final DataResponse dataResponse = new DataResponse(1L);
 		final ObjectResponse saveObjectsResponse = new ObjectResponse(pl.nask.hsn2.bus.operations.ObjectResponse.ResponseType.SUCCESS_PUT);
 		saveObjectsResponse.setObjects(Collections.singleton(1L));
 		new NonStrictExpectations() {

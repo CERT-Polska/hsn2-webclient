@@ -38,7 +38,7 @@ public class MockTestsHelper {
 			for (String attribute : sortedAttributesAndValues) {
 				sb.append("--> ").append(attribute).append("\n");
 			}
-			LOGGER.info(sb.toString());
+			LOGGER.debug(sb.toString());
 		}
 	}
 
@@ -58,7 +58,7 @@ public class MockTestsHelper {
 			for (String attribute : sortedAttributesAndValues) {
 				sb.append("--> ").append(attribute).append("\n");
 			}
-			LOGGER.info(sb.toString());
+			LOGGER.debug(sb.toString());
 		}
 	}
 
@@ -75,7 +75,7 @@ public class MockTestsHelper {
 				}
 			}
 			sb.append("\n");
-			LOGGER.info(sb.toString());
+			LOGGER.debug(sb.toString());
 		}
 	}
 
@@ -92,7 +92,7 @@ public class MockTestsHelper {
 				}
 			}
 			sb.append("\n");
-			LOGGER.info(sb.toString());
+			LOGGER.debug(sb.toString());
 		}
 	}
 
@@ -105,7 +105,7 @@ public class MockTestsHelper {
 			sb.append("--> source=").append(jsContextWrapper.getSource().trim()).append("\n");
 			jsSavedScriptCounter++;
 		}
-		LOGGER.info(sb.toString());
+		LOGGER.debug(sb.toString());
 		return jsSavedScriptCounter;
 	}
 
@@ -149,7 +149,7 @@ public class MockTestsHelper {
 			sb.append("New entry added: ").append(newEntry).append("\n");
 			sb.append("New objects created so far: ").append(newObjectsInOSCounter).append("\n");
 		}
-		LOGGER.info(sb.toString());
+		LOGGER.debug(sb.toString());
 		return newObjectsInOSCounter;
 	}
 
@@ -166,7 +166,7 @@ public class MockTestsHelper {
 		s += "--> req header: " + rw.getRequestHeader() + "\n";
 		s += "--> resp header: " + rw.getResponseHeader() + "\n";
 		s += "--> resp code: " + rw.getResponseCode() + "\n";
-		LOGGER.info(s);
+		LOGGER.debug(s);
 	}
 
 	public static void saveFailedRequestInDataStore(byte[] data, StringBuilder sb) {
@@ -177,7 +177,7 @@ public class MockTestsHelper {
 				sb.append("?");
 			}
 		}
-		LOGGER.info(sb.toString());
+		LOGGER.debug(sb.toString());
 	}
 
 	public static boolean isOnOngoingLinksList(Set<OutgoingLink> outgoingLinksSet, String uriToCheck) {
@@ -207,6 +207,6 @@ public class MockTestsHelper {
 			sb.append("--> Attributes: " + attributes + "\n");
 			sb.append(DELIMITER);
 		}
-		LOGGER.info(sb.toString());
+		LOGGER.debug(sb.toString());
 	}
 }

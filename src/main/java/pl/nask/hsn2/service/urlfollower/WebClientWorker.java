@@ -206,7 +206,7 @@ public class WebClientWorker implements Runnable {
 	 */
 	@SuppressWarnings("deprecation")
 	private BrowserVersion getBrowserVersion() {
-		String profileName = taskParams.getProfile();
+		String profileName = "";//taskParams.getProfile();
 		switch (profileName) {
 		
 		case "Internet Explorer 6":
@@ -242,7 +242,7 @@ public class WebClientWorker implements Runnable {
 		
 		default:
 			LOGGER.warn("Browser profile '{}' not supported. Using default Firefox 3.6 instead.", profileName);
-			return BrowserVersion.FIREFOX_3_6;
+			return BrowserVersion.INTERNET_EXPLORER_9;//FIREFOX_3_6;
 		}
 	}
 

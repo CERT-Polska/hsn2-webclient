@@ -50,7 +50,7 @@ public class JsScriptErrorListener implements JavaScriptErrorListener {
 			LOGGER.debug("Other problem in JavaScript engine", scriptException);
 		}
 		{
-		htmlPage.getWebClient().getOptions().setJavaScriptEnabled(false);
+		//htmlPage.getWebClient().getOptions().setJavaScriptEnabled(false);
 //		htmlPage.getWebClient().getOptions().setJavaScriptEnabled(true);
 		
 		}

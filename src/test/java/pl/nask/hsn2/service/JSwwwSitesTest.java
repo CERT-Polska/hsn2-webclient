@@ -224,7 +224,7 @@ public class JSwwwSitesTest {
     	Assert.assertEquals(follower.getPageLinks().getOutgoingLinks().size(),2);
 		
     }
-    @Test(enabled=true, timeOut=JS_TIMEOUT + 1000)
+    @Test(enabled=true)//, timeOut=JS_TIMEOUT + 1000)
     public void js8Test() throws StorageException, ParameterException, ResourceException {
     	String TEST_PAGE="js8.html";
     	
@@ -243,7 +243,7 @@ public class JSwwwSitesTest {
 		
     }
     
-    @Test(enabled=true, timeOut=JS_TIMEOUT + 100000)
+    @Test(enabled=true)//, timeOut=JS_TIMEOUT + 100000)
     public void jsIdsTest() throws StorageException, ParameterException, ResourceException {
     	Logger log = LoggerFactory.getLogger("jsIdsTest");
     	log.debug("start");

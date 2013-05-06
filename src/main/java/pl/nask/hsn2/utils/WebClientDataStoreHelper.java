@@ -20,6 +20,7 @@
 package pl.nask.hsn2.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import pl.nask.hsn2.ResourceException;
 import pl.nask.hsn2.ServiceConnector;
 import pl.nask.hsn2.StorageException;
-import pl.nask.hsn2.protobuff.DataStore;
 import pl.nask.hsn2.protobuff.Object.Reference;
 import pl.nask.hsn2.protobuff.Resources;
 import pl.nask.hsn2.wrappers.CookieWrapper;
@@ -98,25 +98,25 @@ public final class WebClientDataStoreHelper {
         return DataStoreHelper.saveInDataStore(connector, jobId, cookieListBuilder.build().toByteArray());
     }
 
-
-    public static Set<CookieWrapper> getCookiesFromDataStore(ServiceConnector connector, long jobId,long referenceId) throws StorageException {
-        LOG.debug("Getting cookie list from data store");
-        Set<CookieWrapper> cookieWrappers = null;
-        try {
-            DataStore.DataResponse response = connector.getDataStoreData(jobId, referenceId);
-            if (response.getType().equals(DataStore.DataResponse.ResponseType.DATA)) {
-                Resources.CookieList cookieList = Resources.CookieList.parseFrom(response.getData());
-                cookieWrappers = getCookiesWrapper(cookieList);
-            } else {
-                LOG.debug("Failed to get cookies from data store.");
-            }
-        } catch (IOException e) {
-            String msg = "Error getting cookies from data store.";
-            LOG.error(msg);
-            throw new StorageException(msg, e);
-        }
-        return cookieWrappers;
-    }
+	public static Set<CookieWrapper> getCookiesFromDataStore(ServiceConnector connector, long jobId, long referenceId) throws StorageException {
+		LOG.debug("Getting cookie list from data store");
+		Set<CookieWrapper> cookieWrappers = null;
+		try {
+			try (InputStream responseStream = connector.getDataStoreData(jobId, referenceId)) {
+				if (responseStream == null) {
+					LOG.debug("Failed to get cookies from data store.");
+				} else {
+					Resources.CookieList cookieList = Resources.CookieList.parseFrom(responseStream);
+					cookieWrappers = getCookiesWrapper(cookieList);
+				}
+			}
+		} catch (IOException e) {
+			String msg = "Error getting cookies from data store.";
+			LOG.error(msg);
+			throw new StorageException(msg, e);
+		}
+		return cookieWrappers;
+	}
 
     public static long saveJSContextsInDataStore(ServiceConnector connector, long jobId,List<JSContextWrapper> jsContextWrappers) throws StorageException {
         LOG.debug("Adding JS contexts list to data store.");

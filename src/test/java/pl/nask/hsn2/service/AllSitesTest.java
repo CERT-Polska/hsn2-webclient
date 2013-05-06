@@ -53,9 +53,7 @@ import pl.nask.hsn2.StorageException;
 import pl.nask.hsn2.bus.operations.Attribute;
 import pl.nask.hsn2.bus.operations.ObjectData;
 import pl.nask.hsn2.bus.operations.ObjectResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse;
-import pl.nask.hsn2.protobuff.DataStore.DataResponse.ResponseType;
-import pl.nask.hsn2.protobuff.Object.Reference;
+import pl.nask.hsn2.connector.REST.DataResponse;
 import pl.nask.hsn2.server.TestHttpServer;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;
@@ -118,18 +116,6 @@ public class AllSitesTest {
 	}
 
 	private void checkForAttributes(List<ObjectData> dataList) {
-//		for (ObjectData objectData : dataList) {
-//			LOGGER.info("Saving objects:");
-//			Set<Attribute> attrs = objectData.getAttributes();
-//			Set<String> attrs2 = new TreeSet<String>();
-//			for (Attribute attribute : attrs) {
-//				attrs2.add(attribute.getName() + "=" + attribute.getValue());
-//			}
-//			for (String attribute : attrs2) {
-//				LOGGER.info("--> " + attribute);
-//			}
-//		}
-		
 		StringBuilder sb = new StringBuilder();
 		for (ObjectData objectData : dataList) {
 			sb.append("\n\nSaving objects:\n");
@@ -186,10 +172,7 @@ public class AllSitesTest {
 
 	@SuppressWarnings("unchecked")
 	private void defineTestsExpectations() throws Exception {
-		DataResponse.Builder responseBuilder = DataResponse.newBuilder();
-		responseBuilder.setType(ResponseType.OK);
-		responseBuilder.setRef(Reference.newBuilder().setKey(1L).setStore(1));
-		final DataResponse dataResponse = responseBuilder.build();
+		final DataResponse dataResponse = new DataResponse(1L);
 		final ObjectResponse saveObjectsResponse = new ObjectResponse(pl.nask.hsn2.bus.operations.ObjectResponse.ResponseType.SUCCESS_PUT);
 		saveObjectsResponse.setObjects(Collections.singleton(1L));
 		new NonStrictExpectations() {

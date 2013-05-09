@@ -18,11 +18,11 @@
  */
 package pl.nask.hsn2.service.urlfollower;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.htmlunit.corejs.javascript.Context;
+import net.sourceforge.htmlunit.corejs.javascript.ContextInspector;
 import net.sourceforge.htmlunit.corejs.javascript.EvaluatorException;
 import net.sourceforge.htmlunit.corejs.javascript.debug.DebugFrame;
 import net.sourceforge.htmlunit.corejs.javascript.debug.DebuggableScript;
@@ -41,25 +41,14 @@ public class ScriptInterceptor implements Debugger {
     private final int jsRecursionLimit;
     private final Map<String, Map<String, ScriptElement>> scriptsByOrigin = new ConcurrentHashMap<String, Map<String, ScriptElement>>();
     private int scriptId = 0;
-    private final boolean throwJsException;
-    private Map<Integer, Integer> recursionCounter = null;
 	private volatile boolean process = true;
 
     public ScriptInterceptor(ServiceParameters taskParams) {
-        this.jsRecursionLimit = taskParams.getJsRecursionLimit();
-        if (this.jsRecursionLimit >= 0) {
-            this.throwJsException = true;
-        } else {
-            this.throwJsException = false;
-        }
-        if (this.throwJsException) {
-            recursionCounter = new HashMap<Integer, Integer>();
-        }
+        jsRecursionLimit = taskParams.getJsRecursionLimit();
     }
 
     public ScriptInterceptor() {
-        this.throwJsException = false;
-        this.jsRecursionLimit = ServiceParameters.JS_RECURSION_LIMIT;
+    	jsRecursionLimit = ServiceParameters.JS_RECURSION_LIMIT;
     }
 
     public static class ScriptElement {
@@ -100,72 +89,51 @@ public class ScriptInterceptor implements Debugger {
     		Context.throwAsScriptRuntimeEx(er);
     		return;
     	}
-        HtmlPage page = (HtmlPage) context.getThreadLocal("startingPage");
-        String origin = page.getUrl().toString();
-        String srcName = script.getSourceName();
-        ScriptElement scriptElement = new ScriptElement(scriptId++, source, script.isGeneratedScript());
+    	
+        String origin = getOriginForScript(context);
+        
         Map<String, ScriptElement> scriptsFromOrgin = null;
-
-        Integer hash = null;
-        if (throwJsException) {
-            StringBuilder sb = new StringBuilder()
-                    .append(origin)
-                    .append(source.hashCode())
-                    .append(script.getParamCount())
-                    .append(script.getFunctionName());
-            hash = sb.toString().hashCode();
-        }
-
         if (scriptsByOrigin.containsKey(origin)) {
             scriptsFromOrgin = scriptsByOrigin.get(origin);
-
         } else {
             scriptsFromOrgin = new ConcurrentHashMap<String, ScriptElement>();
             scriptsByOrigin.put(origin, scriptsFromOrgin);
-
         }
+        
+        String srcName = script.getSourceName();
+        ScriptElement scriptElement = new ScriptElement(scriptId++, source, script.isGeneratedScript());
         if (!scriptsFromOrgin.containsKey(srcName)) {
             scriptsFromOrgin.put(srcName, scriptElement);
             LOGGER.debug("Adding new script: {}", srcName);
         } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sources from {} contain {} already!,", new Object[]{origin, srcName});
-            }
+        	LOGGER.debug("Sources from {} contain {} already!,", new Object[]{origin, srcName});
         }
 
-        if (throwJsException) {
-            Integer i = recursionCounter.get(hash);
-            if (i == null) {
-                i = Integer.valueOf(0);
-            }
-            if (i == jsRecursionLimit) {
-                EvaluatorException er = new EvaluatorException("Recursive JavaScript call attempt(" + i + ").", srcName, -1);
-                LOGGER.warn("Interrupting JavaScript execution:{},[hash:{}]called {} times, {}", new Object[]{srcName, hash, i, origin});
+        if (jsRecursionLimit >= 0) {
+            int depth = ContextInspector.getDepth(context);
+            if (depth >= jsRecursionLimit) {
+                EvaluatorException er = new EvaluatorException("Recursive JavaScript call attempt(" + depth + ").", srcName, -1);
+                LOGGER.warn("Interrupting JavaScript execution:{}, stack depth: {}, {}", new Object[]{srcName, depth, origin});
                 Context.throwAsScriptRuntimeEx(er);
-            } else {
-                i++;
-                recursionCounter.put(hash, i);
-                LOGGER.debug("Added javascript to recursive call counter:[hash:{}],par:{},topLevel:{},funcName:{},called {} times.", new Object[]{hash, script.getParamCount(), script.isTopLevel(), script.getFunctionName(), i});
             }
         }
     }
+    
+    private String getOriginForScript(Context context){
+    	HtmlPage page = (HtmlPage) context.getThreadLocal("startingPage");
+        return page.getUrl().toString();
+    }
 
-    @Override
+	@Override
     public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript) {
-        return new JsScriptDebugFrame();
+		return new JsScriptDebugFrame();
     }
 
     public Map<String, Map<String, ScriptElement>> getSourcesByOrigin() {
         return scriptsByOrigin;
     }
-
+    
 	public void disableProcessing() {
 		process  = false;
-		if(recursionCounter != null) {
-			recursionCounter.clear();
-		}
-		recursionCounter = null;
-		
-		
 	}
 }

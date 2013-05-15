@@ -26,10 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gargoylesoftware.htmlunit.ScriptException;
-import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener;
-import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptExecutor;
 
 public class JsScriptErrorListener implements JavaScriptErrorListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JsScriptErrorListener.class);

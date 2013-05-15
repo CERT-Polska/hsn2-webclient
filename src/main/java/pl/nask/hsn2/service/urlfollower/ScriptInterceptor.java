@@ -111,7 +111,7 @@ public class ScriptInterceptor implements Debugger {
 
         if (jsRecursionLimit >= 0) {
             int depth = ContextInspector.getDepth(context);
-            if (depth >= jsRecursionLimit) {
+            if (depth >= jsRecursionLimit || checkScriptDepth(script)) {
                 EvaluatorException er = new EvaluatorException("Recursive JavaScript call attempt(" + depth + ").", srcName, -1);
                 LOGGER.warn("Interrupting JavaScript execution:{}, stack depth: {}, {}", new Object[]{srcName, depth, origin});
                 Context.throwAsScriptRuntimeEx(er);
@@ -135,5 +135,21 @@ public class ScriptInterceptor implements Debugger {
     
 	public void disableProcessing() {
 		process  = false;
+	}
+	
+	private boolean checkScriptDepth(DebuggableScript script){
+		DebuggableScript parent = script.getParent();
+		int i = 0;
+		while(parent != null){
+			i++;
+			if(i < jsRecursionLimit){
+				parent = parent.getParent();
+			}
+			else{
+				return true;
+			}
+		}
+		//LOGGER.info(""+i);
+		return false;
 	}
 }

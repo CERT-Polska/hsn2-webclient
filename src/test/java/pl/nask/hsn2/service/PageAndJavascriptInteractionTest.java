@@ -49,7 +49,6 @@ import pl.nask.hsn2.wrappers.CookieWrapper;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class PageAndJavascriptInteractionTest {

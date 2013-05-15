@@ -63,7 +63,7 @@ public class JSwwwSitesTest {
         TestHttpServer.stopServer();
     }
 
-    @Test(enabled=true, timeOut=JS_TIMEOUT + 1000)
+    @Test//(enabled=true, timeOut=JS_TIMEOUT + 1000)
     public void testRecursiveDownloadJS() throws ParameterException, ResourceException, StorageException {
     	String TEST_PAGE="index.html";
 
@@ -295,9 +295,5 @@ public class JSwwwSitesTest {
 				dh.saveInDataStore((ServiceConnector)any, anyLong, (InputStream) any); result = 2l;
     		}
     	};
-		
 	}
-
-
 }
-

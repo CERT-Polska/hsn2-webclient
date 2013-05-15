@@ -44,7 +44,6 @@ import pl.nask.hsn2.bus.operations.AttributeType;
 import pl.nask.hsn2.bus.operations.ObjectData;
 import pl.nask.hsn2.bus.operations.ObjectResponse;
 import pl.nask.hsn2.connector.REST.DataResponse;
-import pl.nask.hsn2.protobuff.Object.Reference;
 import pl.nask.hsn2.server.TestHttpServer;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 import pl.nask.hsn2.service.urlfollower.HtmlUnitFollower;

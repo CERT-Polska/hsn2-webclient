@@ -38,8 +38,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-
 import pl.nask.hsn2.ResourceException;
 import pl.nask.hsn2.ServiceConnector;
 import pl.nask.hsn2.StorageException;

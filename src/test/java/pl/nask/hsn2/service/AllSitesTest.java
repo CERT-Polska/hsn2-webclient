@@ -74,7 +74,7 @@ public class AllSitesTest {
 	
 	private static final int BG_JS_TIMEOUT = 2 * 1000;
 	private static final int SINGLE_JS_TIMEOUT = 1000;
-	private static final int PAGE_TIMEOUT = 3 * 1000;
+	private static final int PAGE_TIMEOUT = 4 * 1000;
 	private static final int DEFAULT_TEST_TIMEOUT = PAGE_TIMEOUT + SINGLE_JS_TIMEOUT + BG_JS_TIMEOUT + 1000;	
 	
 	@Mocked
@@ -321,11 +321,11 @@ public class AllSitesTest {
 	@Test(enabled = false, dataProvider = "websitesToTest", timeOut=DEFAULT_TEST_TIMEOUT)
 	public void checkTestWebsiteByHtmlUnit(String websiteRelUrl) throws Exception {
 		WebClient wc = new WebClient();
-		wc.setTimeout(PAGE_TIMEOUT);
-		wc.setJavaScriptEnabled(true);
+		wc.getOptions().setTimeout(PAGE_TIMEOUT);
+		wc.getOptions().setJavaScriptEnabled(true);
 		wc.setJavaScriptTimeout(SINGLE_JS_TIMEOUT);
-		wc.setRedirectEnabled(false);
-		wc.setActiveXNative(false);
+		wc.getOptions().setRedirectEnabled(false);
+		wc.getOptions().setActiveXNative(false);
 		// fetch the page
 		wc.getPage(TestHttpServer.absoluteUrl(websiteRelUrl));
 

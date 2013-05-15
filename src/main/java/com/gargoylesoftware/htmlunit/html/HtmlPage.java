@@ -62,6 +62,8 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.ranges.Range;
 
+import pl.nask.hsn2.service.ServiceParameters;
+
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.Cache;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
@@ -1061,7 +1063,20 @@ public class HtmlPage extends SgmlPage {
             }
             return JavaScriptLoadResult.NOOP;
         }
-
+        
+        /*HSN2-webclient modification to pass pl.nask.hsn2.service.JSwwwSitesTest.testRecursiveDownloadJS
+         * ------------>
+         */
+        if (isLimitReach(scriptURL)){
+        	return JavaScriptLoadResult.NOOP;
+        }
+        else{
+        	increase(scriptURL);
+        }
+        /*
+         * <------------
+         */
+        
         final Script script;
         try {
             script = loadJavaScriptFromUrl(scriptURL, charset);
@@ -1090,7 +1105,34 @@ public class HtmlPage extends SgmlPage {
         client.getJavaScriptEngine().execute(this, script);
         return JavaScriptLoadResult.SUCCESS;
     }
-
+    
+    /*HSN2-webclient modification to pass pl.nask.hsn2.service.JSwwwSitesTest.testRecursiveDownloadJS
+     * ------------>
+     */
+    private volatile Map<URL, Integer> externalScriptFilesCounter = new HashMap<>();
+    private boolean isLimitReach(URL url){
+    	Integer count = externalScriptFilesCounter.get(url);
+    	if (count == null || count < ServiceParameters.JS_RECURSION_LIMIT){
+    		return false;
+    	}
+    	else{
+    		return true;
+    	}
+    }
+    private void increase(URL url){
+    	Integer count = externalScriptFilesCounter.get(url);
+    	if (count != null){
+    		count++;
+    	}
+    	else{
+    		count = 1;
+    	}
+    	externalScriptFilesCounter.put(url, count);
+    }
+    /*
+     * <------------
+     */
+    
     /**
      * Loads JavaScript from the specified URL. This method may return <tt>null</tt> if
      * there is a problem loading the code from the specified URL.

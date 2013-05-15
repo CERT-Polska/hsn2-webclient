@@ -76,7 +76,7 @@ public class DeflateHandlingTest {
 
 	private WebClient prepareWc() {
 		WebClient wc = new WebClient();
-		wc.setJavaScriptEnabled(true);
+		wc.getOptions().setJavaScriptEnabled(true);
 		return wc;
 	}
 }

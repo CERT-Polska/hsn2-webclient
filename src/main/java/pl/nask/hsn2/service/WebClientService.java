@@ -28,6 +28,8 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gargoylesoftware.htmlunit.javascript.TimeoutError;
+
 import pl.nask.hsn2.CommandLineParams;
 import pl.nask.hsn2.GenericService;
 import pl.nask.hsn2.service.task.TaskContextFactoryImpl;
@@ -82,7 +84,10 @@ public final class WebClientService implements Daemon {
 						@Override
 						public void uncaughtException(Thread t, Throwable e) {
 							LOGGER.error(e.getMessage(), e);
-							System.exit(ERR_EXIT_CODE);
+							if(!(e instanceof TimeoutError)){
+								LOGGER.error("FATAL ERROR! Service will be shutdown!");
+								System.exit(ERR_EXIT_CODE);
+							}
 						}
 					});
 					service.run();

@@ -47,12 +47,6 @@ public class JsScriptErrorListener implements JavaScriptErrorListener {
 			LOGGER.warn("Other problem in JavaScript engine: {}", scriptException.getMessage());
 			LOGGER.debug("Other problem in JavaScript engine", scriptException);
 		}
-		{
-		//htmlPage.getWebClient().getOptions().setJavaScriptEnabled(false);
-//		htmlPage.getWebClient().getOptions().setJavaScriptEnabled(true);
-		
-		}
-		
 	}
 
 	@Override

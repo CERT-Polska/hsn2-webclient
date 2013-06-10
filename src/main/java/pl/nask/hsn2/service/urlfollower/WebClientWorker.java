@@ -74,6 +74,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlFrame;
 import com.gargoylesoftware.htmlunit.html.HtmlInlineFrame;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.javascript.TimeoutError;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.UrlUtils;
 
@@ -272,7 +273,7 @@ public class WebClientWorker implements Runnable {
 			LOGGER.warn("IOException: {}", e.getMessage());
 			LOGGER.debug("IOException for URL '{}' with stacktrace: {}", workerUrl, e);
 			workerDispatcher.requestFailed(e);
-		}  catch (TimeoutException e) {
+		}  catch (TimeoutException | TimeoutError e) {
 			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(),e);
 			workerDispatcher.requestFailed(e);

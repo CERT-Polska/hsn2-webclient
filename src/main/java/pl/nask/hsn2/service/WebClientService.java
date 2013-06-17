@@ -19,80 +19,42 @@
 
 package pl.nask.hsn2.service;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-import org.apache.commons.daemon.DaemonController;
 import org.apache.commons.daemon.DaemonInitException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.nask.hsn2.CommandLineParams;
-import pl.nask.hsn2.GenericService;
 import pl.nask.hsn2.ServiceMain;
 import pl.nask.hsn2.service.task.TaskContextFactoryImpl;
+import pl.nask.hsn2.task.TaskContextFactory;
 import pl.nask.hsn2.task.TaskFactory;
 
 /**
  * Starter for the WebCrawler service.
  */
 public final class WebClientService extends ServiceMain {
-	private static final int JOIN_WAIT_TIME = 10000;
-	private static final int ERR_EXIT_CODE = 128;
-	private static final Logger LOGGER = LoggerFactory.getLogger(WebClientService.class);
-	private Thread serviceRunner = null;
-	private CommandLineParams cmd = null;
-	private GenericService service = null;
-
 	public static void main(final String[] args) throws DaemonInitException, InterruptedException {
 		WebClientService wcs = new WebClientService();
-
-		wcs.init(new DaemonContext() {
-
-			@Override
-			public DaemonController getController() {
-				return null;
-			}
-
-			@Override
-			public String[] getArguments() {
-				return args;
-			}
-		});
+		wcs.init(new DefaultDaemonContext(args));
 		wcs.start();
-		wcs.serviceRunner.join();
-		wcs.stop();
-		wcs.destroy();
 	}
 
+	protected TaskContextFactory createTaskContextFactory() {
+		return new TaskContextFactoryImpl();
+	}
 	
-
-		service = new GenericService(new WebClientTaskFactory(), new TaskContextFactoryImpl(), cmd.getMaxThreads(),
-				cmd.getRbtCommonExchangeName(), cmd.getRbtNotifyExchangeName());
-		
-
-			
-	}
-
-	@Override
-	protected CommandLineParams parseArguments(String[] args) {
-		CommandLineParams cmd = new CommandLineParams();
-		cmd.setDefaultServiceNameAndQueueName("webclient");
-		cmd.parseParams(args);
-		return cmd;
-	}
-
 	@Override
 	protected void prepareService() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	protected TaskFactory createTaskFactory() {
-		// TODO Auto-generated method stub
-		return null;
+		return new WebClientTaskFactory();
 	}
 	
+	@Override
+	protected CommandLineParams newCommandLineParams() {
+		CommandLineParams cmd = new CommandLineParams();
+		cmd.setDefaultServiceNameAndQueueName("webclient");
+		return cmd;
+	}
 }

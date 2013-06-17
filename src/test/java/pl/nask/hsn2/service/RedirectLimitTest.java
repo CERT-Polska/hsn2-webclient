@@ -21,7 +21,7 @@ package pl.nask.hsn2.service;
 
 import org.testng.annotations.Test;
 
-import pl.nask.hsn2.ContextSizeLimitExceeded;
+import pl.nask.hsn2.ContextSizeLimitExceededException;
 import pl.nask.hsn2.service.task.WebClientTaskContext;
 
 public class RedirectLimitTest {
@@ -40,7 +40,7 @@ public class RedirectLimitTest {
 			ctx.openSubContext();
 	}
 	
-	@Test(expectedExceptions=ContextSizeLimitExceeded.class)
+	@Test(expectedExceptions=ContextSizeLimitExceededException.class)
 	public void testTreeHeightLimitExceeded() throws Exception {
 		WebClientTaskContext ctx = new WebClientTaskContext(1, 2, 3, null);
 		
@@ -72,7 +72,7 @@ public class RedirectLimitTest {
 		}
 	}
 	
-	@Test(expectedExceptions=ContextSizeLimitExceeded.class)
+	@Test(expectedExceptions=ContextSizeLimitExceededException.class)
 	public void testGlobalLimitExceeded() throws Exception {
 		WebClientTaskContext ctx = new WebClientTaskContext(1, 2, 3, null);
 		

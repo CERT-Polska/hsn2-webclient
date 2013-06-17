@@ -47,7 +47,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.nask.hsn2.ContextSizeLimitExceeded;
+import pl.nask.hsn2.ContextSizeLimitExceededException;
 import pl.nask.hsn2.ParameterException;
 import pl.nask.hsn2.RequiredParameterMissingException;
 import pl.nask.hsn2.ResourceException;
@@ -412,7 +412,7 @@ public class WebClientWorker implements Runnable {
 				prepareSubPage(newSubPageUrl, origin);
 				processPage(subPage);
 			}
-		} catch (ContextSizeLimitExceeded e) {
+		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
 			openSubContextFailed = true;
 		} catch (URIException e) {
@@ -432,7 +432,7 @@ public class WebClientWorker implements Runnable {
 		try {
 			prepareSubPage(subPage.getActualUrl().toExternalForm(), WebClientOrigin.CLIENT_REDIRECT);
 			processPage(subPage);
-		} catch (ContextSizeLimitExceeded e) {
+		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
 			openSubContextFailed = true;
 		} catch (URIException e) {
@@ -455,7 +455,7 @@ public class WebClientWorker implements Runnable {
 
 			ProcessedPage newSubPage = getInsecurePagesChain(processedPage);
 			processPage(newSubPage);
-		} catch (ContextSizeLimitExceeded e) {
+		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
 			openSubContextFailed = true;
 		} catch (URIException e) {
@@ -556,7 +556,7 @@ public class WebClientWorker implements Runnable {
 		return req;
 	}
 
-	private void prepareSubPage(String subPageUrl, WebClientOrigin origin) throws ContextSizeLimitExceeded, URIException {
+	private void prepareSubPage(String subPageUrl, WebClientOrigin origin) throws ContextSizeLimitExceededException, URIException {
 		ServiceData curCtxServiceData = ctx.getCurrentContextServiceData();
 		String newSubpageReferrer = curCtxServiceData.getUrlForProcessing();
 		Long newSubpageReferrerCookiesId = ctx.getCookiesReferenceId();
@@ -796,7 +796,7 @@ public class WebClientWorker implements Runnable {
 			addNoHostFailedInfoToEmbeddedUrlObject(e.getMessage());
 			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(), e);
-		} catch (ContextSizeLimitExceeded e) {
+		} catch (ContextSizeLimitExceededException e) {
 			isSubContextOpened = false;
 			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(), e);

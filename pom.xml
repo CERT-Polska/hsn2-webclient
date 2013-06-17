@@ -1,36 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>pl.nask.hsn2</groupId>
 	<artifactId>hsn2-webclient</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>HSN2 Web Client</name>
 	<description>Web Client based on HtmlUnit</description>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<compiler.plugin.version>3.0</compiler.plugin.version>
-		<jar.plugin.version>2.4</jar.plugin.version>
-		<assembly.plugin.version>2.4</assembly.plugin.version>
+		<mainClass>pl.nask.hsn2.service.WebClientService</mainClass>
 	</properties>
+	
+	<parent>
+		<groupId>pl.nask.hsn2</groupId>
+		<artifactId>hsn2-commons</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>pl.nask.hsn2</groupId>
 			<artifactId>hsn2-service-commons</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>1.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.8</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
@@ -49,11 +39,6 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler.plugin.version}</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -65,12 +50,11 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-jar-plugin</artifactId>
-						<version>${jar.plugin.version}</version>
 						<configuration>
 							<archive>
 								<manifest>
 									<addClasspath>true</addClasspath>
-									<mainClass>pl.nask.hsn2.service.WebClientService</mainClass>
+									<mainClass>${mainClass}</mainClass>
 									<classpathPrefix>lib/</classpathPrefix>
 								</manifest>
 							</archive>
@@ -78,7 +62,6 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>${assembly.plugin.version}</version>
 						<executions>
 							<execution>
 								<id>hsn2</id>
@@ -105,7 +88,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
-						<version>${assembly.plugin.version}</version>
 						<configuration>
 							<descriptorRefs>
 								<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -123,7 +105,7 @@
 									<archive>
 										<manifest>
 											<addClasspath>false</addClasspath>
-											<mainClass>pl.nask.hsn2.service.WebClientService</mainClass>
+											<mainClass>${mainClass}</mainClass>
 										</manifest>
 										<manifestEntries>
 											<Class-Path>.</Class-Path>

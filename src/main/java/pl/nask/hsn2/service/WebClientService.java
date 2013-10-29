@@ -46,8 +46,8 @@ public final class WebClientService extends ServiceMain {
 	}
 
 	@Override
-	protected TaskFactory createTaskFactory() {
-		return new WebClientTaskFactory();
+	protected Class<? extends TaskFactory> initializeTaskFactory() {
+		return WebClientTaskFactory.class;
 	}
 	
 	@Override

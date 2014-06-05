@@ -17,11 +17,11 @@ public class TempCleanerTest {
 	@BeforeTest
 	public void beforeTest() throws IOException {
 		for (int i = 0; i < 3; i++){
-			File file = File.createTempFile(FILE_PREFIX, "");
+			File file = File.createTempFile(FILE_PREFIX, null);
 			file.setLastModified(0);
 		}
-		lastFilePath = File.createTempFile(FILE_PREFIX, "").getPath();
-		delCount = new TempCleaner().clearTemp(10000);
+		lastFilePath = File.createTempFile(FILE_PREFIX, null).getPath();
+		delCount = new TempCleaner().clearTemp(900000);
 	}
 	
 	@Test
@@ -29,7 +29,7 @@ public class TempCleanerTest {
 		Assert.assertEquals(delCount, 3, "Not all files was deleted.");
 	}
 	
-	@Test
+	@Test(dependsOnMethods="oldFileTest")
 	public void newFileTest() {
 		Assert.assertTrue(Files.exists(Paths.get(lastFilePath)), "Young file was deleted.");
 	}

@@ -31,6 +31,7 @@ import pl.nask.hsn2.task.TaskFactory;
  * Starter for the WebCrawler service.
  */
 public final class WebClientService extends ServiceMain {
+	private Thread tempCleaner;
 	public static void main(final String[] args) throws DaemonInitException, InterruptedException {
 		WebClientService wcs = new WebClientService();
 		wcs.init(new DefaultDaemonContext(args));
@@ -43,6 +44,8 @@ public final class WebClientService extends ServiceMain {
 	
 	@Override
 	protected void prepareService() {
+		tempCleaner = new Thread(new TempCleaner(),"TempCleaner");
+		tempCleaner.start();
 	}
 
 	@Override
@@ -55,5 +58,11 @@ public final class WebClientService extends ServiceMain {
 		CommandLineParams cmd = new CommandLineParams();
 		cmd.setDefaultServiceNameAndQueueName("webclient");
 		return cmd;
+	}
+	
+	@Override
+	public void stop() {
+		tempCleaner.interrupt();
+		super.stop();
 	}
 }

@@ -44,7 +44,7 @@ import pl.nask.hsn2.service.urlfollower.PageLinks.LinkType;
 import pl.nask.hsn2.utils.DataStoreHelper;
 
 public class NaskPlTest {
-	private static final int timeout = 4000;
+	private static final int timeout = 10000;
 	private HtmlUnitFollower follower;
 	WebClientTaskContext ctx;
 	String url;

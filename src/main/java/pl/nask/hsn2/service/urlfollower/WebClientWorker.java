@@ -944,6 +944,7 @@ public class WebClientWorker implements Runnable {
 
 		// work-around for bug with deflated content.
 		req.setAdditionalHeader("Accept-Encoding", "");
+		req.setAdditionalHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 		return req;
 	}
 

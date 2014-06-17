@@ -17,7 +17,7 @@ hsn2-webclient: hsn2-webclient-clean
 	mkdir -p $(PKG)/DEBIAN
 	mkdir -p $(PKG)/etc/init.d
 	mkdir -p $(PKG)/opt/hsn2/$(HSN2_COMPONENT)
-	tar -zxf ../hsn2-webclient-distribution/target/hsn2-webclient-*.tar.gz -C $(PKG)/opt/hsn2/$(HSN2_COMPONENT)
+	tar -zxf ../target/hsn2-webclient-*.tar.gz -C $(PKG)/opt/hsn2/$(HSN2_COMPONENT)
 	cp webclient.initd $(PKG)/etc/init.d/hsn2-$(HSN2_COMPONENT)
 	cp control ${PKG}/DEBIAN
 	sed -i "s/{VER}/${HSN2_VER}-${BUILD_NUMBER}/" $(PKG)/DEBIAN/control

@@ -1101,9 +1101,11 @@ public class WebClientWorker implements Runnable {
 	 */
 	private void downloadAndStoreSingleFile(ProcessedPage processedPage) throws StorageException, ParameterException, ResourceException {
 		String urlForProcessing = processedPage.getRequestedUrl().toExternalForm();
+		long downloadTimeStart = System.currentTimeMillis();
 		InputStream contentStream = processedPage.getContentAsStream();
 		String contentType = processedPage.getContentType();
 		long savedContentId = ctx.saveInDataStore(contentStream);
+		long downloadTimeEnd = System.currentTimeMillis();
 
 		// Process PDF, SWF or other file.
 		WebClientObjectType objectType = WebClientObjectType.forMimeType(contentType);
@@ -1117,6 +1119,8 @@ public class WebClientWorker implements Runnable {
 						taskParams.isAddReferrer() ? ctx.getCurrentContextServiceData().getInputReferrer() : null,
 								taskParams.isAddReferrerCookie() ? ctx.getInputDataInputReferrerCookieId() : null,
 										savedContentId);
+				newWebClientUrlObject.setDownloadTimeStart(downloadTimeStart);
+				newWebClientUrlObject.setDownloadTimeEnd(downloadTimeEnd);
 				ctx.newObject(newWebClientUrlObject);
 			} catch (URIException e) {
 				LOGGER.warn("Not an URL!: {}, msg={}", urlForProcessing, e.getMessage());

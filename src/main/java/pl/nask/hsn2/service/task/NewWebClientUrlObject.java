@@ -32,6 +32,8 @@ public class NewWebClientUrlObject extends NewUrlObject {
 	private Long referrerCookieId;
 	private Long contentId;
 	private String mimeType;
+	private Long downloadTimeStart;
+	private Long downloadTimeEnd;
 
 	public NewWebClientUrlObject(String url, String origin, String type, String referrer, Long referrerCookieId, Long contentId)
 			throws URIException {
@@ -75,6 +77,12 @@ public class NewWebClientUrlObject extends NewUrlObject {
 		if (getContentId() != null) {
 			objectBuilder.addRefAttribute("content", DataStoreHelper.DEFAULT_STORE_ID, getContentId());
 		}
+		if (getDownloadTimeStart() != null) {
+			objectBuilder.addTimeAttribute("download_time_start", getDownloadTimeStart());
+		}
+		if (getDownloadTimeEnd() != null) {
+			objectBuilder.addTimeAttribute("download_time_end", getDownloadTimeEnd());
+		}
 		return objectBuilder.build();
 	}
 
@@ -93,4 +101,22 @@ public class NewWebClientUrlObject extends NewUrlObject {
 	public String getMimeType() {
 		return mimeType;
 	}
+
+	public Long getDownloadTimeStart() {
+		return downloadTimeStart;
+	}
+
+	public void setDownloadTimeStart(Long downloadTimeStart) {
+		this.downloadTimeStart = downloadTimeStart;
+	}
+
+	public Long getDownloadTimeEnd() {
+		return downloadTimeEnd;
+	}
+
+	public void setDownloadTimeEnd(Long downloadTimeEnd) {
+		this.downloadTimeEnd = downloadTimeEnd;
+	}
+	
+	
 }

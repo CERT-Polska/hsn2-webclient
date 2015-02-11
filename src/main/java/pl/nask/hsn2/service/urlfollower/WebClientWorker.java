@@ -1053,8 +1053,10 @@ public class WebClientWorker implements Runnable {
 		if (processedPage.isHtml()) {
 			if (taskParams.isSaveHtml()) {
 				InputStream content = null;
-				content = processedPage.getContentAsStream();
+				ctx.addTimeAttribute("download_time_start", System.currentTimeMillis());
+				content = processedPage.getContentAsStream();				
 				long referenceId = ctx.saveInDataStore(content);
+				ctx.addTimeAttribute("download_time_end", System.currentTimeMillis());
 				ctx.addReference("html_source", referenceId);
 			}
 			handleCookies();

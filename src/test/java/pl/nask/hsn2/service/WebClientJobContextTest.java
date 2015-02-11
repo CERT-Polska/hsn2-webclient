@@ -292,13 +292,15 @@ public class WebClientJobContextTest {
 		Assert.assertTrue(follower.isSuccessfull());
 
 		Assert.assertNotNull(updatedAttributes);
-		Assert.assertEquals(updatedAttributes.size(), 6);
+		Assert.assertEquals(updatedAttributes.size(), 8);
 		Assert.assertTrue(updatedAttributes.contains("active"));
 		Assert.assertTrue(updatedAttributes.contains("cookie_list"));
 		Assert.assertTrue(updatedAttributes.contains("html"));
 		Assert.assertTrue(updatedAttributes.contains("http_code"));
 		Assert.assertTrue(updatedAttributes.contains("http_request"));
 		Assert.assertTrue(updatedAttributes.contains("html_source"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_start"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_end"));
 	}
 
 	@Test

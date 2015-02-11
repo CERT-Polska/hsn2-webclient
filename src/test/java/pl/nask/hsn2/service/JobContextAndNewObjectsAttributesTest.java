@@ -147,7 +147,7 @@ public class JobContextAndNewObjectsAttributesTest {
 		jobContext.flush();
 
 		Assert.assertEquals(newObjectsInOSCounter, 0);
-		Assert.assertEquals(updatedAttributes.size(), 7);
+		Assert.assertEquals(updatedAttributes.size(), 9);
 		Assert.assertEquals(updatedAttributes.get("active"), "true");
 		Assert.assertEquals(updatedAttributes.get("html"), "true");
 		Assert.assertEquals(updatedAttributes.get("http_code"), "404");
@@ -155,6 +155,8 @@ public class JobContextAndNewObjectsAttributesTest {
 		Assert.assertNotNull(updatedAttributes.get("html_source"));
 		Assert.assertNotNull(updatedAttributes.get("http_request"));
 		Assert.assertNotNull(updatedAttributes.get("cookie_list"));
+		Assert.assertNotNull(updatedAttributes.get("download_time_start"));
+		Assert.assertNotNull(updatedAttributes.get("download_time_end"));
 	}
 
 	@Test

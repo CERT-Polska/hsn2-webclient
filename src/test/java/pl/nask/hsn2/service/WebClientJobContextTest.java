@@ -213,12 +213,14 @@ public class WebClientJobContextTest {
 		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/right.png") + ";file"));
 
 		Assert.assertNotNull(updatedAttributes);
-		Assert.assertEquals(updatedAttributes.size(), 5);
+		Assert.assertEquals(updatedAttributes.size(), 7);
 		Assert.assertTrue(updatedAttributes.contains("active"));
 		Assert.assertTrue(updatedAttributes.contains("cookie_list"));
 		Assert.assertTrue(updatedAttributes.contains("html"));
 		Assert.assertTrue(updatedAttributes.contains("http_code"));
 		Assert.assertTrue(updatedAttributes.contains("http_request"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_start"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_end"));
 	}
 
 	@Test
@@ -244,12 +246,14 @@ public class WebClientJobContextTest {
 		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/left2.png") + ";url;embedded;404"));
 
 		Assert.assertNotNull(updatedAttributes);
-		Assert.assertEquals(updatedAttributes.size(), 5);
+		Assert.assertEquals(updatedAttributes.size(), 7);
 		Assert.assertTrue(updatedAttributes.contains("active"));
 		Assert.assertTrue(updatedAttributes.contains("cookie_list"));
 		Assert.assertTrue(updatedAttributes.contains("html"));
 		Assert.assertTrue(updatedAttributes.contains("http_code"));
 		Assert.assertTrue(updatedAttributes.contains("http_request"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_start"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_end"));
 	}
 
 	@Test
@@ -267,12 +271,14 @@ public class WebClientJobContextTest {
 		Assert.assertTrue(follower.isSuccessfull());
 
 		Assert.assertNotNull(updatedAttributes);
-		Assert.assertEquals(updatedAttributes.size(), 5);
+		Assert.assertEquals(updatedAttributes.size(), 7);
 		Assert.assertTrue(updatedAttributes.contains("active"));
 		Assert.assertTrue(updatedAttributes.contains("cookie_list"));
 		Assert.assertTrue(updatedAttributes.contains("html"));
 		Assert.assertTrue(updatedAttributes.contains("http_code"));
 		Assert.assertTrue(updatedAttributes.contains("http_request"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_start"));
+		Assert.assertTrue(updatedAttributes.contains("download_time_end"));
 	}
 
 	@Test

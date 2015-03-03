@@ -133,9 +133,10 @@ public class JobContextAndNewObjectsAttributesTest {
 		jobContext.flush();
 
 		Assert.assertEquals(newObjectsInOSCounter, 0);
-		Assert.assertEquals(updatedAttributes.size(), 3);
+		Assert.assertEquals(updatedAttributes.size(), 4);
 		Assert.assertEquals(updatedAttributes.get("active"), "false");
 		Assert.assertNotNull(updatedAttributes.get("http_request"));
+		Assert.assertTrue(updatedAttributes.containsKey("download_time_start"));		
 		Assert.assertTrue(updatedAttributes.get("reason_failed").startsWith("java.net.UnknownHostException: " + MockTestsHelper.NON_EXISTANT_HOST_NAME));
 	}
 
@@ -167,9 +168,10 @@ public class JobContextAndNewObjectsAttributesTest {
 		jobContext.flush();
 
 		Assert.assertEquals(0, newObjectsInOSCounter);
-		Assert.assertEquals(3, updatedAttributes.size());
+		Assert.assertEquals(4, updatedAttributes.size());
 		Assert.assertEquals(updatedAttributes.get("active"), "false");
 		Assert.assertNotNull(updatedAttributes.get("http_request"));
+		Assert.assertTrue(updatedAttributes.containsKey("download_time_start"));
 		Assert.assertTrue(updatedAttributes.get("reason_failed").startsWith("org.apache.http.HttpException: Scheme 'ftp' not registered."));
 	}
 
@@ -181,10 +183,11 @@ public class JobContextAndNewObjectsAttributesTest {
 		jobContext.flush();
 
 		Assert.assertEquals(0, newObjectsInOSCounter);
-		Assert.assertEquals(3, updatedAttributes.size());
+		Assert.assertEquals(4, updatedAttributes.size());
 		Assert.assertEquals(updatedAttributes.get("active"), "false");
 		Assert.assertNotNull(updatedAttributes.get("http_request"));
 		Assert.assertTrue(updatedAttributes.get("reason_failed").startsWith("java.net.ConnectException:"));
+		Assert.assertTrue(updatedAttributes.containsKey("download_time_start"));
 	}
 
 	@Test

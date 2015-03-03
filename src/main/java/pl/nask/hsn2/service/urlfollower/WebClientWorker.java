@@ -904,7 +904,10 @@ public class WebClientWorker implements Runnable {
 		Future<Page> f = ex.submit(new Callable<Page>() {
 			@Override
 			public Page call() throws IOException {
-				return wc.getPage(req);
+				ctx.addTimeAttribute("download_time_start", System.currentTimeMillis());
+				Page page = wc.getPage(req);
+				ctx.addTimeAttribute("download_time_end", System.currentTimeMillis());
+				return page;
 			}
 		});
 		Page page = null;

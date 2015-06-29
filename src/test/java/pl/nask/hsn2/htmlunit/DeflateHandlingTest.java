@@ -59,11 +59,13 @@ public class DeflateHandlingTest {
 
 	/**
 	 * The same test as testTvn24 - this time with the content which causes the error
+	 * 
+	 * Test has been disabled since it passes without ' wr.setAdditionalHeader("Accept-Encoding", ""); ' (which is a workaround for issue #8269)
 	 * @throws FailingHttpStatusCodeException
 	 * @throws MalformedURLException
 	 * @throws IOException
 	 */
-	@Test
+	@Test(enabled = false)
 	public void testGemiusScript() throws FailingHttpStatusCodeException, MalformedURLException, IOException {
 		WebClient wc =  new WebClient();		
 		WebRequest wr = new WebRequest(UrlUtils.toUrlUnsafe("http://pro.hit.gemius.pl/hmapxy.js"));

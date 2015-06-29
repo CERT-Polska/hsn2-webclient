@@ -1,8 +1,12 @@
-Package: hsn2-webclient
-Version: {VER}
-Section: unknown
+Source: hsn2-webclient
+Section: java
 Priority: optional
+Maintainer: CERT Polska <info@cert.pl>
+Build-Depends: debhelper (>= 8.0.0), maven
+Standards-Version: 3.9.3
+
+Package: hsn2-webclient
 Architecture: all
-Maintainer: Juliusz Brzostek (juliusz.brzostek@cert.pl)
+Depends: ${misc:Depends}, java-wrappers, openjdk-7-jre, jsvc
+Homepage: http://www.honeyspider.net
 Description: HSN2 WebClient Component.
-Distribution: {DEBIAN_DIST}

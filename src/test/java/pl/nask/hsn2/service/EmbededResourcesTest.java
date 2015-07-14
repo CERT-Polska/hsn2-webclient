@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -35,6 +35,7 @@ import mockit.NonStrictExpectations;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import pl.nask.hsn2.ServiceConnector;
@@ -76,6 +77,18 @@ public class EmbededResourcesTest {
 	@AfterClass
 	public void stopServer() throws Exception {
 		TestHttpServer.stopServer();
+	}
+
+	/*
+	 * Workaround to avoid problems between Cobertura and JMockit.
+	 */
+	@BeforeTest
+	private final void initializeWebClientDataStoreHelper() {
+		try {
+			WebClientDataStoreHelper.getCookiesFromDataStore(null, 0, 0);
+		} catch (Exception e) {
+			// just ignore it
+		}
 	}
 
 	private void initJobContextAndParams(String testPageAbsoluteUrl) throws Exception {

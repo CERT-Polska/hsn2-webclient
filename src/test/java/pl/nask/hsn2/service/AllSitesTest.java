@@ -93,6 +93,7 @@ public class AllSitesTest {
 	private static Set<String> skippedTestSites = new HashSet<String>(
 			Arrays.asList(
 					//"jsTests/js5.html",
+					"jsTests/js3.html",	// skipped due to problem with timeout on build-server
 					""
 			));
 

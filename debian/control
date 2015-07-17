@@ -7,6 +7,6 @@ Standards-Version: 3.9.3
 
 Package: hsn2-webclient
 Architecture: all
-Depends: ${misc:Depends}, java-wrappers, openjdk-7-jre, jsvc
+Depends: ${misc:Depends}, java-wrappers, openjdk-7-jre, jsvc, hsn2-commons-debian
 Homepage: http://www.honeyspider.net
 Description: HSN2 WebClient Component.

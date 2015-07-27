@@ -15,7 +15,7 @@ HSN2_COMPONENT="webclient"
 MAINCLASS="pl.nask.hsn2.service.WebClientService"
 CONFFILE=/etc/hsn2/webclient.conf
 
-HSN2_JMX_PORT=1109
+#HSN2_JMX_PORT=1109
 HSN2_JVM_PARAMS_MEMORY="-Xmx1700m"
 
 . /lib/hsn2/init-functions-java

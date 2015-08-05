@@ -74,7 +74,7 @@ public class AllSitesTest {
 	
 	private static final int BG_JS_TIMEOUT = 2 * 1000;
 	private static final int SINGLE_JS_TIMEOUT = 1000;
-	private static final int PAGE_TIMEOUT = 4 * 1000;
+	private static final int PAGE_TIMEOUT = 8 * 1000;
 	private static final int DEFAULT_TEST_TIMEOUT = PAGE_TIMEOUT + SINGLE_JS_TIMEOUT + BG_JS_TIMEOUT + 1000;	
 	
 	@Mocked
@@ -93,7 +93,7 @@ public class AllSitesTest {
 	private static Set<String> skippedTestSites = new HashSet<String>(
 			Arrays.asList(
 					//"jsTests/js5.html",
-					"jsTests/js3.html",	// skipped due to problem with timeout on build-server
+					//"jsTests/js3.html",	// skipped due to problem with timeout on build-server
 					""
 			));
 

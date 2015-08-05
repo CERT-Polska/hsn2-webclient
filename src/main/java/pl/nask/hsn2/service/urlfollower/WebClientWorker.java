@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -95,6 +95,8 @@ public class WebClientWorker implements Runnable {
 	private WebClientTaskContext ctx;
 	private volatile boolean interruptProcessing;
 	private Set<CookieWrapper> cookieWrappers;
+
+	private Set<String> processedSubPages = new HashSet<>();
 
 	public WebClientWorker(HtmlUnitFollower dispatcher, CountDownLatch l, WebClientTaskContext ctx, ServiceParameters taskParams) {
 		if (taskParams == null) {
@@ -201,14 +203,14 @@ public class WebClientWorker implements Runnable {
 	 * <li>Firefox 10</li>
 	 * <li>Chrome 16</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return Browser version.
 	 */
 	@SuppressWarnings("deprecation")
 	private BrowserVersion getBrowserVersion() {
 		String profileName = "";//taskParams.getProfile();
 		switch (profileName) {
-		
+
 		case "Internet Explorer 6":
 			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.INTERNET_EXPLORER_6;
@@ -221,7 +223,7 @@ public class WebClientWorker implements Runnable {
 			//fall through
 		case "Internet Explorer 9":
 			return BrowserVersion.INTERNET_EXPLORER_9;
-		
+
 		case "Firefox 3.6":
 			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.FIREFOX_3_6;
@@ -232,14 +234,14 @@ public class WebClientWorker implements Runnable {
 			//fall through
 		case "Firefox 17":
 			return BrowserVersion.FIREFOX_17;
-		
-		
+
+
 		case "Chrome 16":
 			LOGGER.warn("requested deprecated browser version:{}",profileName);
 			return BrowserVersion.CHROME_16;
 		case "Chrome":
 			return BrowserVersion.CHROME;
-		
+
 		default:
 			LOGGER.warn("Browser profile '{}' not supported. Using default Firefox 3.6 instead.", profileName);
 			return BrowserVersion.INTERNET_EXPLORER_9;//FIREFOX_3_6;
@@ -319,13 +321,13 @@ public class WebClientWorker implements Runnable {
 	private void processPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
 			ParameterException, ResourceException, StorageException {
 		String reasonFailed = "";
-		try {			
+		try {
 			int i = wc.waitForBackgroundJavaScript(taskParams.getBackgroundJsTimeoutMillis());
 			if (i > 0) {
 				LOGGER.warn("There are still {} javascripts runnig in background", i);
 			}
 			restartJavaScript();
-			
+
 			long pageGatheredTime = System.currentTimeMillis();
 
 			if (processedPage.getClientSideRedirectPage() != null) {
@@ -349,14 +351,14 @@ public class WebClientWorker implements Runnable {
 			}
 		}
 	}
-	
+
 	public void stopJavaScripts() {
 		wc.getOptions().setJavaScriptEnabled(false);
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
 		JsScriptDebugFrame.resetCounter();
 		LOGGER.debug("JavaScript was stopped.");
 	}
-	
+
 	private void restartJavaScript(){
 		stopJavaScripts();
 		wc.getOptions().setJavaScriptEnabled(true);
@@ -378,7 +380,7 @@ public class WebClientWorker implements Runnable {
 
 	private void processFramesSubPage(ProcessedPage subPage, String subPageUrl, WebClientOrigin origin) throws IOException,
 			ParameterException, ResourceException, StorageException {
-		boolean openSubContextFailed = false;
+		boolean processingSubPage = false;
 		try {
 			String oldBaseUrl = getPageLinksForCurrentContext().getBaseUrl();
 			String newSubPageUrl = null;
@@ -405,22 +407,26 @@ public class WebClientWorker implements Runnable {
 					reasonFailed = "Src for " + origin.getName() + " is empty.";
 					newSubPageUrl = "about:blank";
 				}
-				prepareSubPage(newSubPageUrl, origin);
-				addRequiredAttributesToCurrentContext(reasonFailed);
+				processingSubPage = prepareSubPage(newSubPageUrl, origin);
+				if (processingSubPage) {
+					addRequiredAttributesToCurrentContext(reasonFailed);
+				}
 			} else {
 				newSubPageUrl = subPage.getActualUrl().toExternalForm();
-				prepareSubPage(newSubPageUrl, origin);
-				processPage(subPage);
+				processingSubPage = prepareSubPage(newSubPageUrl, origin);
+				if (processingSubPage) {
+					processPage(subPage);
+				}
 			}
 		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
-			openSubContextFailed = true;
+			processingSubPage = false;
 		} catch (URIException e) {
 			// Protocol not supported, but object has to be created and url_original set.
 			LOGGER.debug("Protocol not supported (not HTTP/HTTPS) for iframe:" + e.getMessage());
 			ctx.addAttribute(URL_ORIGINAL_STRING, e.getMessage());
 		} finally {
-			if (!openSubContextFailed) {
+			if (processingSubPage) {
 				ctx.closeSubContext();
 			}
 		}
@@ -428,19 +434,21 @@ public class WebClientWorker implements Runnable {
 
 	private void processClientRedirectSubPage(ProcessedPage subPage) throws IOException, ParameterException, ResourceException,
 			StorageException {
-		boolean openSubContextFailed = false;
+		boolean processingSubPage = false;
 		try {
-			prepareSubPage(subPage.getActualUrl().toExternalForm(), WebClientOrigin.CLIENT_REDIRECT);
-			processPage(subPage);
+			processingSubPage = prepareSubPage(subPage.getActualUrl().toExternalForm(), WebClientOrigin.CLIENT_REDIRECT);
+			if (processingSubPage) {
+				processPage(subPage);
+			}
 		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
-			openSubContextFailed = true;
+			processingSubPage = true;
 		} catch (URIException e) {
 			// Protocol not supported, but object has to be created and url_original set.
 			LOGGER.debug("Protocol not supported (not HTTP/HTTPS) for iframe:" + e.getMessage());
 			ctx.addAttribute(URL_ORIGINAL_STRING, e.getMessage());
 		} finally {
-			if (!openSubContextFailed) {
+			if (processingSubPage) {
 				ctx.closeSubContext();
 			}
 		}
@@ -449,26 +457,28 @@ public class WebClientWorker implements Runnable {
 
 	private void processServerRedirectSubPage(ProcessedPage processedPage) throws IOException, ParameterException, ResourceException,
 			StorageException, BreakingChainException {
-		boolean openSubContextFailed = false;
+		boolean processingSubPage = false;
 		try {
-			prepareSubPage(processedPage.getServerSideRedirectLocation(), WebClientOrigin.SERVER_REDIRECT);
+			processingSubPage = prepareSubPage(processedPage.getServerSideRedirectLocation(), WebClientOrigin.SERVER_REDIRECT);
 
-			ProcessedPage newSubPage = getInsecurePagesChain(processedPage);
-			processPage(newSubPage);
+			if (processingSubPage) {
+				ProcessedPage newSubPage = getInsecurePagesChain(processedPage);
+				processPage(newSubPage);
+			}
 		} catch (ContextSizeLimitExceededException e) {
 			LOGGER.debug("Couldn't open subcontext: size limit reached: {}", e.getMessage());
-			openSubContextFailed = true;
+			processingSubPage = false;
 		} catch (URIException e) {
 			// Protocol not supported, but object has to be created and url_original set.
 			LOGGER.debug("Protocol not supported (not HTTP/HTTPS) for iframe:" + e.getMessage());
 			ctx.addAttribute(URL_ORIGINAL_STRING, e.getMessage());
 		} catch (ExecutionException e) {
-			openSubContextFailed = true;
+			processingSubPage = false;
 		} catch (TimeoutException e) {
 			LOGGER.debug("Time limit exceeded: {}",processedPage.getActualUrl());
-			openSubContextFailed = true;		
+			processingSubPage = false;
 		} finally {
-			if (!openSubContextFailed) {
+			if (processingSubPage) {
 				ctx.closeSubContext();
 			}
 		}
@@ -478,7 +488,7 @@ public class WebClientWorker implements Runnable {
 			TimeoutException {
 		Page resultingPage = null;
 		resultingPage = getInsecurePage(url);
-		
+
 		ProcessedPage chain = previousTopPageMap.get(resultingPage);
 		if(chain == null){
 				throw new BreakingChainException(resultingPage);
@@ -529,7 +539,7 @@ public class WebClientWorker implements Runnable {
 		}
 		wc.getOptions().setJavaScriptEnabled(true);
 	}
-	
+
 	private ProcessedPage insecurePagesChainPostprocessing(final ProcessedPage processedPage, Page p) throws BreakingChainException {
 		ProcessedPage chain = null;
 		if (processedPage.isFromFrame()) {
@@ -556,16 +566,23 @@ public class WebClientWorker implements Runnable {
 		return req;
 	}
 
-	private void prepareSubPage(String subPageUrl, WebClientOrigin origin) throws ContextSizeLimitExceededException, URIException {
-		ServiceData curCtxServiceData = ctx.getCurrentContextServiceData();
-		String newSubpageReferrer = curCtxServiceData.getUrlForProcessing();
-		Long newSubpageReferrerCookiesId = ctx.getCookiesReferenceId();
-		ctx.openSubContext();
-		ctx.addAttribute("type", "url");
-		ctx.addAttribute("origin", origin.getName());
-		ctx.addAttribute(URL_ORIGINAL_STRING, subPageUrl);
-		ctx.webContextInit(subPageUrl, newSubpageReferrer, newSubpageReferrerCookiesId);
-		validateSupportedProtocols(subPageUrl);
+	private boolean prepareSubPage(String subPageUrl, WebClientOrigin origin) throws ContextSizeLimitExceededException, URIException {
+		if (taskParams.isSaveMultiple() || !processedSubPages.contains(subPageUrl) || subPageUrl.equals("about:blank")) {
+			processedSubPages.add(subPageUrl);
+			ServiceData curCtxServiceData = ctx.getCurrentContextServiceData();
+			String newSubpageReferrer = curCtxServiceData.getUrlForProcessing();
+			Long newSubpageReferrerCookiesId = ctx.getCookiesReferenceId();
+			ctx.openSubContext();
+			ctx.addAttribute("type", "url");
+			ctx.addAttribute("origin", origin.getName());
+			ctx.addAttribute(URL_ORIGINAL_STRING, subPageUrl);
+			ctx.webContextInit(subPageUrl, newSubpageReferrer, newSubpageReferrerCookiesId);
+			validateSupportedProtocols(subPageUrl);
+			return true;
+		} else {
+			LOGGER.debug("({}) already processed, skipping", subPageUrl);
+			return false;
+		}
 	}
 
 	private void handleHtmlPage(HtmlPage page) throws IOException, ParameterException, ResourceException, StorageException {
@@ -782,22 +799,24 @@ public class WebClientWorker implements Runnable {
 	}
 
 	private void processEmbeddedFile(String urlOfFileToSave) throws IOException, ParameterException, ResourceException, StorageException {
-		boolean isSubContextOpened = true;
+		boolean processingSubPage = false;
 		try {
 			wc.getOptions().setJavaScriptEnabled(false);
-			prepareSubPage(urlOfFileToSave, WebClientOrigin.EMBEDDED);
-			
-			// Checks for illegal characters in URI.
-			new Link(urlOfFileToSave, "");
-			
-			ProcessedPage processedPage = new ProcessedPage(wc.getPage(urlOfFileToSave));
-			processPage(processedPage);
+			processingSubPage = prepareSubPage(urlOfFileToSave, WebClientOrigin.EMBEDDED);
+
+			if (processingSubPage) {
+				// Checks for illegal characters in URI.
+				new Link(urlOfFileToSave, "");
+
+				ProcessedPage processedPage = new ProcessedPage(wc.getPage(urlOfFileToSave));
+				processPage(processedPage);
+			}
 		} catch (java.net.URISyntaxException e) {
 			addNoHostFailedInfoToEmbeddedUrlObject(e.getMessage());
 			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(), e);
 		} catch (ContextSizeLimitExceededException e) {
-			isSubContextOpened = false;
+			processingSubPage = false;
 			LOGGER.warn(e.getMessage());
 			LOGGER.debug(e.getMessage(), e);
 		} catch (java.net.UnknownHostException e) {
@@ -817,7 +836,7 @@ public class WebClientWorker implements Runnable {
 			LOGGER.warn("Exception while saving embedded file: " + urlOfFileToSave);
 			LOGGER.debug(e.getMessage(), e);
 		} finally {
-			if (isSubContextOpened) {
+			if (processingSubPage) {
 				ctx.closeSubContext();
 			}
 			wc.getOptions().setJavaScriptEnabled(true);
@@ -869,7 +888,7 @@ public class WebClientWorker implements Runnable {
 		}
 		if (!(scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"))) {
 			throw new URIException(absoluteUri);
-		} 
+		}
 	}
 
 	public PageLinks getPageLinksForCurrentContext() {
@@ -882,13 +901,13 @@ public class WebClientWorker implements Runnable {
 
 	/**
 	 * Check if provided URL is valid.
-	 * 
+	 *
 	 * @param url URL to check.
 	 * @return True if URL is valid, false otherwise.
 	 */
 	private boolean properUrl(String url) {
 		try {
-			String encoded = URIUtil.encode(url, Link.PROPER_URL_BITSET); 			
+			String encoded = URIUtil.encode(url, Link.PROPER_URL_BITSET);
 			new URL(encoded);
 			return true;
 		} catch (Exception e) {
@@ -998,12 +1017,12 @@ public class WebClientWorker implements Runnable {
 		ctx.setServiceParams(params);
 		ctx.setWebClientWorker(webClientWorker);
 	}
-	
+
 	private void addRequiredAttributesToCurrentContext(String reasonFailed) throws ParameterException, ResourceException,
 	StorageException {
 		addRequiredAttributesToCurrentContext(null, reasonFailed);
 	}
-	
+
 	private void addRequiredAttributesToCurrentContext(ProcessedPage processedPage, String reasonFailed) throws ParameterException, ResourceException,
 			StorageException {
 		try {
@@ -1014,7 +1033,7 @@ public class WebClientWorker implements Runnable {
 			if (referrer != null) {
 				ctx.addAttribute("referrer", referrer);
 			}
-			
+
 			boolean isSuccessfull = processedPage != null && processedPage.isComplete();
 			ctx.addAttribute("active", isSuccessfull);
 			if (isSuccessfull) {
@@ -1042,7 +1061,7 @@ public class WebClientWorker implements Runnable {
 		else {
 			ctx.addAttribute("reason_failed", "Unable to access page content. Response or page are unavailable.");
 		}
-			
+
 		if (workerDispatcher.getWarning() != null) {
 			ctx.addWarning(workerDispatcher.getWarning());
 			LOGGER.warn("Adding warning to Task : {}", workerDispatcher.getWarning());
@@ -1057,7 +1076,7 @@ public class WebClientWorker implements Runnable {
 			if (taskParams.isSaveHtml()) {
 				InputStream content = null;
 				ctx.addTimeAttribute("download_time_start", System.currentTimeMillis());
-				content = processedPage.getContentAsStream();				
+				content = processedPage.getContentAsStream();
 				long referenceId = ctx.saveInDataStore(content);
 				ctx.addTimeAttribute("download_time_end", System.currentTimeMillis());
 				ctx.addReference("html_source", referenceId);
@@ -1098,7 +1117,7 @@ public class WebClientWorker implements Runnable {
 
 	/**
 	 * Used when reported URL is not HTML page but some other file.
-	 * 
+	 *
 	 * @param processedPage
 	 * @throws StorageException
 	 * @throws ParameterException

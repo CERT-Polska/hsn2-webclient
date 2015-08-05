@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -39,6 +39,7 @@ public class ServiceParameters {
 	public static final boolean SAVE_MULTIMEDIA = false; 	private boolean saveMultimedia;
 	public static final boolean SAVE_OBJECTS = false; 		private boolean saveObjects;
 	public static final boolean SAVE_OTHERS = false; 		private boolean saveOthers;
+	public static final boolean SAVE_MULTIPLE = false; 		private boolean saveMultiple;
 	public static final int REDIRECT_DEPTH_LIMIT = 10; 		private int redirectDepthLimit;
 	public static final int REDIRECT_TOTAL_LIMIT = 50;  private int redirectTotalLimit;
 	public static final int LINK_LIMIT = 100;			private int linkLimit;
@@ -49,7 +50,7 @@ public class ServiceParameters {
 
 	/**
 	 * default constructor means, that only default parameters should be used
-	 * 
+	 *
 	 * @throws ParameterException
 	 */
 	public ServiceParameters() throws ParameterException {
@@ -68,6 +69,7 @@ public class ServiceParameters {
 		saveOthers = params.getBoolean("save_others", SAVE_OTHERS);
 		saveFailed = params.getBoolean("save_failed", SAVE_FAILED);
 		saveCookies = params.getBoolean("save_cookies", SAVE_COOKIES);
+		saveMultiple = params.getBoolean("save_multiple", SAVE_MULTIPLE);
 		addReferrer = params.getBoolean("add_referrer", ADD_REFERRER);
 		addReferrerCookie = params.getBoolean("add_referrer_cookie", ADD_REFERRER_COOKIE);
 		singleJsTimeoutMillis = params.getInt("single_js_timeout", SINGLE_JS_TIMEOUT);
@@ -174,6 +176,14 @@ public class ServiceParameters {
 
 	public void setSaveOthers(boolean saveOthers) {
 		this.saveOthers = saveOthers;
+	}
+
+	public boolean isSaveMultiple() {
+		return saveMultiple;
+	}
+
+	public void setSaveMultiple(boolean saveMultiple) {
+		this.saveMultiple = saveMultiple;
 	}
 
 	public int getPageTimeoutMillis() {

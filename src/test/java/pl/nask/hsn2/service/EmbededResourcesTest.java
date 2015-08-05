@@ -184,6 +184,32 @@ public class EmbededResourcesTest {
 		jobContext.flush();
 
 		// Asserts.
+		Assert.assertEquals(newObjectsInOSCounter, 8);
+		Assert.assertNotNull(newObjectStoreObjects);
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-01.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + URL_EMBEDDED_FLAGS));
+		Assert.assertTrue(newObjectStoreObjects.contains(TestHttpServer.absoluteUrl("files/test-file-02.txt") + FILE_FLAG));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-01.txt;url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-01.txt;file"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-02.txt;url;embedded"));
+		Assert.assertTrue(newObjectStoreObjects.contains("http://127.0.0.1:" + TestHttpServer.getWebserverPort() + "/files/test-file-02.txt;file"));
+	}
+
+	@Test
+	public void appletTestWithSaveMultiple() throws Exception {
+		// Initialize parameters and set any additional options.
+		defineConnectorExpectations();
+		defineWebClientDataStoreHelperExpectations();
+		initJobContextAndParams(TestHttpServer.absoluteUrl("applet.html"));
+		params.setSaveObjects(true);
+		params.setSaveMultiple(true);
+
+		// Start crawling.
+		webClientTask.process();
+		jobContext.flush();
+
+		// Asserts.
 		Assert.assertEquals(newObjectsInOSCounter, 12);
 		// Note: 12 objects created, but only 8 different links
 		// (4 links are the same as others).

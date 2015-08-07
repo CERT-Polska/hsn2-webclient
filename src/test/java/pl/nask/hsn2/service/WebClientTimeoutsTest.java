@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -57,7 +57,7 @@ public class WebClientTimeoutsTest {
 		params = new ServiceParameters();
 		params.setSaveHtml(false);
 		params.setSaveCookies(false);
-		params.setProcessExternalLinks(0);
+		params.setProcessExternalLinks(false);
 		taskContext = new WebClientTaskContext(0, 0, 0, serviceConnector);
 		follower = new HtmlUnitFollower(absPageUrl, taskContext, params);
 		webClientTask = new WebClientTask(taskContext, params, new ServiceData(absPageUrl, ""), follower);

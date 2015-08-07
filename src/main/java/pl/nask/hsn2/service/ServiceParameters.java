@@ -43,7 +43,7 @@ public class ServiceParameters {
 	public static final int REDIRECT_DEPTH_LIMIT = 10; 		private int redirectDepthLimit;
 	public static final int REDIRECT_TOTAL_LIMIT = 50;  private int redirectTotalLimit;
 	public static final int LINK_LIMIT = 100;			private int linkLimit;
-	public static final int LINK_CLICK_POLICY = 1;		private int processExternalLinks;
+	public static final boolean LINK_CLICK_POLICY = true;		private boolean processExternalLinks;
 	public static final int JS_RECURSION_LIMIT = 80;	private int jsRecursionLimit;
 	public static final boolean JS_ENABLE = true;		private boolean jsEnable;
 	public static final String PROFILE = "Firefox 3.6";		private String profile;
@@ -58,7 +58,7 @@ public class ServiceParameters {
 	}
 
 	public ServiceParameters(ParametersWrapper params) throws ParameterException {
-		processExternalLinks = params.getInt("link_click_policy", LINK_CLICK_POLICY);
+		processExternalLinks = params.getBoolean("link_click_policy", LINK_CLICK_POLICY);
 		linkLimit = params.getInt("link_limit", LINK_LIMIT);
 		redirectTotalLimit = params.getInt("redirect_total_limit", REDIRECT_TOTAL_LIMIT);
 		redirectDepthLimit = params.getInt("redirect_depth_limit", REDIRECT_DEPTH_LIMIT);
@@ -82,11 +82,11 @@ public class ServiceParameters {
 		profile = params.get("profile", PROFILE);
 	}
 
-	public int getProcessExternalLinks() {
+	public boolean getProcessExternalLinks() {
 		return processExternalLinks;
 	}
 
-	public void setProcessExternalLinks(int processExternalLinks) {
+	public void setProcessExternalLinks(boolean processExternalLinks) {
 		this.processExternalLinks = processExternalLinks;
 	}
 

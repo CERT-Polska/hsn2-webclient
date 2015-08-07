@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -73,7 +73,7 @@ public class OutgoingLinkTest {
 
     @Test
 	public void testProcessExternalLinks() throws Exception{
-    	params.setProcessExternalLinks(0);
+    	params.setProcessExternalLinks(false);
     	params.setLinkLimit(100);
     	linkOFFExpectations();
     	webClientTask.process();
@@ -82,7 +82,7 @@ public class OutgoingLinkTest {
 
     @Test
 	public void testLinkLimit() throws Exception{
-    	params.setProcessExternalLinks(1);
+    	params.setProcessExternalLinks(true);
     	params.setLinkLimit(0);
     	linkOFFExpectations();
     	webClientTask.process();
@@ -92,7 +92,7 @@ public class OutgoingLinkTest {
 
     @Test
 	public void testAddLinks() throws Exception{
-    	params.setProcessExternalLinks(1);
+    	params.setProcessExternalLinks(true);
     	params.setLinkLimit(10);
     	linkONExpectations();
     	webClientTask.process();

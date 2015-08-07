@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -172,7 +172,7 @@ public class WebClientJobContextTest {
 		newObjectStoreObjects = new TreeSet<>();
 
 		params = new ServiceParameters();
-		params.setProcessExternalLinks(0);
+		params.setProcessExternalLinks(false);
 		params.setLinkLimit(100);
 		params.setSaveHtml(false);
 		follower = new HtmlUnitFollower(url, jobContext, params);
@@ -314,7 +314,7 @@ public class WebClientJobContextTest {
 		connectorExpectations();
 		params = new ServiceParameters();
 		params.setLinkLimit(2);
-		params.setProcessExternalLinks(1);
+		params.setProcessExternalLinks(true);
 		jobContext.setServiceParams(params);
 
 		jobContext.newObject(new NewUrlObject("http://localhost/", "url"));
@@ -331,7 +331,7 @@ public class WebClientJobContextTest {
 		connectorExpectations();
 		params = new ServiceParameters();
 		params.setLinkLimit(2);
-		params.setProcessExternalLinks(1);
+		params.setProcessExternalLinks(true);
 		jobContext.setServiceParams(params);
 		jobContext.openSubContext();
 		jobContext.newObject(new NewUrlObject("http://localhost/", "url"));
@@ -350,7 +350,7 @@ public class WebClientJobContextTest {
 	 * Test case: Web site contains 3 javascripts but due to short timeout one
 	 * of them is not processed. Even if some scripts are not processed by web
 	 * client they should be saved (if service parameter says so).
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test

@@ -117,7 +117,7 @@ public class JobContextAndNewObjectsAttributesTest {
 		long topAncestorId = 7L;
 		jobContext = new WebClientTaskContext(jobId, reqId, objectDataId, connector);
 		params = new ServiceParameters();
-		params.setProcessExternalLinks(0);
+		params.setProcessExternalLinks(false);
 		params.setPageTimeoutMillis(999999);
 		params.setSaveImages(true);
 		ServiceData serviceData = new ServiceData(inputUrlId, testPageAbsoluteUrl, testPageAbsoluteUrl, MockTestsHelper.REFERRER, inputReferrerCookieId, depth, topAncestorId,null);
@@ -136,7 +136,7 @@ public class JobContextAndNewObjectsAttributesTest {
 		Assert.assertEquals(updatedAttributes.size(), 4);
 		Assert.assertEquals(updatedAttributes.get("active"), "false");
 		Assert.assertNotNull(updatedAttributes.get("http_request"));
-		Assert.assertTrue(updatedAttributes.containsKey("download_time_start"));		
+		Assert.assertTrue(updatedAttributes.containsKey("download_time_start"));
 		Assert.assertTrue(updatedAttributes.get("reason_failed").startsWith("java.net.UnknownHostException: " + MockTestsHelper.NON_EXISTANT_HOST_NAME));
 	}
 

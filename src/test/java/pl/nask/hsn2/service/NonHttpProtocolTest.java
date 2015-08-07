@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -54,11 +54,11 @@ import pl.nask.hsn2.utils.MockTestsHelper;
 import pl.nask.hsn2.utils.WebClientDataStoreHelper;
 
 public class NonHttpProtocolTest {
-	
+
 	private static final String	SERVER_SOURCE_DIR	= "nonHttpProtocol";
-	
-	
-	
+
+
+
 	public static final String REFERRER = "http://referrer/referrer.html";
 	@Mocked
 	ServiceConnector connector;
@@ -145,7 +145,7 @@ public class NonHttpProtocolTest {
 	private void initJobContextAndParams(String testPageAbsoluteUrl) throws Exception {
 		initJobContextAndParams(testPageAbsoluteUrl, "Default");
 	}
-	
+
 	private void initJobContextAndParams(String testPageAbsoluteUrl,String browserProfile) throws Exception {
 		long jobId = 1L;
 		int reqId = 2;
@@ -156,7 +156,7 @@ public class NonHttpProtocolTest {
 		long topAncestorId = 7L;
 		jobContext = new WebClientTaskContext(jobId, reqId, objectDataId, connector);
 		params = new ServiceParameters();
-		params.setProcessExternalLinks(0);
+		params.setProcessExternalLinks(false);
 		params.setSaveHtml(false);
 		params.setSaveCookies(false);
 //		final int longTimeout = 99999999;
@@ -185,7 +185,7 @@ public class NonHttpProtocolTest {
 	@Test
 	public void nonHttpPageLinksOutgoingList() throws Exception {
 		initJobContextAndParams(TestHttpServer.absoluteUrl("nonHttpLinks.html"));
-		params.setProcessExternalLinks(1);
+		params.setProcessExternalLinks(true);
 		webClientTask.process();
 		Set<OutgoingLink> links = follower.getPageLinks().getOutgoingLinks();
 		Assert.assertNotNull(links);
@@ -204,10 +204,10 @@ public class NonHttpProtocolTest {
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;frame"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;frame"));
-		
+
 	}
 
-	
+
 	@Test
 	public void nonHttpIFrames() throws Exception {
 		connectorExpectations();
@@ -219,8 +219,8 @@ public class NonHttpProtocolTest {
 		Assert.assertEquals(newObjectsInOSCounter, 2);
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page1;url;iframe"));
 		Assert.assertTrue(newObjectStoreObjects.contains("ftp://page2;url;iframe"));
-		
-		
+
+
 	}
 	@Test(enabled = false)
 	public void nonHttpRedirects1() throws Exception {
@@ -267,7 +267,7 @@ public class NonHttpProtocolTest {
 		initJobContextAndParams(TestHttpServer.absoluteUrl("nonHttpLinksIllegalCharacterInUrl.html"));
 		params.setSaveImages(true);
 		params.setSaveObjects(true);
-		params.setProcessExternalLinks(1);
+		params.setProcessExternalLinks(true);
 		webClientTask.process();
 		jobContext.flush();
 

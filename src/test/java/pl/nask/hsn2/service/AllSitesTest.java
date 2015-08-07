@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -71,12 +71,12 @@ public class AllSitesTest {
 	public static final String REFERRER = "http://referrer/referrer.html";
 	public static final char SYSTEM_FILES_SEPARATOR = File.separatorChar;
 	private static final Set<CookieWrapper> COOKIE_WRAPPERS = new HashSet<CookieWrapper>();
-	
+
 	private static final int BG_JS_TIMEOUT = 2 * 1000;
 	private static final int SINGLE_JS_TIMEOUT = 1000;
 	private static final int PAGE_TIMEOUT = 8 * 1000;
-	private static final int DEFAULT_TEST_TIMEOUT = PAGE_TIMEOUT + SINGLE_JS_TIMEOUT + BG_JS_TIMEOUT + 1000;	
-	
+	private static final int DEFAULT_TEST_TIMEOUT = PAGE_TIMEOUT + SINGLE_JS_TIMEOUT + BG_JS_TIMEOUT + 1000;
+
 	@Mocked
 	private ServiceConnector connector;
 	@NonStrict
@@ -89,7 +89,7 @@ public class AllSitesTest {
 	private List<String> embeddedFailedFilesList;
 	private String webserverRootDirectory;
 	private Set<String> testWebsitesRelativeUrls;
-	
+
 	private static Set<String> skippedTestSites = new HashSet<String>(
 			Arrays.asList(
 					//"jsTests/js5.html",
@@ -100,12 +100,12 @@ public class AllSitesTest {
 	@BeforeMethod
 	public void prepareMock() {
 		// check if shutdownJavaScriptExecutor is invoked every in each case
-		new MockUp<JavaScriptEngine>() {	
+		new MockUp<JavaScriptEngine>() {
 			@Mock(minInvocations=1)
 			public void shutdownJavaScriptExecutor(){}
 		};
 	}
-	
+
 	@BeforeClass
 	public void initServer() throws Exception {
 		TestHttpServer.startServer("");
@@ -236,7 +236,7 @@ public class AllSitesTest {
 		params.setSingleJsTimeoutMillis(SINGLE_JS_TIMEOUT);
 		params.setBackgroundJsTimeoutMillis(BG_JS_TIMEOUT);
 		params.setSaveJsContext(true);
-		params.setProcessExternalLinks(0);
+		params.setProcessExternalLinks(false);
 		ServiceData serviceData = new ServiceData(1l, testPageAbsoluteUrl, testPageAbsoluteUrl, REFERRER, 1l, 5, 1l, null);
 		follower = new HtmlUnitFollower(testPageAbsoluteUrl, jobContext, params);
 		webClientTask = new WebClientTask(jobContext, params, serviceData, follower);
@@ -296,10 +296,10 @@ public class AllSitesTest {
 				LOGGER.info("Removing {} from test sites suite", relUrl);
 			}
 		}
-		
+
 		return websites.toArray(new Object[0][0]);
 	}
-	
+
 	@Test(dataProvider = "websitesToTest", timeOut=PAGE_TIMEOUT + SINGLE_JS_TIMEOUT + BG_JS_TIMEOUT + 1000)
 	public void checkTestWebsiteByWebclient(String websiteRelUrl) throws Exception {
 		processWebsiteWithWebclient(TestHttpServer.absoluteUrl(websiteRelUrl));
@@ -317,8 +317,8 @@ public class AllSitesTest {
 
 		// Asserts.
 		Assert.assertTrue(follower.isSuccessfull(),"Task is not sucessful for page: " + websiteUrl);
-	}		
-	
+	}
+
 	@Test(enabled = false, dataProvider = "websitesToTest", timeOut=DEFAULT_TEST_TIMEOUT)
 	public void checkTestWebsiteByHtmlUnit(String websiteRelUrl) throws Exception {
 		WebClient wc = new WebClient();
@@ -332,10 +332,10 @@ public class AllSitesTest {
 
 		wc.waitForBackgroundJavaScript(BG_JS_TIMEOUT);
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
-				
-		// no assert here: all tests should end without test timeout  
+
+		// no assert here: all tests should end without test timeout
 	}
-	
+
 	@DataProvider(name = "externalWebsitesToTest")
 	public Object[][] getExternalWebsitesToTest() throws Exception {
 		return new Object[][]{
@@ -344,13 +344,13 @@ public class AllSitesTest {
 				{"http://www.gazeta.pl"}
 		};
 	}
-	
+
 	// those tests are highly unstable (processing time varies from 2 to 20 seconds!)
 	@Test(enabled=false, dataProvider="externalWebsitesToTest", timeOut=DEFAULT_TEST_TIMEOUT * 2)
 	public void testWithExternalPage(String websiteUrl) throws Exception {
 		processWebsiteWithWebclient(websiteUrl);
 	}
-	
+
 	@Test(enabled=false)
 	public void testFbCom() throws ParameterException, ResourceException, StorageException, Exception {
 		processWebsiteWithWebclient("http://fb.com");

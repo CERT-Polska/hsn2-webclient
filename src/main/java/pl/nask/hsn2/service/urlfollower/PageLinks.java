@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -37,7 +37,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 
 public class PageLinks {
 	private static final Logger LOG = LoggerFactory.getLogger(PageLinks.class);
-	
+
 	public enum LinkType {
 		OBJECT, MULTIMEDIA, IMAGE, OTHER
 	}
@@ -46,17 +46,17 @@ public class PageLinks {
 	private String baseUrl;
 	private boolean isBaseTagIgnored = false;
 	private DomElement headElement;
-	
+
 	private Map<LinkType, Set<EmbeddedResource>> embeddedResourceGroups = new HashMap<PageLinks.LinkType, Set<EmbeddedResource>>();
 	private Set<OutgoingLink> outgoingLinks = new HashSet<OutgoingLink>();
 	private Set<FrameLink> redirects = new HashSet<FrameLink>();
 	private Counter outgoingLinksCounter;
-	
+
 	public PageLinks(String baseUrl, ServiceParameters taskParams, Counter newObjectsCounter) {
 		this.baseUrl = baseUrl;
 		this.params = taskParams;
 		this.outgoingLinksCounter = newObjectsCounter;
-		
+
 		if (params.isSaveObjects()) {
 			embeddedResourceGroups.put(LinkType.OBJECT, new HashSet<EmbeddedResource>());
 		}
@@ -73,7 +73,7 @@ public class PageLinks {
 
 	/**
 	 * Adds an embedded 'object' element. Also process 'codebase' and 'archive' attributes.
-	 * 
+	 *
 	 * @param element
 	 * @param attributeName
 	 */
@@ -95,7 +95,7 @@ public class PageLinks {
 		ignoreBaseTag();
 		addEmbedded(LinkType.MULTIMEDIA, element, attributeName);
 	}
-	
+
 	public void addImage(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		addEmbedded(LinkType.IMAGE, element, attributeName);
@@ -112,7 +112,7 @@ public class PageLinks {
 	public void addLongdesc(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		processLink(WebClientOrigin.LONGDESC, element, attributeName);
-	}		
+	}
 
 	public void addAnchor(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
@@ -120,15 +120,15 @@ public class PageLinks {
 	}
 
 	private void processLink(WebClientOrigin type, HtmlElement element, String attributeName) {
-		if (params.getProcessExternalLinks() == 1 && outgoingLinks.size() < params.getLinkLimit()) {
+		if (params.getProcessExternalLinks() && outgoingLinks.size() < params.getLinkLimit()) {
 			String url = element.getAttribute(attributeName);
 			if (!empty(url)  && outgoingLinksCounter.countDown()) {
 				try {
 					outgoingLinks.add(new OutgoingLink(baseUrl, url, type));
 				} catch (URISyntaxException e) {
 					logUriSyntaxError(url, WebClientOrigin.LINK.getName(), e);
-				}				
-			} 
+				}
+			}
 		}
 	}
 
@@ -138,8 +138,8 @@ public class PageLinks {
 	}
 
 	private void logDropped(LinkType type, HtmlElement element, String attributeName) {
-		LOG.debug("Elememt {} ({}) with attr {} = {} will not be processed by the webclient", 
-				new Object[] {element.getNodeName(), type, attributeName, element.getAttribute(attributeName)});		
+		LOG.debug("Element {} ({}) with attr {} = {} will not be processed by the webclient",
+				new Object[] {element.getNodeName(), type, attributeName, element.getAttribute(attributeName)});
 	}
 
 	private void addEmbeddedArchives(LinkType type, Set<EmbeddedResource> set, String newBaseUrl, String[] archives) {
@@ -191,20 +191,20 @@ public class PageLinks {
 	private boolean empty(String v) {
 		return v == null || v.trim().length() == 0;
 	}
-	
+
 	public Map<LinkType, Set<EmbeddedResource>> getEmbeddedResourcesGroups() {
-		
+
 		return embeddedResourceGroups;
 	}
-	
+
 	public Set<OutgoingLink> getOutgoingLinks() {
 		return outgoingLinks;
 	}
-	
+
 	public Set<FrameLink> getRedirects() {
 		return redirects;
 	}
-	
+
 	public Set<EmbeddedResource> getEmbeddedGroup(LinkType type) {
 		Set<EmbeddedResource> res = embeddedResourceGroups.get(type);
 		if (res == null) {
@@ -225,7 +225,7 @@ public class PageLinks {
 	public boolean getIsBaseTagIgnored() {
 		return isBaseTagIgnored;
 	}
-	
+
 	public void ignoreBaseTag() {
 		isBaseTagIgnored = true;
 	}

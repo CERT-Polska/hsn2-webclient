@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,6 +25,8 @@ import java.net.URL;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -48,6 +50,8 @@ public class ProcessedPage {
 	private boolean fromFrame;
 	private WebWindow	webWindow;
 	private String	_toString  = null;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessedPage.class);
 
 	public ProcessedPage(Page page) {
 		this(page, "");
@@ -101,6 +105,7 @@ public class ProcessedPage {
 			try {
 				return response.getContentAsStream();
 			} catch (IOException e) {
+				LOGGER.error(e.getMessage(), e);
 				return null;
 			}
 		}
@@ -192,7 +197,7 @@ public class ProcessedPage {
 	public boolean isFromFrame() {
 		return fromFrame;
 	}
-	
+
 	public boolean isComplete() {
 		return page != null && response != null;
 	}

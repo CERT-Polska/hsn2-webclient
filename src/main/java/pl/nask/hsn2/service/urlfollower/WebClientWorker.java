@@ -1044,7 +1044,7 @@ public class WebClientWorker implements Runnable {
 		} catch (StackOverflowError e) {
 			ctx.addWarning("Serious problem with JVM - cannot recover task");
 		} catch (NullPointerException e) {
-			LOGGER.debug("NPE while processing task", e);
+			LOGGER.error("NPE while processing task", e);
 			String msg = e.getMessage();
 			if (msg == null) {
 				String url = ctx.getCurrentContextServiceData() != null ? ctx.getCurrentContextServiceData().getUrlForProcessing() : null;

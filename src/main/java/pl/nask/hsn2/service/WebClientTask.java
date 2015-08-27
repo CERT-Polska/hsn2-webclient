@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -75,7 +75,7 @@ public class WebClientTask implements Task {
 			LOGGER.warn("Invalid parameter while writting HTTP request object to Data Store.", e);
 		}
     }
-    
+
 	@Override
 	public final void process() throws ParameterException, ResourceException, StorageException {
 		try {
@@ -92,7 +92,7 @@ public class WebClientTask implements Task {
 				msg = "NullPointerException while processing " + inputData.getUrlForProcessing();
 			}
 			jobContext.addAttribute("reason_failed", msg);
-			LOGGER.debug("NPE while processing task", e);
+			LOGGER.error("NPE while processing task", e);
 		} finally {
 			follower = null;
 		}

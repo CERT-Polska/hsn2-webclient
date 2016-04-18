@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -63,35 +63,35 @@ public class ScriptInterceptor implements Debugger {
             isEval = eval;
         }
 
-        public int getId() {
+        public final int getId() {
             return id;
         }
 
-        public String getSource() {
+        public final String getSource() {
             return source;
         }
 
-        public boolean isEval() {
+        public final boolean isEval() {
             return isEval;
         }
 
         @Override
-        public String toString() {
+        public final String toString() {
             return "ScriptElement[id=" + id + ", isEval=" + isEval + ", source=" + source + "]";
         }
     }
 
     @Override
-    public void handleCompilationDone(Context context, DebuggableScript script, String source) {
+    public final void handleCompilationDone(Context context, DebuggableScript script, String source) {
     	if ( !process) {
     		LOGGER.debug("Processing disabled, no more scripts will collected");
     		EvaluatorException er = new EvaluatorException("JavaScript processing is stopped.source won't be processed:"+script.getSourceName());
     		Context.throwAsScriptRuntimeEx(er);
     		return;
     	}
-    	
+
         String origin = getOriginForScript(context);
-        
+
         Map<String, ScriptElement> scriptsFromOrgin = null;
         if (scriptsByOrigin.containsKey(origin)) {
             scriptsFromOrgin = scriptsByOrigin.get(origin);
@@ -99,7 +99,7 @@ public class ScriptInterceptor implements Debugger {
             scriptsFromOrgin = new ConcurrentHashMap<String, ScriptElement>();
             scriptsByOrigin.put(origin, scriptsFromOrgin);
         }
-        
+
         String srcName = script.getSourceName();
         ScriptElement scriptElement = new ScriptElement(scriptId++, source, script.isGeneratedScript());
         if (!scriptsFromOrgin.containsKey(srcName)) {
@@ -118,25 +118,25 @@ public class ScriptInterceptor implements Debugger {
             }
         }
     }
-    
+
     private String getOriginForScript(Context context){
     	HtmlPage page = (HtmlPage) context.getThreadLocal("startingPage");
         return page.getUrl().toString();
     }
 
 	@Override
-    public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript) {
+    public final DebugFrame getFrame(Context cx, DebuggableScript fnOrScript) {
 		return new JsScriptDebugFrame();
     }
 
-    public Map<String, Map<String, ScriptElement>> getSourcesByOrigin() {
+    public final Map<String, Map<String, ScriptElement>> getSourcesByOrigin() {
         return scriptsByOrigin;
     }
-    
-	public void disableProcessing() {
+
+	public final void disableProcessing() {
 		process  = false;
 	}
-	
+
 	private boolean checkScriptDepth(DebuggableScript script){
 		DebuggableScript parent = script.getParent();
 		int i = 0;

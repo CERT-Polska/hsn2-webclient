@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -44,7 +44,7 @@ import pl.nask.hsn2.wrappers.CookieWrapper;
 import pl.nask.hsn2.wrappers.RequestWrapper;
 
 public class WebClientTaskContext extends TaskContext {
-    private static final Logger LOG = LoggerFactory.getLogger(WebClientTaskContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebClientTaskContext.class);
 	private ServiceParameters taskParams;
 	private ServiceData inputData;
 	private WebClientWorker webClientWorker;
@@ -52,83 +52,83 @@ public class WebClientTaskContext extends TaskContext {
 	private Map<String, WebClientObjectTreeNode> urlNodeIndex = new HashMap<String, WebClientObjectTreeNode>();
 	private Long cookiesReferenceId;
 
-	public WebClientTaskContext(long jobId, int reqId, long objectDataId, ServiceConnector connector) { 
+	public WebClientTaskContext(long jobId, int reqId, long objectDataId, ServiceConnector connector) {
         super(jobId, reqId, objectDataId, connector, new WebClientObjectTreeNode(objectDataId));
-    }       
+    }
 
-    public long saveInDataStore(RequestWrapper requestWrapper) throws StorageException, ParameterException {
+    public final long saveInDataStore(RequestWrapper requestWrapper) throws StorageException, ParameterException {
         return WebClientDataStoreHelper.saveInDataStore(connector, jobId, requestWrapper);
     }
 
-    public Long getCookiesReferenceId() {
+    public final Long getCookiesReferenceId() {
     	return cookiesReferenceId;
     }
 
-    public void saveCookiesInDataStore(Set<CookieWrapper> cookieWrappers) throws StorageException {
+    public final void saveCookiesInDataStore(Set<CookieWrapper> cookieWrappers) throws StorageException {
     	cookiesReferenceId = WebClientDataStoreHelper.saveCookiesInDataStore(connector, jobId, cookieWrappers);
     }
 
-    public Set<CookieWrapper> getCookiesFromDataStore(long referenceId) throws StorageException {
+    public final Set<CookieWrapper> getCookiesFromDataStore(long referenceId) throws StorageException {
     	return WebClientDataStoreHelper.getCookiesFromDataStore(connector, jobId, referenceId);
     }
 
-	public void setServiceParams(ServiceParameters taskParams) {
+	public final void setServiceParams(ServiceParameters taskParams) {
 		this.taskParams = taskParams;
-		this.newObjectsCounter = new Counter(taskParams.getLinkLimit());
+		newObjectsCounter = new Counter(taskParams.getLinkLimit());
 		// tree includes root object, which height and size are 1, the limits refer to it's children
-		this.treeHeightLimit = taskParams.getRedirectDepthLimit() + 1;
-		this.treeSizeLimit = taskParams.getRedirectTotalLimit() + 1;
+		treeHeightLimit = taskParams.getRedirectDepthLimit() + 1;
+		treeSizeLimit = taskParams.getRedirectTotalLimit() + 1;
 	}
 
-	public void setServiceData(ServiceData data) {
-		this.inputData = data;
+	public final void setServiceData(ServiceData data) {
+		inputData = data;
 	}
-	public ServiceData getServiceData() {
-		return this.inputData;
+	public final ServiceData getServiceData() {
+		return inputData;
 	}
 
-	public PageLinks getPageLinks() {
+	public final PageLinks getPageLinks() {
 		return ((WebClientObjectTreeNode) getCurrentContext()).getPageLinks(taskParams, inputData, webClientWorker, newObjectsCounter);
 	}
 
 	@Override
-	public void newObject(NewUrlObject newObject) throws StorageException {
+	public final void newObject(NewUrlObject newObject) throws StorageException {
 		if (newObjectsCounter.countDown()) {
 			super.newObject(newObject);
 		} else {
-			LOG.debug("OutgoingLinksLimit reached, skipping {}", newObject);
+			LOGGER.debug("OutgoingLinksLimit reached, skipping {}", newObject);
 		}
 	}
 
-	public void setWebClientWorker(WebClientWorker webClientWorker) {
+	public final void setWebClientWorker(WebClientWorker webClientWorker) {
 		this.webClientWorker = webClientWorker;
 	}
 
-	public Long getInputDataInputReferrerCookieId() {
+	public final Long getInputDataInputReferrerCookieId() {
 		return inputData.getInputReferrerCookieId();
 	}
 
-	public ServiceData getCurrentContextServiceData() {
+	public final ServiceData getCurrentContextServiceData() {
 		return ((WebClientObjectTreeNode) getCurrentContext()).getServiceData();
 	}
 
-	public void webContextInit(String newUrlForProcessing, String newReferrer, Long newReferrerCookieId) {
+	public final void webContextInit(String newUrlForProcessing, String newReferrer, Long newReferrerCookieId) {
 		ServiceData newInputData = inputData.getServiceDataCopyForNewSubcontext(newUrlForProcessing, newReferrer, newReferrerCookieId);
 		WebClientObjectTreeNode currentContext = (WebClientObjectTreeNode) getCurrentContext();
 		currentContext.webContextInit(taskParams, newInputData, webClientWorker);
 		urlNodeIndex.put(newUrlForProcessing, currentContext);
 	}
 
-	public ObjectTreeNode getContextByUrl(String url){
+	public final ObjectTreeNode getContextByUrl(String url){
 		return urlNodeIndex.get(url);
 	}
 
-	public Map<String, Map<String, ScriptElement>> getLaunchedScriptsByOrigin(){
+	public final Map<String, Map<String, ScriptElement>> getLaunchedScriptsByOrigin(){
 		return webClientWorker.getLaunchedScripts();
 	}
 	@Override
-	public void openSubContext() throws ContextSizeLimitExceededException {
-		LOG.debug("Opening SubContext:{}",super.getCurrentContext().getParent());
+	public final void openSubContext() throws ContextSizeLimitExceededException {
+		LOGGER.debug("Opening SubContext:{}",super.getCurrentContext().getParent());
 		super.openSubContext();
 	}
 }

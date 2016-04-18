@@ -82,179 +82,179 @@ public class ServiceParameters {
 		profile = params.get("profile", PROFILE);
 	}
 
-	public boolean getProcessExternalLinks() {
+	public final boolean getProcessExternalLinks() {
 		return processExternalLinks;
 	}
 
-	public void setProcessExternalLinks(boolean processExternalLinks) {
+	public final void setProcessExternalLinks(boolean processExternalLinks) {
 		this.processExternalLinks = processExternalLinks;
 	}
 
-	public int getLinkLimit() {
+	public final int getLinkLimit() {
 		return linkLimit;
 	}
 
-	public void setLinkLimit(int linkLimit) {
+	public final void setLinkLimit(int linkLimit) {
 		this.linkLimit = linkLimit;
 	}
 
-	public boolean isSaveHtml() {
+	public final boolean isSaveHtml() {
 		return saveHtml;
 	}
 
-	public void setSaveHtml(boolean saveHtml) {
+	public final void setSaveHtml(boolean saveHtml) {
 		this.saveHtml = saveHtml;
 	}
 
-	public boolean isSaveFailed() {
+	public final boolean isSaveFailed() {
 		return saveFailed;
 	}
 
-	public void setSaveFailed(boolean saveFailed) {
+	public final void setSaveFailed(boolean saveFailed) {
 		this.saveFailed = saveFailed;
 	}
 
-	public boolean isSaveCookies() {
+	public final boolean isSaveCookies() {
 		return saveCookies;
 	}
 
-	public void setSaveCookies(boolean saveCookies) {
+	public final void setSaveCookies(boolean saveCookies) {
 		this.saveCookies = saveCookies;
 	}
 
-	public boolean isAddReferrer() {
+	public final boolean isAddReferrer() {
 		return addReferrer;
 	}
 
-	public void setAddReferrer(boolean addReferrer) {
+	public final void setAddReferrer(boolean addReferrer) {
 		this.addReferrer = addReferrer;
 	}
 
-	public boolean isAddReferrerCookie() {
+	public final boolean isAddReferrerCookie() {
 		return addReferrerCookie;
 	}
 
-	public void setAddReferrerCookie(boolean addReferrerCookie) {
+	public final void setAddReferrerCookie(boolean addReferrerCookie) {
 		this.addReferrerCookie = addReferrerCookie;
 	}
 
-	public boolean isSaveJsContext() {
+	public final boolean isSaveJsContext() {
 		return saveJsContext;
 	}
 
-	public void setSaveJsContext(boolean saveJsContext) {
+	public final void setSaveJsContext(boolean saveJsContext) {
 		this.saveJsContext = saveJsContext;
 	}
 
-	public boolean isSaveImages() {
+	public final boolean isSaveImages() {
 		return saveImages;
 	}
 
-	public void setSaveImages(boolean saveImages) {
+	public final void setSaveImages(boolean saveImages) {
 		this.saveImages = saveImages;
 	}
 
-	public boolean isSaveObjects() {
+	public final boolean isSaveObjects() {
 		return saveObjects;
 	}
 
-	public void setSaveObjects(boolean saveObjects) {
+	public final void setSaveObjects(boolean saveObjects) {
 		this.saveObjects = saveObjects;
 	}
 
-	public boolean isSaveMultimedia() {
+	public final boolean isSaveMultimedia() {
 		return saveMultimedia;
 	}
 
-	public void setSaveMultimedia(boolean saveMultimedia) {
+	public final void setSaveMultimedia(boolean saveMultimedia) {
 		this.saveMultimedia = saveMultimedia;
 	}
 
-	public boolean isSaveOthers() {
+	public final boolean isSaveOthers() {
 		return saveOthers;
 	}
 
-	public void setSaveOthers(boolean saveOthers) {
+	public final void setSaveOthers(boolean saveOthers) {
 		this.saveOthers = saveOthers;
 	}
 
-	public boolean isSaveMultiple() {
+	public final boolean isSaveMultiple() {
 		return saveMultiple;
 	}
 
-	public void setSaveMultiple(boolean saveMultiple) {
+	public final void setSaveMultiple(boolean saveMultiple) {
 		this.saveMultiple = saveMultiple;
 	}
 
-	public int getPageTimeoutMillis() {
+	public final int getPageTimeoutMillis() {
 		return pageTimeoutMillis;
 	}
 
-	public void setPageTimeoutMillis(int pageTimeoutMillis) {
+	public final void setPageTimeoutMillis(int pageTimeoutMillis) {
 		this.pageTimeoutMillis = pageTimeoutMillis;
 	}
 
-	public int getRedirectTotalLimit() {
+	public final int getRedirectTotalLimit() {
 		return redirectTotalLimit;
 	}
 
-	public void setRedirectTotalLimit(int redirectTotalLimit) {
+	public final void setRedirectTotalLimit(int redirectTotalLimit) {
 		this.redirectTotalLimit = redirectTotalLimit;
 	}
 
-	public int getRedirectDepthLimit() {
+	public final int getRedirectDepthLimit() {
 		return redirectDepthLimit;
 	}
 
-	public void setRedirectDepthLimit(int redirectDepthLimit) {
+	public final void setRedirectDepthLimit(int redirectDepthLimit) {
 		this.redirectDepthLimit = redirectDepthLimit;
 	}
 
-	public int getSingleJsTimeoutMillis() {
+	public final int getSingleJsTimeoutMillis() {
 		return singleJsTimeoutMillis;
 	}
 
-	public void setSingleJsTimeoutMillis(int singleJsTimeoutMillis) {
+	public final void setSingleJsTimeoutMillis(int singleJsTimeoutMillis) {
 		this.singleJsTimeoutMillis = singleJsTimeoutMillis;
 	}
 
-	public int getBackgroundJsTimeoutMillis() {
+	public final int getBackgroundJsTimeoutMillis() {
 		return backgroundJsTimeoutMillis;
 	}
 
-	public void setBackgroundJsTimeoutMillis(int backgroundJsTimeoutMillis) {
+	public final void setBackgroundJsTimeoutMillis(int backgroundJsTimeoutMillis) {
 		this.backgroundJsTimeoutMillis = backgroundJsTimeoutMillis;
 	}
 
-	public int getJsRecursionLimit() {
+	public final int getJsRecursionLimit() {
 		return jsRecursionLimit;
 	}
 
-	public void setJsRecursionLimit(int jsRecursionLimit) {
+	public final void setJsRecursionLimit(int jsRecursionLimit) {
 		this.jsRecursionLimit = jsRecursionLimit;
 	}
 
-	public int getProcessingTimeout() {
+	public final int getProcessingTimeout() {
 		return processingTimeout;
 	}
 
-	public void setProcessingTimeout(int processingTimeout) {
+	public final void setProcessingTimeout(int processingTimeout) {
 		this.processingTimeout = processingTimeout;
 	}
 
-	public boolean getJsEnable() {
+	public final boolean getJsEnable() {
 		return jsEnable;
 	}
 
-	public void setJsEnable(boolean jsEnable) {
+	public final void setJsEnable(boolean jsEnable) {
 		this.jsEnable = jsEnable;
 	}
 
-	public String getProfile() {
+	public final String getProfile() {
 		return profile;
 	}
 
-	public void setProfile(String profile) {
+	public final void setProfile(String profile) {
 		this.profile = profile;
 	}
 }

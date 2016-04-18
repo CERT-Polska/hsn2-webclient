@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -49,61 +49,61 @@ public class ServiceData {
 		this.inputReferrerCookieId = inputReferrerCookieId;
 		this.depth = depth;
 		this.topAncestorId = topAncestorId;
-		this.proxy = proxyUri;
+		proxy = proxyUri;
 	}
 
     public ServiceData(ObjectDataWrapper objectData) {
-        this.inputUrlNormalized = objectData.getUrlNormalized();
+        inputUrlNormalized = objectData.getUrlNormalized();
         setInputUrlOriginal(objectData.getUrlOriginal());
-        this.inputReferrer = objectData.getString("referrer");
-        this.inputReferrerCookieId = objectData.getReferenceId("referrer_cookie");
-        this.inputUrlId = objectData.getId();
-        this.depth = objectData.getInt("depth");
-        this.topAncestorId = objectData.getObjectId("top_ancestor");
-        this.proxy = objectData.getString("proxy");
+        inputReferrer = objectData.getString("referrer");
+        inputReferrerCookieId = objectData.getReferenceId("referrer_cookie");
+        inputUrlId = objectData.getId();
+        depth = objectData.getInt("depth");
+        topAncestorId = objectData.getObjectId("top_ancestor");
+        proxy = objectData.getString("proxy");
     }
 
-    public String getInputReferrer() {
+    public final String getInputReferrer() {
         return inputReferrer;
     }
 
-    public Long getInputReferrerCookieId() {
+    public final Long getInputReferrerCookieId() {
         return inputReferrerCookieId;
     }
 
-    public String getInputUrlNormalized() {
+    public final String getInputUrlNormalized() {
         return inputUrlNormalized;
     }
 
-    public String getInputUrlOriginal() {
+    public final String getInputUrlOriginal() {
         return inputUrlOriginal;
     }
 
-    public Integer getDepth() {
+    public final Integer getDepth() {
         return depth;
     }
 
-    public Long getTopAncestorId() {
+    public final Long getTopAncestorId() {
         return topAncestorId;
     }
 
-    public Long getInputUrlId() {
+    public final Long getInputUrlId() {
         return inputUrlId;
     }
 
-    public String getUrlForProcessing() {
+    public final String getUrlForProcessing() {
     	return urlForProcessing;
     }
-    public String getProxyUri() {
+    public final String getProxyUri() {
     	return proxy;
     }
 
-	public ServiceData getServiceDataCopyForNewSubcontext(String newUrlOriginal, String newReferrer, Long newReferrerCookieId) {
+	public final ServiceData getServiceDataCopyForNewSubcontext(String newUrlOriginal, String newReferrer, Long newReferrerCookieId) {
 		return new ServiceData(inputUrlId, inputUrlNormalized, newUrlOriginal, newReferrer, newReferrerCookieId, depth, topAncestorId, proxy);
 	}
 
 	private void setInputUrlOriginal(String s) {
-		this.inputUrlOriginal = s.intern();
+		inputUrlOriginal = s.intern();
 		setUrlForProcessing();
 	}
 
@@ -122,7 +122,7 @@ public class ServiceData {
 	 * Returns true if given string starts with http|https and
 	 * contains only hostname without trailing slash. Does not
 	 * check if URL is legal - only checks for trailing slash.
-	 * 
+	 *
 	 * @return True if URL is only host name and is not ending with slash.
 	 */
 	private boolean isContainingHostnameOnly(String url) {
@@ -138,7 +138,7 @@ public class ServiceData {
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		String s = ServiceData.class.getSimpleName() + "{"
 		+ "inputUrlId=" + inputUrlId
 		+ ",inputUrlOriginal=" + inputUrlOriginal

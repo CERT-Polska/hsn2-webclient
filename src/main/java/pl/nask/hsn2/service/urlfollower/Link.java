@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -30,8 +30,12 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.client.utils.URIUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Link {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Link.class);
+
 	private final boolean decodeIIS;
 	private static final Pattern PATTERN;
 	static {
@@ -79,21 +83,22 @@ public class Link {
 			this.relativeUrl = relativeUrl;
 			int i = relativeUrl.indexOf("%u");
 			String rel = format(relativeUrl.substring(0, i));
-			this.append = format(relativeUrl.substring(i));
+			append = format(relativeUrl.substring(i));
 			if (rel.length() == 0) {
 				rel = "/";
 			}
-			this.absoluteUrl = URIUtils.resolve(baseURI, rel);
+			absoluteUrl = URIUtils.resolve(baseURI, rel);
 			return;
 		} else if (decodeIIS && IISEncDec.isIISencoded(relativeUrl)) {
 			this.relativeUrl = IISEncDec.convertToUTF8(format(relativeUrl));
 		} else {
 			this.relativeUrl = relativeUrl;
 		}
-		this.append = "";
+		append = "";
 		try {
-			this.absoluteUrl = URIUtils.resolve(baseURI, format(this.relativeUrl));
+			absoluteUrl = URIUtils.resolve(baseURI, format(this.relativeUrl));
 		} catch (IllegalArgumentException e) {
+			LOGGER.debug("", e);
 			throw new URISyntaxException("Cannot convert to absolute URL: " + relativeUrl, e.getCause().getMessage());
 		}
 	}
@@ -102,8 +107,8 @@ public class Link {
 		decodeIIS = false;
 		this.baseUrl = baseUrl.toString();
 		this.relativeUrl = relativeUrl;
-		this.absoluteUrl = URIUtils.resolve(baseUrl.toURI(), format(relativeUrl));
-		this.append = "";
+		absoluteUrl = URIUtils.resolve(baseUrl.toURI(), format(relativeUrl));
+		append = "";
 	}
 
 	private String format(String url) {
@@ -111,15 +116,15 @@ public class Link {
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((absoluteUrl == null) ? 0 : absoluteUrl.hashCode());
+		result = prime * result + (absoluteUrl == null ? 0 : absoluteUrl.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public final boolean equals(Object obj) {
 		// generated code
 		if (this == obj) {
 			return true;

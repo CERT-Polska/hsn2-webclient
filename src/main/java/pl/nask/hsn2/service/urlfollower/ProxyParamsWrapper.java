@@ -8,6 +8,8 @@ import pl.nask.hsn2.normalizers.UrlNormalizer;
 
 
 public class ProxyParamsWrapper {
+	private static final int HTTP_PORT = 80;
+	private static final int HTTPS_PORT = 443;
 	private static final int HTTP_PROXY = 1;
 	private static final int SOCKS_PROXY = -1;
 	private static final int INCORRECT_PROXY = 0;
@@ -42,7 +44,7 @@ public class ProxyParamsWrapper {
 		try {
 			tmpNorm.normalize();
 			if ( tmpNorm.getPort() < 1) {
-				return;	
+				return;
 			}
 			extractRequiredFields(tmpNorm);
 			proxyType = SOCKS_PROXY ;
@@ -50,75 +52,75 @@ public class ProxyParamsWrapper {
 			proxyType = INCORRECT_PROXY;
 		}
 	}
-	
+
 	private void processHttp(UrlNormalizer normalized) {
 		extractRequiredFields(normalized);
-		if ( this.port < 1) {
+		if ( port < 1) {
 			setUpDefaultPorts(normalized.getProtocol());
 		}
 		proxyType = HTTP_PROXY;
-		
+
 	}
-	
+
 	private void extractRequiredFields(UrlNormalizer tmpNorm) {
-		this.port = tmpNorm.getPort();
-		this.hostname = tmpNorm.getHost();
+		port = tmpNorm.getPort();
+		hostname = tmpNorm.getHost();
 		if(!tmpNorm.getUserInfo().isEmpty()) {
-			this.userCredentials = tmpNorm.getUserInfo();
+			userCredentials = tmpNorm.getUserInfo();
 		}
 	}
-	
+
 	private void setUpDefaultPorts(String protocol) {
 		if ( "https".equalsIgnoreCase(protocol)) {
-			this.port = 443;
+			port = HTTPS_PORT;
 		} else {
-			this.port = 80;
-		} 
-		
+			port = HTTP_PORT;
+		}
+
 	}
-	public String getHost() {
+	public final String getHost() {
 		return hostname;
 	}
-	
-	public int getPort() {
+
+	public final int getPort() {
 		return port;
 	}
-	
-	public boolean isProxy() {
+
+	public final boolean isProxy() {
 		return proxyType != INCORRECT_PROXY;
 	}
-	
-	public boolean isHttpProxy() {
+
+	public final boolean isHttpProxy() {
 		return HTTP_PROXY == proxyType;
 	}
-	
-	public boolean isSocksProxy() {
+
+	public final boolean isSocksProxy() {
 		return SOCKS_PROXY == proxyType;
 	}
-	
-	public boolean hasUserCredentials() {
-		return userCredentials != null  && userCredentials.indexOf(":") != 0;
+
+	public final boolean hasUserCredentials() {
+		return userCredentials != null  && userCredentials.indexOf(':') != 0;
 	}
-	
-	public String getUserName() {
+
+	public final String getUserName() {
 		if ( userCredentials != null) {
-			int userNameTerm = (userCredentials.indexOf(":") < 0) ? userCredentials.length() : userCredentials.indexOf(":");
+			int userNameTerm = userCredentials.indexOf(':') < 0 ? userCredentials.length() : userCredentials.indexOf(':');
 			return userCredentials.substring(0, userNameTerm);
 		}
 		return null;
 	}
-	public String getUserPswd() {
+	public final String getUserPswd() {
 		if ( userCredentials == null)
 			return "";
-		
-		int ps = userCredentials.indexOf(":");
+
+		int ps = userCredentials.indexOf(':');
 		if (ps > 0  &&  ps < userCredentials.length()-1 )
 			return userCredentials.substring(ps+1);
-		
+
 		return  "";//it might look inconsistent with getUserName(), but better supplying empty password if called.
 	}
 	@Override
-	public String toString() {
+	public final String toString() {
 		if (!isProxy()) {
 			return "";
 		}
@@ -133,7 +135,7 @@ public class ProxyParamsWrapper {
 			sb.append("xxxxxx@");
 		}
 		sb.append(hostname);
-		sb.append(":").append(port);	
+		sb.append(":").append(port);
 		return sb.toString();
 	}
 

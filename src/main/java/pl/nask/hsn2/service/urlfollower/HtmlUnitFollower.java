@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -42,7 +42,7 @@ public class HtmlUnitFollower implements UrlFollower {
     private final Object lock = new Object();
     private final CountDownLatch latch;
     private WebClientWorker webClientWorker = null;
-    private ServiceParameters params; 
+    private ServiceParameters params;
     private String urlForProcessing;
     private String originalUrl;
     private StringBuilder failureMessage = new StringBuilder();
@@ -54,24 +54,24 @@ public class HtmlUnitFollower implements UrlFollower {
     	this.urlForProcessing = urlForProcessing;
     	this.originalUrl = originalUrl;
     	this.params = params;
-    	this.latch = new CountDownLatch(1);
-    	this.webClientWorker = new WebClientWorker(this, latch, ctx, params);    	
+    	latch = new CountDownLatch(1);
+    	webClientWorker = new WebClientWorker(this, latch, ctx, params);
     	ctx.setWebClientWorker(webClientWorker);
     }
-    
+
     public HtmlUnitFollower(String urlForProcessing, WebClientTaskContext ctx,ServiceParameters params) {
     	this(urlForProcessing, urlForProcessing, ctx, params);
 	}
 
 	@Override
-	public void processUrl() {
+	public final void processUrl() {
 		webClientWorker.setContextData(webClientWorker, params, urlForProcessing);
 		LOGGER.debug("Starting processing: {}", urlForProcessing);
 		try {
 			Thread worker = new Thread(webClientWorker, "WebClientWorker-" + procCounter.incrementAndGet());
 			worker.setUncaughtExceptionHandler(new WorkerThreadExceptionHandler(this));
 			worker.start();
-			
+
 			boolean latchCounterReachedZero;
 			if (params.getProcessingTimeout() > 0) {
 				latchCounterReachedZero = latch.await(params.getProcessingTimeout(), TimeUnit.MILLISECONDS);
@@ -95,8 +95,8 @@ public class HtmlUnitFollower implements UrlFollower {
 			LOGGER.info("Finished processing: {}", urlForProcessing);
 		}
 	}
-	
-	public void requestFailed(Throwable e) {
+
+	public final void requestFailed(Throwable e) {
 		String msg;
 		if (e instanceof ExecutionException) {
 			//get real cause of error
@@ -122,26 +122,26 @@ public class HtmlUnitFollower implements UrlFollower {
 		requestFailed(msg);
 	}
 
-	public void requestFailed(String msg) {
+	public final void requestFailed(String msg) {
 		synchronized (lock) {
 			LOGGER.debug("Request failed: {}", msg);
 			if (failureMessage.length() > 0) {
-				this.failureMessage.append("\n");
+				failureMessage.append("\n");
 			}
-			this.failureMessage.append(msg);
-			this.failed = true;
+			failureMessage.append(msg);
+			failed = true;
 		}
 	}
 
 	@Override
-	public boolean isSuccessfull() {
+	public final boolean isSuccessfull() {
 		synchronized (lock) {
 			return !failed;
 		}
 	}
 
     @Override
-    public String getFailureMessage() {
+    public final String getFailureMessage() {
     	synchronized (lock) {
     		if ( failureMessage.length() > 0) {
     			return failureMessage.toString();
@@ -154,56 +154,56 @@ public class HtmlUnitFollower implements UrlFollower {
     }
 
     @Override
-    public String getContentType() {
+    public final String getContentType() {
         return processedPage.getContentType();
     }
 
-    public String getOriginalUrl() {
+    public final String getOriginalUrl() {
         return originalUrl;
     }
 
     @Override
-    public String getUrlForProcessing() {
+    public final String getUrlForProcessing() {
         return urlForProcessing;
     }
 
     @Override
-    public Set<CookieWrapper> getCookies() {
+    public final Set<CookieWrapper> getCookies() {
         return webClientWorker.getCookies();
     }
 
     @Override
-    public void setCookies(Set<CookieWrapper> cookies) {
+    public final void setCookies(Set<CookieWrapper> cookies) {
     	webClientWorker.setCookiesForInitialization(cookies);
     }
 
-	void handleJvmError(String msg) {
+	final void handleJvmError(String msg) {
 		requestFailed(msg);
-		this.warningMessage = "JVM has crashed due to dynamic content processing at URL: "+this.originalUrl;
+		warningMessage = "JVM has crashed due to dynamic content processing at URL: "+originalUrl;
 	}
 
 	@Override
-	public String getWarning() {
+	public final String getWarning() {
 		return warningMessage;
 	}
 
 	/**
 	 * for tests only
-	 * 
+	 *
 	 * @return
 	 */
-	public PageLinks getPageLinks() {
+	public final PageLinks getPageLinks() {
 		return webClientWorker.getPageLinksForCurrentContext();
 	}
 
-	public void setPage(ProcessedPage processedPage) {
+	public final void setPage(ProcessedPage processedPage) {
 		this.processedPage = processedPage;
-		
+
 	}
 
-	public ProcessedPage getProcessedPage() {
+	public final ProcessedPage getProcessedPage() {
 		return processedPage;
 	}
-	
-	
+
+
 }

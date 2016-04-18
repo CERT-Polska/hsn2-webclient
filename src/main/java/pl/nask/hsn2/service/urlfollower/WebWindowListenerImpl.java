@@ -24,12 +24,12 @@ public class WebWindowListenerImpl implements WebWindowListener {
 	}
 
 	@Override
-	public void webWindowOpened(WebWindowEvent event) {
+	public final void webWindowOpened(WebWindowEvent event) {
 		LOGGER.debug("WebWindow opened:{}->{}",event.getOldPage().getUrl(),event.getNewPage().getUrl());
 	}
 
 	@Override
-	public void webWindowContentChanged(WebWindowEvent event) {
+	public final void webWindowContentChanged(WebWindowEvent event) {
 		Page oldPage = event.getOldPage();
 		Page newPage = event.getNewPage();
 		LOGGER.debug("WebWindow opened:{}->{}",oldPage,newPage.getUrl());
@@ -42,7 +42,7 @@ public class WebWindowListenerImpl implements WebWindowListener {
 
 	private void checkWhenAddressIsDifferent(final Page oldPage, final Page newPage) {
 		ProcessedPage unchanged = previousTopPageMap.remove(oldPage);
-		
+
 		if (unchanged != null) {
 			for (Entry<Page, ProcessedPage> entry : previousTopPageMap.entrySet()) {
 				ProcessedPage actualPage = entry.getValue();
@@ -137,7 +137,7 @@ public class WebWindowListenerImpl implements WebWindowListener {
 	}
 
 	@Override
-	public void webWindowClosed(WebWindowEvent event) {
+	public final void webWindowClosed(WebWindowEvent event) {
 		Page oldPage = event.getOldPage();
 		if (oldPage != null && !"about:blank".equals(oldPage.getUrl().toExternalForm())) {
 			if (event.getWebWindow() instanceof FrameWindow) {
@@ -157,6 +157,6 @@ public class WebWindowListenerImpl implements WebWindowListener {
 	private boolean isServerRedirect(Page page) {
 		int responseCode = page.getWebResponse().getStatusCode();
 		// returns 300, 301, 302, 303, 305, 306 or 307 (but no 304).
-		return (responseCode >= HttpStatus.SC_MULTIPLE_CHOICES && responseCode <= HttpStatus.SC_TEMPORARY_REDIRECT && responseCode != HttpStatus.SC_NOT_MODIFIED);
+		return responseCode >= HttpStatus.SC_MULTIPLE_CHOICES && responseCode <= HttpStatus.SC_TEMPORARY_REDIRECT && responseCode != HttpStatus.SC_NOT_MODIFIED;
 	}
 }

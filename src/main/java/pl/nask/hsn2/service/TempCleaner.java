@@ -11,9 +11,9 @@ public class TempCleaner implements Runnable{
 	private static final long INTERVAL = 15 * 60 * 1000;
 	private static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir"));
 	private static final String FILE_PREFIX = "htmlunit";
-	
+
 	@Override
-	public void run() {
+	public final void run() {
 		LOGGER.info("TempCleaner started.");
 		while(true){
 			int i = clearTemp(INTERVAL);
@@ -26,8 +26,8 @@ public class TempCleaner implements Runnable{
 			}
 		}
 	}
-	
-	int clearTemp(long interval){
+
+	final int clearTemp(long interval){
 		int i = 0;
 		for (File file : TMP_DIR.listFiles(new HtmlUnitFileFilter(interval))){
 			boolean isDel = file.delete();
@@ -40,9 +40,9 @@ public class TempCleaner implements Runnable{
 		}
 		return i;
 	}
-	
-	private class HtmlUnitFileFilter implements FileFilter{
-		
+
+	private static class HtmlUnitFileFilter implements FileFilter{
+
 		private long interval;
 
 		public HtmlUnitFileFilter(long interval) {

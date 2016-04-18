@@ -54,8 +54,8 @@ public class PageLinks {
 
 	public PageLinks(String baseUrl, ServiceParameters taskParams, Counter newObjectsCounter) {
 		this.baseUrl = baseUrl;
-		this.params = taskParams;
-		this.outgoingLinksCounter = newObjectsCounter;
+		params = taskParams;
+		outgoingLinksCounter = newObjectsCounter;
 
 		if (params.isSaveObjects()) {
 			embeddedResourceGroups.put(LinkType.OBJECT, new HashSet<EmbeddedResource>());
@@ -77,7 +77,7 @@ public class PageLinks {
 	 * @param element
 	 * @param attributeName
 	 */
-	public void addObject(HtmlElement element, String attributeName) {
+	public final void addObject(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		String archive = element.getAttribute("archive");
 		String[] archives = null;
@@ -91,17 +91,17 @@ public class PageLinks {
 		addEmbedded(LinkType.OBJECT, element, attributeName, codebase, archives);
 	}
 
-	public void addMultimedia(HtmlElement element, String attributeName) {
+	public final void addMultimedia(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		addEmbedded(LinkType.MULTIMEDIA, element, attributeName);
 	}
 
-	public void addImage(HtmlElement element, String attributeName) {
+	public final void addImage(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		addEmbedded(LinkType.IMAGE, element, attributeName);
 	}
 
-	public void addOther(HtmlElement element, String attributeName) {
+	public final void addOther(HtmlElement element, String attributeName) {
 		if (!element.getTagName().equalsIgnoreCase("html")) {
 			// HTML tag do not affect BASE tag
 			ignoreBaseTag();
@@ -109,12 +109,12 @@ public class PageLinks {
 		addEmbedded(LinkType.OTHER, element, attributeName);
 	}
 
-	public void addLongdesc(HtmlElement element, String attributeName) {
+	public final void addLongdesc(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		processLink(WebClientOrigin.LONGDESC, element, attributeName);
 	}
 
-	public void addAnchor(HtmlElement element, String attributeName) {
+	public final void addAnchor(HtmlElement element, String attributeName) {
 		ignoreBaseTag();
 		processLink(WebClientOrigin.LINK, element, attributeName);
 	}
@@ -192,20 +192,20 @@ public class PageLinks {
 		return v == null || v.trim().length() == 0;
 	}
 
-	public Map<LinkType, Set<EmbeddedResource>> getEmbeddedResourcesGroups() {
+	public final Map<LinkType, Set<EmbeddedResource>> getEmbeddedResourcesGroups() {
 
 		return embeddedResourceGroups;
 	}
 
-	public Set<OutgoingLink> getOutgoingLinks() {
+	public final Set<OutgoingLink> getOutgoingLinks() {
 		return outgoingLinks;
 	}
 
-	public Set<FrameLink> getRedirects() {
+	public final Set<FrameLink> getRedirects() {
 		return redirects;
 	}
 
-	public Set<EmbeddedResource> getEmbeddedGroup(LinkType type) {
+	public final Set<EmbeddedResource> getEmbeddedGroup(LinkType type) {
 		Set<EmbeddedResource> res = embeddedResourceGroups.get(type);
 		if (res == null) {
 			return Collections.emptySet();
@@ -214,27 +214,27 @@ public class PageLinks {
 		}
 	}
 
-	public String getBaseUrl() {
+	public final String getBaseUrl() {
 		return baseUrl;
 	}
 
-	public void setBaseUrl(String baseUrl) {
+	public final void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
-	public boolean getIsBaseTagIgnored() {
+	public final boolean getIsBaseTagIgnored() {
 		return isBaseTagIgnored;
 	}
 
-	public void ignoreBaseTag() {
+	public final void ignoreBaseTag() {
 		isBaseTagIgnored = true;
 	}
 
-	public void setHeadElement(DomElement headElement) {
+	public final void setHeadElement(DomElement headElement) {
 		this.headElement = headElement;
 	}
 
-	public boolean isOutsideOfHeadElement(HtmlElement element) {
+	public final boolean isOutsideOfHeadElement(HtmlElement element) {
 		boolean result = true;
 		if (headElement != null && headElement.isAncestorOf(element)) {
 			result = false;
@@ -242,7 +242,7 @@ public class PageLinks {
 		return result;
 	}
 
-	public void closeStreams() {
+	public final void closeStreams() {
 		LOG.debug("Closing streams");
 		for(Set<EmbeddedResource> embeddedResources : embeddedResourceGroups.values()){
 			for(EmbeddedResource resource : embeddedResources){

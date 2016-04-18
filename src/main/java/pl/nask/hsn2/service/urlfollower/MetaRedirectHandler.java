@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -46,7 +46,7 @@ public class MetaRedirectHandler implements RefreshHandler {
 	}
 
 	@Override
-	public void handleRefresh(Page page, URL url, int seconds) throws IOException {
+	public final void handleRefresh(Page page, URL url, int seconds) throws IOException {
 		refreshCounter++;
 		LOGGER.debug("Meta refresh counter = {}", refreshCounter);
 		if (refreshCounter >= refreshCountLimit) {

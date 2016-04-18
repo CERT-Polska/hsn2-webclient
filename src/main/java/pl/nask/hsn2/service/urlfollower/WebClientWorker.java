@@ -63,7 +63,6 @@ import pl.nask.hsn2.wrappers.RequestWrapper;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.HttpWebConnection;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.TextPage;
@@ -84,6 +83,7 @@ public class WebClientWorker implements Runnable {
 	private static final String URL_ORIGINAL_STRING = "url_original";
 	private static final String HREF_STRING = "href";
 	private static final String SRC_STRING = "src";
+	private static final int TERMINATION_TIMEOUT = 500;
 
 	private final ScriptInterceptor scriptInterceptor;
 	private WebClient wc;
@@ -108,9 +108,9 @@ public class WebClientWorker implements Runnable {
 		if (dispatcher == null) {
 			throw new IllegalArgumentException("HtmlUnitFollower cannot be null");
 		}
-		this.latch = l;
-		this.workerDispatcher = dispatcher;
-		this.scriptInterceptor = new ScriptInterceptor(taskParams);
+		latch = l;
+		workerDispatcher = dispatcher;
+		scriptInterceptor = new ScriptInterceptor(taskParams);
 		this.taskParams = taskParams;
 		this.ctx = ctx;
 	}
@@ -315,11 +315,11 @@ public class WebClientWorker implements Runnable {
 		processPage(rootPage);
 
 		long pageProcessedTime = System.currentTimeMillis();
-		LOGGER.debug("Processing of {} took {} ms. ", url, (pageProcessedTime - startTime));
+		LOGGER.debug("Processing of {} took {} ms. ", url, pageProcessedTime - startTime);
 	}
 
-	private void processPage(ProcessedPage processedPage) throws FailingHttpStatusCodeException, MalformedURLException, IOException,
-			ParameterException, ResourceException, StorageException {
+	private void processPage(ProcessedPage processedPage)
+			throws IOException, ParameterException, ResourceException, StorageException {
 		String reasonFailed = "";
 		try {
 			int i = wc.waitForBackgroundJavaScript(taskParams.getBackgroundJsTimeoutMillis());
@@ -340,7 +340,7 @@ public class WebClientWorker implements Runnable {
 			}
 
 			long pageProcessedTime = System.currentTimeMillis();
-			LOGGER.debug("Inspecting of {} took {} ms. ", processedPage.getRequestedUrl(), (pageProcessedTime - pageGatheredTime));
+			LOGGER.debug("Inspecting of {} took {} ms. ", processedPage.getRequestedUrl(), pageProcessedTime - pageGatheredTime);
 		} catch (BreakingChainException e) {
 			reasonFailed = "Error when processing " + processedPage.getActualUrl() + "(requested: " + processedPage.getRequestedUrl() + "). Some data may be lost!";
 			LOGGER.error(reasonFailed, e);
@@ -352,7 +352,7 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	public void stopJavaScripts() {
+	public final void stopJavaScripts() {
 		wc.getOptions().setJavaScriptEnabled(false);
 		wc.getJavaScriptEngine().shutdownJavaScriptExecutor();
 		JsScriptDebugFrame.resetCounter();
@@ -533,7 +533,7 @@ public class WebClientWorker implements Runnable {
 	private void closeExecutorWithJSDisabled(ExecutorService ex){
 		wc.getOptions().setJavaScriptEnabled(false);
 		try {
-			ex.awaitTermination(500, TimeUnit.MILLISECONDS);
+			ex.awaitTermination(TERMINATION_TIMEOUT, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			//ignore
 		}
@@ -891,11 +891,11 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	public PageLinks getPageLinksForCurrentContext() {
+	public final PageLinks getPageLinksForCurrentContext() {
 		return ctx.getPageLinks();
 	}
 
-	public Long getCookiesReferenceIdForCurrentContext() {
+	public final Long getCookiesReferenceIdForCurrentContext() {
 		return ctx.getCookiesReferenceId();
 	}
 
@@ -916,7 +916,7 @@ public class WebClientWorker implements Runnable {
 	}
 
 	// FIXME:zmienic na getInsecurePagesChain i zwracac ProcessedPage
-	public Page getInsecurePage(String url) throws IOException, ExecutionException, TimeoutException {
+	public final Page getInsecurePage(String url) throws IOException, ExecutionException, TimeoutException {
 		final WebRequest req = insecurePageInitialization(url);
 		long processingTime = System.currentTimeMillis();
 		ExecutorService ex = Executors.newSingleThreadExecutor();
@@ -988,23 +988,23 @@ public class WebClientWorker implements Runnable {
 				sTime % ONE_SECOND_IN_MILISECONDS, interruptProcessing });
 	}
 
-	public Set<CookieWrapper> getCookies() {
-        Set<CookieWrapper> cookieWrappers = new HashSet<CookieWrapper>();
+	public final Set<CookieWrapper> getCookies() {
+        Set<CookieWrapper> cookies = new HashSet<CookieWrapper>();
         for (Cookie cookie : wc.getCookieManager().getCookies()) {
             Map<String, String> attributes = new HashMap<String, String>();
             attributes.put(CookieAttributes.DOMAIN.getName(), cookie.getDomain());
             attributes.put(CookieAttributes.PATH.getName(), cookie.getPath());
             attributes.put(CookieAttributes.IS_SECURE.getName(), String.valueOf(cookie.isSecure()));
-            cookieWrappers.add(new CookieWrapper(cookie.getName(), cookie.getValue(), attributes));
+            cookies.add(new CookieWrapper(cookie.getName(), cookie.getValue(), attributes));
         }
-        return cookieWrappers;
+        return cookies;
 	}
 
-	ScriptInterceptor getInterceptor() {
+	final ScriptInterceptor getInterceptor() {
 		return scriptInterceptor;
 	}
 
-	public void closeAllWindows() {
+	public final void closeAllWindows() {
 		try {
 			stopJavaScripts();
 			wc.closeAllWindows();
@@ -1013,7 +1013,7 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	public void setContextData(WebClientWorker webClientWorker, ServiceParameters params, String urlForProcessing) {
+	public final void setContextData(WebClientWorker webClientWorker, ServiceParameters params, String urlForProcessing) {
 		ctx.setServiceParams(params);
 		ctx.setWebClientWorker(webClientWorker);
 	}
@@ -1108,11 +1108,11 @@ public class WebClientWorker implements Runnable {
 	}
 
 	private Set<CookieWrapper> getComposedCookies() throws StorageException {
-		Set<CookieWrapper> cookieWrappers = workerDispatcher.getCookies();
+		Set<CookieWrapper> cookies = workerDispatcher.getCookies();
 		if (ctx.getInputDataInputReferrerCookieId() != null) {
-			cookieWrappers.addAll(ctx.getCookiesFromDataStore(ctx.getInputDataInputReferrerCookieId()));
+			cookies.addAll(ctx.getCookiesFromDataStore(ctx.getInputDataInputReferrerCookieId()));
 		}
-		return cookieWrappers;
+		return cookies;
 	}
 
 	/**
@@ -1152,20 +1152,20 @@ public class WebClientWorker implements Runnable {
 		}
 	}
 
-	public Map<String, Map<String, ScriptElement>> getLaunchedScripts(){
+	public final Map<String, Map<String, ScriptElement>> getLaunchedScripts(){
 		return scriptInterceptor.getSourcesByOrigin();
 	}
 
-	public void closeJsInterceptor() {
+	public final void closeJsInterceptor() {
 		LOGGER.debug("Closing javascript debugger/interceptor");
 		scriptInterceptor.disableProcessing();
 	}
 
-	public WebClient getWc() {
+	public final WebClient getWc() {
 		return wc;
 	}
 
-	public void setCookiesForInitialization(Set<CookieWrapper> cookies) {
+	public final void setCookiesForInitialization(Set<CookieWrapper> cookies) {
 		cookieWrappers = cookies;
 	}
 }

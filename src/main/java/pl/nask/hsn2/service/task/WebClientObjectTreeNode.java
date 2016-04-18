@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -73,7 +73,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	private PageLinks pageLinks;
 	private ServiceData inputData;
 	private ServiceParameters params;
-	
+
 	private WebClientWorker webClientWorker;
 
 	public WebClientObjectTreeNode(long objectDataId) {
@@ -86,13 +86,13 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	}
 
 	@Override
-	protected ObjectTreeNode newObjectInstance() {	
+	protected final ObjectTreeNode newObjectInstance() {
 		WebClientObjectTreeNode node = new WebClientObjectTreeNode(this);
 		LOGGER.debug("Created new ObjectTreeNode: {}",node);
 		return node;
 	}
 
-	public void webContextInit(ServiceParameters taskParams, ServiceData inputData, WebClientWorker webClientWorker) {
+	public final void webContextInit(ServiceParameters taskParams, ServiceData inputData, WebClientWorker webClientWorker) {
 		if (taskParams == null) {
 			throw new NullPointerException("taskParams");
 		}
@@ -102,13 +102,13 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 		if (webClientWorker == null) {
 			throw new NullPointerException("webClientWorker");
 		}
-		
-		this.params = taskParams;
+
+		params = taskParams;
 		this.inputData = inputData;
 		this.webClientWorker = webClientWorker;
 	}
 
-	public PageLinks getPageLinks(ServiceParameters taskParams, ServiceData inputData, WebClientWorker webClientWorker, Counter newObjectsCounter) {
+	public final PageLinks getPageLinks(ServiceParameters taskParams, ServiceData inputData, WebClientWorker webClientWorker, Counter newObjectsCounter) {
 		if (this.webClientWorker == null) {
 			this.webClientWorker = webClientWorker;
 		}
@@ -125,7 +125,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 	}
 
 	@Override
-	protected void prepareForSave(ServiceConnector connector, long jobId) throws StorageException, ResourceException, RequiredParameterMissingException {
+	protected final void prepareForSave(ServiceConnector connector, long jobId) throws StorageException, ResourceException, RequiredParameterMissingException {
 		if (pageLinks != null) {
 			handleOutgoingLinks();
 			handleEmbeddedFiles(connector, jobId);
@@ -134,33 +134,33 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 			handleJsContextSaving(connector, jobId);
 		}
 	}
-	
+
 	@Override
-	public void flush(ServiceConnector connector, long jobId, List<Long> addedObjects) 
+	public final void flush(ServiceConnector connector, long jobId, List<Long> addedObjects)
 			throws StorageException, ResourceException, RequiredParameterMissingException {
 		try{
 			if (getParent() == null) {
 				// root node
 
 				// not everything may be mapped to the proper tree nodes, so the root object has to gather all orphans
-				flushChildren(connector, jobId, addedObjects);			
+				flushChildren(connector, jobId, addedObjects);
 				prepareForSave(connector, jobId);
 				updateObject(jobId,connector);
 				saveNewObjects(connector, jobId, addedObjects);
 			} else {
 				super.flush(connector, jobId, addedObjects);
-			} 
+			}
 		}  finally{
 			cleanNode();
 			closeStreams();
 		}
 	}
-	
+
 	@Override
-	public void cleanNode() {
+	public final void cleanNode() {
 		super.cleanNode();
 		closeStreams();
-		webClientWorker = null;		
+		webClientWorker = null;
 	}
 
 	private void handleOutgoingLinks() throws StorageException {
@@ -240,13 +240,13 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 			webClientWorker.closeJsInterceptor();
 			webClientWorker.getLaunchedScripts().clear();
 		}
-		
+
 		if(sources != null && !sources.isEmpty()){
 			List<JSContextWrapper> scriptsWrapper = getJSContextsWrapper(sources);
 			saveJSContexts(connector, jobId, scriptsWrapper);
 		}
 	}
-	
+
 	private List<JSContextWrapper> getJSContextsWrapper(Collection<ScriptInterceptor.ScriptElement> scripts) {
 		List<JSContextWrapper> ret = new ArrayList<JSContextWrapper>(scripts.size());
 		for (ScriptInterceptor.ScriptElement script : scripts) {
@@ -254,7 +254,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 		}
 		return ret;
 	}
-	
+
 	private void saveJSContexts(ServiceConnector connector, long jobId, List<JSContextWrapper> jsContextWrappers) throws StorageException{
 		if (jsContextWrappers.size() > 0) {
 			long referenceId = WebClientDataStoreHelper.saveJSContextsInDataStore(connector, jobId, jsContextWrappers);
@@ -289,7 +289,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 
 	/**
 	 * Used when reported URL is not HTML page but some other file.
-	 * 
+	 *
 	 * @param url
 	 * @param contentType
 	 * @param savedContentId
@@ -315,7 +315,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
     	}
     }
 
-	private void openStreamsForEmbeddedResources() {		
+	private void openStreamsForEmbeddedResources() {
 		for (Set<EmbeddedResource> resourcesSet: pageLinks.getEmbeddedResourcesGroups().values()) {
 			for(EmbeddedResource resources :resourcesSet){
 				processSingleResource(resources);
@@ -325,7 +325,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 
 	private void saveResources(ServiceConnector connector, long jobId, String attributeName, Set<FileWrapper> resourceWrappers) throws StorageException, ResourceException {
 		if (resourceWrappers.size() != 0) {
-			long referenceId = WebClientDataStoreHelper.saveInDataStore(connector, jobId, resourceWrappers);		
+			long referenceId = WebClientDataStoreHelper.saveInDataStore(connector, jobId, resourceWrappers);
 			addRefAttribute(attributeName, referenceId);
 		}
 	}
@@ -343,7 +343,7 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 				webResponse = page.getWebResponse();
 				int serverRespStatus = webResponse.getStatusCode();
 				int resourceRedirLimit = contextHeight();
-				while ((resourceRedirLimit++ < params.getRedirectDepthLimit()) && serverRespStatus >= HttpStatus.SC_MULTIPLE_CHOICES
+				while (resourceRedirLimit++ < params.getRedirectDepthLimit() && serverRespStatus >= HttpStatus.SC_MULTIPLE_CHOICES
 						&& serverRespStatus < HttpStatus.SC_BAD_REQUEST) {
 					String redirect = webResponse.getResponseHeaderValue("Location");
 					String newUrl = UrlUtils.resolveUrl(url, redirect);
@@ -419,17 +419,18 @@ public class WebClientObjectTreeNode extends ObjectTreeNode {
 		}
 	}
 
-	public ServiceData getServiceData() {
+	public final ServiceData getServiceData() {
 		return inputData;
 	}
-	
-	public void closeStreams() {
+
+	public final void closeStreams() {
 		if (pageLinks != null) {
 			pageLinks.closeStreams();
 		}
 	}
-	
-	public String toString(){
+
+	@Override
+	public final String toString(){
 		Attribute originalUrl = getObjectDataBuilder().build().findAttribute("url_original", AttributeType.STRING);
 		if (originalUrl != null){
 			return originalUrl.getString();

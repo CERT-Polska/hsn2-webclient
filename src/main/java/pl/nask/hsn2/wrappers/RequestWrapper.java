@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,14 +38,14 @@ public class RequestWrapper {
     }
 
     public RequestWrapper(EmbeddedResource resource) throws RequiredParameterMissingException {
-    	this.originalUrl = resource.getAbsoluteUrl();
-        this.absoluteUrl = resource.getAbsoluteUrl();
-        this.requestHeader = resource.getRequestHeader();
-        this.responseCode =  resource.getResponseCode();
-        this.responseHeader = resource.getResponseHeader();
+    	originalUrl = resource.getAbsoluteUrl();
+        absoluteUrl = resource.getAbsoluteUrl();
+        requestHeader = resource.getRequestHeader();
+        responseCode =  resource.getResponseCode();
+        responseHeader = resource.getResponseHeader();
         validate();
 	}
-    
+
     public RequestWrapper(String originalUrl, String absoluteUrl, String requestHeader, Integer responseCode, String responseHeader) throws RequiredParameterMissingException {
         this.originalUrl = originalUrl;
         this.absoluteUrl = absoluteUrl;
@@ -64,31 +64,31 @@ public class RequestWrapper {
         }
 	}
 
-	public String getOriginalUrl() {
+	public final String getOriginalUrl() {
         return originalUrl;
     }
 
-    public String getAbsoluteUrl() {
+    public final String getAbsoluteUrl() {
         return absoluteUrl;
     }
 
-    public String getRequestHeader()  {
+    public final String getRequestHeader()  {
         return requestHeader;
     }
 
-    public Integer getResponseCode() {
+    public final Integer getResponseCode() {
         return responseCode;
     }
 
-    public String getResponseHeader() {
+    public final String getResponseHeader() {
         return responseHeader;
     }
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "RequestWrapper [orgUrl=" + originalUrl + ", absUrl=" + absoluteUrl + ", reqHeader=" + requestHeader + ", respCode=" + responseCode
 				+ ", respHeader=" + responseHeader + "]";
 	}
-    
-    
+
+
 }

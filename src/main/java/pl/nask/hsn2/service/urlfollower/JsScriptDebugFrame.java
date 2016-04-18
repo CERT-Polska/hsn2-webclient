@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,21 +38,21 @@ public class JsScriptDebugFrame implements DebugFrame {
 	private static List<Throwable> errors = Collections.synchronizedList(new ArrayList<Throwable>());
 
 	@Override
-	public void onEnter(Context cx, Scriptable activation, Scriptable thisObj, Object[] args) {
+	public final void onEnter(Context cx, Scriptable activation, Scriptable thisObj, Object[] args) {
 		if (IS_DEBUG_ENABLED) {
 			LOGGER.debug("Executing:[{}] {}", l.incrementAndGet(), activation);
 		}
 	}
 
 	@Override
-	public void onLineChange(Context cx, int lineNumber) {
+	public final void onLineChange(Context cx, int lineNumber) {
 		if (IS_DEBUG_ENABLED) {
 			LOGGER.debug("lineChange {}", lineNumber);
 		}
 	}
 
 	@Override
-	public void onExceptionThrown(Context cx, Throwable ex) {
+	public final void onExceptionThrown(Context cx, Throwable ex) {
 		if (IS_DEBUG_ENABLED) {
 			LOGGER.debug("Got script exception: {}", ex.getMessage());
 			errors.add(ex);
@@ -60,7 +60,7 @@ public class JsScriptDebugFrame implements DebugFrame {
 	}
 
 	@Override
-	public void onExit(Context cx, boolean byThrow, Object resultOrException) {
+	public final void onExit(Context cx, boolean byThrow, Object resultOrException) {
 		if (IS_DEBUG_ENABLED && resultOrException != null) {
 			LOGGER.debug("FINISHED function:[{}] {}", l.decrementAndGet(), resultOrException.toString());
 		}

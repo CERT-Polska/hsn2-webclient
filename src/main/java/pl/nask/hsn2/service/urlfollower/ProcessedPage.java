@@ -48,8 +48,8 @@ public class ProcessedPage {
 	private URL actualUrl;
 	private String originalUrl;
 	private boolean fromFrame;
-	private WebWindow	webWindow;
-	private String	_toString  = null;
+	private WebWindow webWindow;
+	private String asString  = null;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessedPage.class);
 
@@ -98,7 +98,7 @@ public class ProcessedPage {
 		}
 	}
 
-	public InputStream getContentAsStream() {
+	public final InputStream getContentAsStream() {
 		if (response == null) {
 			return null;
 		} else {
@@ -111,56 +111,55 @@ public class ProcessedPage {
 		}
 	}
 
-	public boolean isHtml() {
+	public final boolean isHtml() {
 		return page instanceof HtmlPage;
 	}
 
-	public int getResponseCode() {
+	public final int getResponseCode() {
 		return responseCode;
 	}
 
-	public String getContentType() {
+	public final String getContentType() {
 		return contentType;
 	}
 
-	public String getResponseHeaders() {
+	public final String getResponseHeaders() {
 		return responseHeader;
 	}
 
-	public String getRequestHeaders() {
+	public final String getRequestHeaders() {
 		return requestHeader;
 	}
 
-	public String getServerSideRedirectLocation() {
+	public final String getServerSideRedirectLocation() {
 		return serverSideRedirectLocation;
 	}
 
-	public Page getPage() {
+	public final Page getPage() {
 		return page;
 	}
 
-	public URL getRequestedUrl() {
+	public final URL getRequestedUrl() {
 		return requestedUrl;
 	}
 
-	public URL getActualUrl() {
+	public final URL getActualUrl() {
 		return actualUrl;
 	}
 
-	public void cleanPage() {
+	public final void cleanPage() {
 		if (response != null) {
 			try {
 				IOUtils.closeQuietly(response.getContentAsStream());
 //				webWindow = null;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error while cleaning page.", e);
 			}
 			response = null;
 		}
 	}
 
-	public String getOriginalUrl() {
+	public final String getOriginalUrl() {
 		if (originalUrl == null || originalUrl.isEmpty()) {
 			return requestedUrl.toExternalForm();
 		} else {
@@ -168,11 +167,11 @@ public class ProcessedPage {
 		}
 	}
 
-	public ProcessedPage getClientSideRedirectPage() {
+	public final ProcessedPage getClientSideRedirectPage() {
 		return clientSideRedirectPage;
 	}
 
-	public ProcessedPage getLastPage() {
+	public final ProcessedPage getLastPage() {
 		if (clientSideRedirectPage != null) {
 			return clientSideRedirectPage.getLastPage();
 		} else {
@@ -180,7 +179,7 @@ public class ProcessedPage {
 		}
 	}
 
-	public void stickChain(ProcessedPage chain) {
+	public final void stickChain(ProcessedPage chain) {
 		if (clientSideRedirectPage == null) {
 			page = chain.getPage();
 			clientSideRedirectPage = chain.getClientSideRedirectPage();
@@ -190,27 +189,27 @@ public class ProcessedPage {
 		}
 	}
 
-	public void setClientSideRedirectPage(Page page) {
+	public final void setClientSideRedirectPage(Page page) {
 		clientSideRedirectPage = new ProcessedPage(page);
 	}
 
-	public boolean isFromFrame() {
+	public final boolean isFromFrame() {
 		return fromFrame;
 	}
 
-	public boolean isComplete() {
+	public final boolean isComplete() {
 		return page != null && response != null;
 	}
 	@Override
-	public String toString() {
-		if ( _toString == null) {
+	public final String toString() {
+		if (asString == null) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(responseCode).append(".");
 			sb.append("(type=").append(webWindow.getClass().getSimpleName()).append(")").append(".");
 			sb.append(originalUrl).append("->");
 			sb.append(actualUrl).append(".");
-			_toString = sb.toString();
+			asString = sb.toString();
 		}
-		return _toString ;
+		return asString;
 	}
 }

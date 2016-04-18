@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -33,7 +33,7 @@ public class JsScriptErrorListener implements JavaScriptErrorListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JsScriptErrorListener.class);
 
 	@Override
-	public void scriptException(HtmlPage htmlPage, ScriptException scriptException) {
+	public final void scriptException(HtmlPage htmlPage, ScriptException scriptException) {
 		if (scriptException == null || scriptException.getMessage() == null) {
 			LOGGER.warn("Strange ScriptException caught:{}", htmlPage.getUrl());
 			return;
@@ -50,17 +50,17 @@ public class JsScriptErrorListener implements JavaScriptErrorListener {
 	}
 
 	@Override
-	public void timeoutError(HtmlPage htmlPage, long allowedTime, long executionTime) {
+	public final void timeoutError(HtmlPage htmlPage, long allowedTime, long executionTime) {
 		LOGGER.debug("JS script timeout (timeout set: {}, execution time: {}).", allowedTime, executionTime);
 	}
 
 	@Override
-	public void malformedScriptURL(HtmlPage htmlPage, String url, MalformedURLException malformedURLException) {
+	public final void malformedScriptURL(HtmlPage htmlPage, String url, MalformedURLException malformedURLException) {
 		LOGGER.debug("Malformed URL:{}.", url);
 	}
 
 	@Override
-	public void loadScriptError(HtmlPage htmlPage, URL scriptUrl, Exception exception) {
+	public final void loadScriptError(HtmlPage htmlPage, URL scriptUrl, Exception exception) {
 		LOGGER.warn("Error loading script '{}' because: {}", scriptUrl, exception.getMessage());
 		LOGGER.debug("Error loading script (stacktrace):", exception);
 	}

@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -33,7 +33,7 @@ public class FileWrapper {
     public FileWrapper(List<RequestWrapper> requestWrappers, String contentType, InputStream input) throws RequiredParameterMissingException {
         this.requestWrappers = requestWrappers;
         this.contentType = contentType;
-        this.inputStream = input;
+        inputStream = input;
         validate();
     }
 
@@ -50,28 +50,28 @@ public class FileWrapper {
     	}
 	}
 
-	public List<RequestWrapper> getRequestWrappers() {
+	public final List<RequestWrapper> getRequestWrappers() {
         return requestWrappers;
     }
 
-    public String getContentType() {        
+    public final String getContentType() {
         return contentType;
     }
 
-    public InputStream getContentStream() {
+    public final InputStream getContentStream() {
         return inputStream;
     }
 
-    public Long getSavedContentId() {
+    public final Long getSavedContentId() {
         return savedContentId;
     }
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "FileWrapper [requestWrappers=" + requestWrappers
 				+ ", contentType=" + contentType + ", savedContentId="
 				+ savedContentId + "]";
 	}
-    
-    
+
+
 }

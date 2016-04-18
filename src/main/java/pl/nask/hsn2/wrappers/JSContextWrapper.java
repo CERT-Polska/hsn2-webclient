@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -31,20 +31,20 @@ public class JSContextWrapper {
         this.eval = eval;
     }
 
-    public int getId() {
+    public final int getId() {
         return id;
     }
 
-    public String getSource() {
+    public final String getSource() {
         return source;
     }
 
-    public boolean isEval() {
+    public final boolean isEval() {
         return eval;
     }
-    
+
     @Override
-    public String toString() {
+    public final String toString() {
     	StringBuilder sb = new StringBuilder("id=").append(id).append("|eval=").append(eval).append("|source=").append(source);
     	return sb.toString();
     }

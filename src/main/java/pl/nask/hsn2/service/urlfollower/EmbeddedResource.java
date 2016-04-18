@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,14 +25,18 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.nask.hsn2.service.urlfollower.PageLinks.LinkType;
 
 import com.gargoylesoftware.htmlunit.WebResponse;
 
 public class EmbeddedResource extends Link {
+	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedResource.class);
+
 	private LinkType linkType;
-	
+
     private String contentType;
     private Integer responseCode;
     private String failureMessage;
@@ -42,9 +46,9 @@ public class EmbeddedResource extends Link {
 	private String responseHeader;
 	private URL currUrl;
 
-	public EmbeddedResource(String baseUrl, String srcAttrValue, LinkType type) throws URISyntaxException {		
+	public EmbeddedResource(String baseUrl, String srcAttrValue, LinkType type) throws URISyntaxException {
         super(baseUrl, srcAttrValue);
-        this.linkType = type;
+        linkType = type;
     }
 
     public EmbeddedResource(String baseUrl, String srcAttrValue, String failureMessage, boolean requestFailed, String requestHeader) throws URISyntaxException {
@@ -54,82 +58,81 @@ public class EmbeddedResource extends Link {
         this.requestHeader = requestHeader;
     }
 
-    public void update(String type, InputStream stream, Integer responseCode, String failureMessage, boolean requestFailed) {
-        this.contentType = type;
+    public final void update(String type, InputStream stream, Integer responseCode, String failureMessage, boolean requestFailed) {
+        contentType = type;
         this.stream = stream;
         this.responseCode = responseCode;
         this.failureMessage = failureMessage;
         this.requestFailed = requestFailed;
     }
 
-    public void update(WebResponse webResponse, String failureMessage, boolean requestFailed) {
+    public final void update(WebResponse webResponse, String failureMessage, boolean requestFailed) {
     	if ( webResponse !=null) {
-    		this.contentType = webResponse.getContentType();
+    		contentType = webResponse.getContentType();
     		try {
-				this.stream = webResponse.getContentAsStream();
+				stream = webResponse.getContentAsStream();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error while updating.", e);
 			}
-    		this.responseCode = webResponse.getStatusCode();
-    		this.requestHeader = webResponse.getWebRequest().getAdditionalHeaders().toString();
-    		this.responseHeader = webResponse.getResponseHeaders().toString();
-    		this.currUrl = webResponse.getWebRequest().getUrl();
+    		responseCode = webResponse.getStatusCode();
+    		requestHeader = webResponse.getWebRequest().getAdditionalHeaders().toString();
+    		responseHeader = webResponse.getResponseHeaders().toString();
+    		currUrl = webResponse.getWebRequest().getUrl();
     	}
     	this.failureMessage = failureMessage;
     	this.requestFailed = requestFailed;
     }
 
-    public String getContentType() {
+    public final String getContentType() {
         return contentType;
     }
 
-    public Integer getResponseCode() {
+    public final Integer getResponseCode() {
         return responseCode;
     }
 
-    public String getFailureMessage() {
+    public final String getFailureMessage() {
         return failureMessage;
     }
 
-    public InputStream getContentStream() {
+    public final InputStream getContentStream() {
         return stream;
     }
-    
-    public boolean isRequestFailed(){
+
+    public final boolean isRequestFailed(){
     	return requestFailed;
     }
 
-    public String getRequestHeader() {
+    public final String getRequestHeader() {
 		return requestHeader;
 	}
 
-	public String getResponseHeader() {
+	public final String getResponseHeader() {
 		return responseHeader;
 	}
-	
-	public LinkType getLinkType() {
+
+	public final LinkType getLinkType() {
 		return linkType;
 	}
 
-	public void closeStream() {
+	public final void closeStream() {
 		IOUtils.closeQuietly(stream);
 	}
-	
+
 	@Override
-	public String getAbsoluteUrl() {
-		if ( this.currUrl == null) {
+	public final String getAbsoluteUrl() {
+		if ( currUrl == null) {
 			return super.getAbsoluteUrl();
 		}
 		return currUrl.toExternalForm();
-		
+
 	}
 
-	public String getAbsoluteUrlBeforeRedirect() {
+	public final String getAbsoluteUrlBeforeRedirect() {
 		return super.getAbsoluteUrl();
 	}
-	
-	public boolean isServerSideRedirect() {
+
+	public final boolean isServerSideRedirect() {
 		return currUrl == null ? false :!super.getAbsoluteUrl().equals(getAbsoluteUrl());
 	}
 }

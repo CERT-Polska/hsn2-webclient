@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -33,20 +33,20 @@ public class CookieWrapper {
         this.attributes = attributes;
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public String getValue() {
+    public final String getValue() {
         return value;
     }
 
-    public Map<String, String> getAttributes() {
+    public final Map<String, String> getAttributes() {
         return attributes;
     }
-    
+
     @Override
-    public String toString() {
+    public final String toString() {
 		return "CookieWrapper{name=" + name + ",value=" + value + "}";
     }
 }

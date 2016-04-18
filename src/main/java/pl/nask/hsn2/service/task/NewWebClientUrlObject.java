@@ -1,8 +1,8 @@
 /*
  * Copyright (c) NASK, NCSC
- * 
+ *
  * This file is part of HoneySpider Network 2.0.
- * 
+ *
  * This is a free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -54,7 +54,7 @@ public class NewWebClientUrlObject extends NewUrlObject {
 	}
 
 	@Override
-	public ObjectData asDataObject(Long parentId) {
+	public final ObjectData asDataObject(Long parentId) {
 		ObjectDataBuilder objectBuilder = new ObjectDataBuilder();
 		objectBuilder.addStringAttribute("type", getType());
 		objectBuilder.addStringAttribute("url_original", getOriginalUrl());
@@ -86,37 +86,37 @@ public class NewWebClientUrlObject extends NewUrlObject {
 		return objectBuilder.build();
 	}
 
-	public String getReferrer() {
+	public final String getReferrer() {
 		return referrer;
 	}
 
-	public Long getReferrerCookieId() {
+	public final Long getReferrerCookieId() {
 		return referrerCookieId;
 	}
 
-	public Long getContentId() {
+	public final Long getContentId() {
 		return contentId;
 	}
 
-	public String getMimeType() {
+	public final String getMimeType() {
 		return mimeType;
 	}
 
-	public Long getDownloadTimeStart() {
+	public final Long getDownloadTimeStart() {
 		return downloadTimeStart;
 	}
 
-	public void setDownloadTimeStart(Long downloadTimeStart) {
+	public final void setDownloadTimeStart(Long downloadTimeStart) {
 		this.downloadTimeStart = downloadTimeStart;
 	}
 
-	public Long getDownloadTimeEnd() {
+	public final Long getDownloadTimeEnd() {
 		return downloadTimeEnd;
 	}
 
-	public void setDownloadTimeEnd(Long downloadTimeEnd) {
+	public final void setDownloadTimeEnd(Long downloadTimeEnd) {
 		this.downloadTimeEnd = downloadTimeEnd;
 	}
-	
-	
+
+
 }

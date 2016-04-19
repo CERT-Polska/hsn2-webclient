@@ -7,7 +7,7 @@
 
 	<properties>
 		<mainClass>pl.nask.hsn2.service.WebClientService</mainClass>
-		<sonar.exclusions>com/gargoylesoftware/htmlunit/**, /net/sourceforge/htmlunit/**</sonar.exclusions>
+		<sonar.exclusions>src/main/java/com/gargoylesoftware/htmlunit/**,src/main/java/net/sourceforge/htmlunit/**</sonar.exclusions>
 	</properties>
 	
 	<parent>
@@ -48,7 +48,7 @@
 					<instrumentation>
 						<excludes>
 							<exclude>com/gargoylesoftware/htmlunit/**</exclude>
-							<exclude>/net/sourceforge/htmlunit/**</exclude>
+							<exclude>net/sourceforge/htmlunit/**</exclude>
 						</excludes>
 					</instrumentation>
 				</configuration>

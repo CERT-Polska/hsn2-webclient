@@ -98,7 +98,7 @@ public class Link {
 		try {
 			absoluteUrl = URIUtils.resolve(baseURI, format(this.relativeUrl));
 		} catch (IllegalArgumentException e) {
-			LOGGER.debug("", e);
+			LOGGER.debug("Error while processing URI", e);
 			throw new URISyntaxException("Cannot convert to absolute URL: " + relativeUrl, e.getCause().getMessage());
 		}
 	}

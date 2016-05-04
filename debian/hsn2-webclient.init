@@ -1,0 +1,32 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:               hsn2-webclient
+# Required-Start:         $remote_fs
+# Required-Stop:          $remote_fs
+# Default-Start:          2 3 4 5
+# Default-Stop:           0 1 6
+# Short-Description:      Start/Stop the HSN2 WebClient
+# Description:            Start/Stop the HSN2 WebClient daemon.
+### END INIT INFO
+
+NAME="HSN2 WebClient"
+HSN2_COMPONENT="webclient"
+MAINCLASS="pl.nask.hsn2.service.WebClientService"
+CONFFILE=/etc/hsn2/webclient.conf
+
+#HSN2_JMX_PORT=1109
+HSN2_JVM_PARAMS_MEMORY="-Xmx1700m"
+
+. /lib/hsn2/init-functions-java
+
+prepare_start() {
+	HSN2_COMPONENT_PARAMS="--connector $BROKER_ADDRESS \
+		--dataStore http://$DATASTORE_ADDRESS \
+		--maxThreads $MAX_THREADS \
+		--logLevel $LOG_LEVEL"
+}
+
+choose_java_service_action $@
+
+exit $?

@@ -1,0 +1,2 @@
+build/webclient /opt/hsn2/
+webclient.conf /etc/hsn2/
